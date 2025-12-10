@@ -59,6 +59,16 @@ const VendorAddRepairForm = ({ isOpen, onClose, onAdd }) => {
           </div>
 
           <div>
+            <label className="block text-sm font-medium mb-1">Vendor Name</label>
+            <input
+              type="text"
+              name="vendorName"
+              required
+              className="w-full border rounded px-3 py-2"
+              placeholder="Enter vendor name"
+            />
+          </div>
+          <div>
             <label className="block text-sm font-medium mb-1">In Date</label>
             <input
               type="date"
@@ -96,16 +106,6 @@ const VendorAddRepairForm = ({ isOpen, onClose, onAdd }) => {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Vendor Name</label>
-            <input
-              type="text"
-              name="vendorName"
-              required
-              className="w-full border rounded px-3 py-2"
-              placeholder="Enter vendor name"
-            />
-          </div>
 
           <div className="flex gap-3 mt-6">
             <button
