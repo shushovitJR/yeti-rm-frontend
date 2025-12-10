@@ -15,7 +15,7 @@ export function SideNav(){
             <div className="nav-item dropdown">
               <button
                 className="dropdown-toggle"
-                onClick={toggleRepair}
+                onMouseOver={toggleRepair}
                 aria-expanded={repairOpen}
               >
                 Repair

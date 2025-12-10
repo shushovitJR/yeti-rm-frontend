@@ -7,7 +7,7 @@
 	width: 260px;
 	padding: 28px 18px;
 	background: #f7f7f8;
-	min-height: calc(100vh - 70px);
+	min-height: calc(110vh - 70px); 
 	box-sizing: border-box;
 	display: inline-flex;
 }

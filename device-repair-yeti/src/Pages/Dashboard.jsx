@@ -5,8 +5,10 @@ export function Dashboard(){
     return(
         <>
             <Header />
+            <div className="flex items-start">
             <SideNav />
-            <h1>Dashboard Page</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Dashboard Page contents</h1>
+            </div>
         </>
     );
 }
