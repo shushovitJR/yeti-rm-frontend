@@ -20,7 +20,7 @@ let repairs = [
 ];
 
 const loadFromStorage = () => {
-    const saved = localStorage.getItem("repairData");
+    const saved = localStorage.getItem("vendorrepairData");
     if (saved) {
         repairs = JSON.parse(saved);
     }
@@ -28,7 +28,7 @@ const loadFromStorage = () => {
 loadFromStorage();
 
 const saveToStorage = () => {
-    localStorage.setItem("repairData", JSON.stringify(repairs));
+    localStorage.setItem("vendorrepairData", JSON.stringify(repairs));
 };
 
 export const getRepairs = () => [...repairs];
@@ -44,5 +44,3 @@ export const addRepair = (newRepair) => {
     saveToStorage();
     return repair;
 }
-
-export default repairs;

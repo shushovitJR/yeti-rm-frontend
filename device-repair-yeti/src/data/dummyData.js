@@ -17,10 +17,29 @@ let repairs = [
   }
 ];
 
-export const getRepairs = () => [...repairs]; // Return a copy!
+const loadFromStorage = () => {
+  const saved = localStorage.getItem("repairData");
+  if (saved) {
+    repairs = JSON.parse(saved);
+  }
+};
+loadFromStorage();
+
+const saveToStorage = () => {
+  localStorage.setItem("repairData", JSON.stringify(repairs));
+};
+
+
+export const getRepairs = () => [...repairs];
 
 export const addRepair = (newRepair) => {
-  const repair = { id: Date.now(), ...newRepair };
+  const repair = {
+    id: Date.now(),
+    ...newRepair,
+    endDate: newRepair.endDate || "",
+    remarks: newRepair.remarks || ""
+  };
   repairs.push(repair);
+  saveToStorage();
   return repair;
 };
