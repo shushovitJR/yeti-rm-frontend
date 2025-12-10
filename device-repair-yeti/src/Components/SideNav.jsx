@@ -1,16 +1,10 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Header } from "../Components/Header";
-import "./HomePage.css";
+import { useState } from "react";
+import './SideNav.css';
 
-export function HomePage() {
-  const [repairOpen, setRepairOpen] = useState(false);
+export function SideNav(){
+    const [repairOpen, setRepairOpen] = useState(false);
   const toggleRepair = () => setRepairOpen((v) => !v);
-
-  return (
-    <>
-      <Header />
-
+    return(
         <aside className="side-nav-section">
           <nav className="nav-items">
             <Link to="/dashboard" className="nav-link">
@@ -43,6 +37,5 @@ export function HomePage() {
             </Link>
           </nav>
         </aside>
-    </>
-  );
+    );
 }
