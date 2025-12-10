@@ -4,6 +4,8 @@ import RepairTable from './RepairTable';
 import AddRepairForm from './AddRepairForm';
 import { getRepairs, addRepair } from '../../data/dummyData';
 import { Header } from "../../Components/Header";
+import { SideNav } from '../../Components/SideNav';
+import './Inhouse.css';
 
 export function Inhouse(){
    
@@ -21,7 +23,10 @@ const handleAddRepair = (newRepair) => {
     return(
         <>
             <Header />
-             <div className="min-h-screen bg-gray-50 p-6 relative">
+            <div className="page-container">
+                <SideNav />
+                <div className="main-content">
+                    <div className="min-h-screen bg-gray-50 p-6 relative">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">In-House Repairs</h1>
@@ -41,7 +46,9 @@ const handleAddRepair = (newRepair) => {
         onClose={() => setIsFormOpen(false)}
         onAdd={handleAddRepair}
       />
-    </div>
+                    </div>
+                </div>
+            </div>
         </>
     );
 }

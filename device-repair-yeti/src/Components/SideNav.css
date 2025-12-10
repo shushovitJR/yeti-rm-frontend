@@ -9,6 +9,7 @@
 	background: #f7f7f8;
 	min-height: calc(100vh - 70px);
 	box-sizing: border-box;
+	display: inline-flex;
 }
 .nav-items{
 	display: flex;

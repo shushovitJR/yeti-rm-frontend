@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Header } from "../Components/Header";
+import { SideNav } from "../Components/SideNav";
 import './Request.css';
 
 export function Request(){
@@ -14,8 +15,11 @@ export function Request(){
     return(
         <>
             <Header />
-            <h1 className="request-header">Request a Device</h1>
-            <div className="request-form-section">
+            <div className="page-container">
+                <SideNav />
+                <div className="main-content">
+                    <h1 className="request-header">Request a Device</h1>
+                    <div className="request-form-section">
                 <form onSubmit={handleRequestSubmit} className="request-form">
                     <label>
                         Name
@@ -61,6 +65,8 @@ export function Request(){
                         <button type="submit" className="request-submit">Submit Request</button>
                     </div>
                 </form>
+                    </div>
+                </div>
             </div>
         </>
     );
