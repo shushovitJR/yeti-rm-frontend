@@ -1,15 +1,18 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Header } from "../../Components/Header";
 import { SideNav } from "../../Components/SideNav";
+import RequestTable from "./RequestTable";
+import RequestAddPanel from "./RequestAddPanel";
+import { getRequests, addRequest } from "../../data/requestDummyData";
 import "./Request.css";
 
 export function Request() {
-  const [name, setName] = useState("");
-  const [device, setDevice] = useState("");
-  const [requestFromName, setRequestFromName] = useState("");
+  const [requests, setRequests] = useState(getRequests());
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
-  const handleRequestSubmit = (e) => {
-    e.preventDefault();
+  const handleAddRequest = (newRequest) => {
+    addRequest(newRequest);
+    setRequests(getRequests());
   };
 
   return (
@@ -18,54 +21,26 @@ export function Request() {
       <div className="page-container">
         <SideNav />
         <div className="main-content">
-          <h1 className="request-header">Request a Device</h1>
-          <div className="request-form-section">
-            <form onSubmit={handleRequestSubmit} className="request-form">
-              <label>
-                Name
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  autoFocus
-                  required
-                  placeholder="Enter your name"
-                />
-              </label>
-              <label>
-                Device for Request
-                <select
-                  value={device}
-                  onChange={(e) => setDevice(e.target.value)}
-                  required
+          <div className="min-h-screen bg-gray-50 p-6 relative">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold text-gray-800">Device Requests</h1>
+                <button
+                  onClick={() => setIsFormOpen(true)}
+                  className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 flex items-center gap-2"
                 >
-                  <option value="Laptop">Laptop</option>
-                  <option value="CPU">CPU</option>
-                  <option value="Printer">Printer</option>
-                  <option value="Monitor">Monitor</option>
-                  <option value="Keyboard">Keyboard</option>
-                </select>
-              </label>
-              <label>
-                Request From
-                <input
-                  type="text"
-                  value={requestFromName}
-                  onChange={(e) => setRequestFromName(e.target.value)}
-                  placeholder="Enter Department Requesting Device"
-                  required
-                />
-              </label>
-              <label>
-                Description
-                <textarea placeholder="Why do you need the device" required />
-              </label>
-              <div className="form-actions">
-                <button type="submit" className="request-submit">
-                  Submit Request
+                  <span className="text-xl">+</span> Add Request
                 </button>
               </div>
-            </form>
+
+              <RequestTable requests={requests} />
+            </div>
+
+            <RequestAddPanel
+              isOpen={isFormOpen}
+              onClose={() => setIsFormOpen(false)}
+              onAdd={handleAddRequest}
+            />
           </div>
         </div>
       </div>
