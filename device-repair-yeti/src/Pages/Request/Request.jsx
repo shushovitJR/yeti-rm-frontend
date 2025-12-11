@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Header } from "../Components/Header";
-import { SideNav } from "../Components/SideNav";
+import { Header } from "../../Components/Header";
+import { SideNav } from "../../Components/SideNav";
 import "./Request.css";
 
 export function Request() {
