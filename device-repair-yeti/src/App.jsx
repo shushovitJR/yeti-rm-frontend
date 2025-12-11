@@ -3,7 +3,7 @@ import { Login } from "./Pages/Login";
 import { Dashboard } from "./Pages/Dashboard";
 import { Inhouse } from "./Pages/Inhouse/Inhouse";
 import { Vendor } from "./Pages/Vendor/Vendor";
-import { Request } from "./Pages/Request";
+import { Request } from "./Pages/Request/Request";
 import "./App.css";
 
 function App() {
