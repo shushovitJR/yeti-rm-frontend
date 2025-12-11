@@ -1,5 +1,29 @@
-const RequestTable = ({ requests }) => {
+// import jsPDF from "jspdf";
+// import "jspdf-autotable";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
+
+const RequestTable = ({ requests }) => {
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(16);
+    doc.text("List of Requests", 14, 15);
+
+    autoTable(doc, {
+      head: [["Name", "Device Name", "Request From", "Description"]],
+      body: requests.map((r) => [
+        r.name,
+        r.deviceName,
+        r.requestFrom,
+        r.description,
+      ]),
+      startY: 25,
+    });
+
+    doc.save("requests.pdf");
+  };
 
   return (
 
@@ -11,10 +35,12 @@ const RequestTable = ({ requests }) => {
             <th className="px-4 py-2 text-left">Device Name</th>
             <th className="px-4 py-2 text-left">Request From</th>
             <th className="px-4 py-2 text-left">Description</th>
-            <th className="py-2"><button
-          // onClick={exportToCSV}
-          className="bg-gray-100 text-black px-4 py-2 rounded hover:bg-black/5 transition">
-          Export</button></th>
+            <th>
+            <button
+          onClick={exportToPDF}
+          className="bg-gray-100 bold text-left px-4 py-3 rounded hover:bg-black/5 transition active:bg-black/10 transition active:bg-black/10 transition">
+          Export</button>
+            </th>
           </tr>
         </thead>
         <tbody>

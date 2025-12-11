@@ -1,6 +1,27 @@
-// import React from 'react';
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const RepairTable = ({ repairs }) => {
+    const exportToPDF = () =>{
+      const doc = new jsPDF();
+
+      doc.setFontSize(16);
+      doc.text("Repairs Requested",14,15);
+
+      autoTable(doc, {
+        head: [["Device Name","In Date","Problem","End Date","Remarks"]],
+        body: repairs.map((r)=>[
+          r.deviceName,
+          r.inDate,
+          r.problem,
+          r.endDate || "Pending",
+          r.remarks || "-",
+        ]),
+        startY:25,
+      });
+
+      doc.save("repairs.pdf");
+    }
   return (
     <div className="overflow-x-auto mt-6">
       <table className="min-w-full border border-gray-300">
@@ -11,6 +32,12 @@ const RepairTable = ({ repairs }) => {
             <th className="px-4 py-2 text-left">Problem</th>
             <th className="px-4 py-2 text-left">End Date</th>
             <th className="px-4 py-2 text-left">Remarks</th>
+            <th>
+              <button
+          onClick={exportToPDF}
+          className="bg-gray-100 bold text-left px-4 py-3 rounded hover:bg-black/5 transition active:bg-black/10 transition active:bg-black/10 transition">
+          Export</button>
+            </th>
           </tr>
         </thead>
         <tbody>
