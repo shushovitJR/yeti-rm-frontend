@@ -6,8 +6,9 @@
 .main-content{
     flex: 1;
     padding: 28px;
+    padding-left: 20vw;
     transition: padding-left 0.3s ease;
 }
-.nav-open .main-content{
-    padding-left: 20vw;
+.nav-close .main-content{
+    padding: 28px;
 }

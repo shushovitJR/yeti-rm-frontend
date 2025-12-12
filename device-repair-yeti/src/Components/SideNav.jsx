@@ -11,9 +11,9 @@ export function SideNav() {
     setNavOpen((v)=>{
       const newState = !v;
       if (newState){
-        document.body.classList.add("nav-open");
+        document.body.classList.remove("nav-close");
       } else {
-        document.body.classList.remove("nav-open");
+        document.body.classList.add("nav-close");
       }
       return newState;
     })
@@ -28,70 +28,67 @@ export function SideNav() {
   return (
     <>
             
-      {navOpen && (
-        <aside className="side-nav-section">
-          <div className="side-nav-header">
+      <aside className={`side-nav ${navOpen ? "open" : "closed"}`}>
+        <div className="side-nav-header">
+          <button
+            onClick={toggleNav}
+            className="text-3xl font-light hover:text-red-600 nav-toggle-btn"
+            aria-label="Toggle navigation"
+          >
+            {navOpen ? "\u00d7" : "\u00bb"}
+          </button>
+        </div>
+
+        <nav className="nav-full" aria-hidden={!navOpen}>
+          <Link to="/dashboard" className="nav-link">
+            Dashboard
+          </Link>
+
+          <div className="nav-item dropdown">
             <button
-              onClick={toggleNav}
-              className="text-3xl font-light hover:text-red-600"
+              className="dropdown-toggle"
+              onMouseOver={toggleRepair}
+              aria-expanded={repairOpen}
             >
-              &times;
+              Repair
+              <span className="caret">{repairOpen ? "▴" : "▾"}</span>
             </button>
-          </div>
-          <nav className="nav-items">
-            <Link to="/dashboard" className="nav-link">
-              Dashboard
-              {/* <i className="fa-solid fa-house"></i> */}
-            </Link>
 
-            <div className="nav-item dropdown">
-              <button
-                className="dropdown-toggle"
-                onMouseOver={toggleRepair}
-                aria-expanded={repairOpen}
-              >
-                Repair
-                <span className="caret">{repairOpen ? "▴" : "▾"}</span>
-              </button>
-
-              {repairOpen && (
-                <div className="dropdown-menu">
-                  <Link to="/inhouse" className="dropdown-item">
-                    Inhouse
-                  </Link>
-                  <Link to="/vendor" className="dropdown-item">
-                    Vendor
-                  </Link>
-                </div>
-              )}
-            </div>
-            <Link to="/request" className="nav-link">
-              Request
-            </Link>
-          </nav>
-        </aside>
-      )}
-      {!navOpen && (
-        <div className="mini-nav-section">
-          <div className="mini-nav-section-header">
-            <button onClick={toggleNav}>
-              <i className="mini-nav-link fa-solid fa-arrow-right-from-bracket"></i>
-            </button>
+            {repairOpen && (
+              <div className="dropdown-menu">
+                <Link to="/inhouse" className="dropdown-item">
+                  Inhouse
+                </Link>
+                <Link to="/vendor" className="dropdown-item">
+                  Vendor
+                </Link>
+              </div>
+            )}
           </div>
+
+          <Link to="/request" className="nav-link">
+            Request
+          </Link>
+        </nav>
+
+        <div className="nav-mini" aria-hidden={navOpen}>
           <div className="mini-nav-items">
-            <Link to="/dashboard" className="mini-nav-link">
+            <Link to="/dashboard" className="mini-nav-link" title="Dashboard">
               <i className="fa-solid fa-house"></i>
             </Link>
-            <i
+            <button
               onClick={toggleNav}
-              className="mini-nav-link fa-solid fa-screwdriver-wrench"
-            ></i>
-            <Link to="/request" className="mini-nav-link">
+              className="mini-nav-link"
+              title="Repair"
+            >
+              <i className="fa-solid fa-screwdriver-wrench"></i>
+            </button>
+            <Link to="/request" className="mini-nav-link" title="Request">
               <i className="fa-solid fa-hand"></i>
             </Link>
           </div>
         </div>
-      )}
+      </aside>
       
     </>
   );
