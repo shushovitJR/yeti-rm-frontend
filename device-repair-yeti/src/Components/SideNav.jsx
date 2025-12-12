@@ -39,6 +39,19 @@ export function SideNav() {
           </button>
         </div>
 
+        
+        <div className="nav-mini" aria-hidden={navOpen}>
+          <Link to="/dashboard" className="mini-nav-link" title="Dashboard">
+            <i className="fa-solid fa-house"></i>
+          </Link>
+          <button onClick={toggleNav} className="mini-nav-link" title="Repair">
+            <i className="fa-solid fa-screwdriver-wrench"></i>
+          </button>
+          <Link to="/request" className="mini-nav-link" title="Request">
+            <i className="fa-solid fa-hand"></i>
+          </Link>
+        </div>
+
         <nav className="nav-full" aria-hidden={!navOpen}>
           <Link to="/dashboard" className="nav-link">
             Dashboard
@@ -70,24 +83,6 @@ export function SideNav() {
             Request
           </Link>
         </nav>
-
-        <div className="nav-mini" aria-hidden={navOpen}>
-          <div className="mini-nav-items">
-            <Link to="/dashboard" className="mini-nav-link" title="Dashboard">
-              <i className="fa-solid fa-house"></i>
-            </Link>
-            <button
-              onClick={toggleNav}
-              className="mini-nav-link"
-              title="Repair"
-            >
-              <i className="fa-solid fa-screwdriver-wrench"></i>
-            </button>
-            <Link to="/request" className="mini-nav-link" title="Request">
-              <i className="fa-solid fa-hand"></i>
-            </Link>
-          </div>
-        </div>
       </aside>
       
     </>

@@ -9,31 +9,27 @@
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
-	overflow: hidden;
 	transition: width 220ms ease;
-	justify-content: flex-start; align-items: flex-start
+	justify-content: flex-start;
+	align-items: flex-start;
 }
 
 .side-nav.open{
 	width: 260px;
+	align-items: flex-start;
 }
 .side-nav.closed{
 	width: 80px;
+	align-items: center;
+
 }
-.side-nav-header{
-	display: inline-flex;
-	justify-content: flex-end;
-	width: 100%;
-	position: relative;
-}
-.side-nav-header button:hover{
-	cursor: pointer;
-	color: red;
-}
-.nav-items{
+/* .side-nav-header{
+	height: 10px;
+} */
+/* .nav-items{
 	display: flex;
 	flex-direction: column;
-}
+} */
 .nav-link, .dropdown-toggle{
 	display: flex;
 	align-items: center;
@@ -97,10 +93,8 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: flex-start;
-	margin-top: 0;
+	margin-top: 10vh;
 	transition: opacity 180ms ease, transform 180ms ease;
-	position: relative;
-	top: 0;
 }
 .side-nav.open .nav-mini{
 	opacity: 0;
@@ -112,21 +106,14 @@
 	transform: none;
 	pointer-events: auto;
 }
-.mini-nav-items{
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	width: 100%;
-	margin-top: 8px;
-}
 .mini-nav-link{
-		display: flex;
+		/* display: flex;
 	align-items: center; 
-	justify-content: center; 
+	justify-content: center;  */
 	text-decoration: none;
 	color: #111;
 	font-size: 20px; 
-	padding: 10px 8px;
+	padding: 10px;
 	border-radius: 8px;
 	background: #fff;
     border: 1px solid rgba(0,0,0,0.15);
@@ -150,32 +137,34 @@
 	box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 	cursor: pointer;
 	transition: transform 160ms ease, right 160ms ease, background 160ms ease;
-	z-index: 120;
+	z-index: 999;
 }
+
 
 /* When nav is open: place the toggle outside touching the right border */
 .side-nav.open .nav-toggle-btn {
     position: absolute;
-    right: -30px;
+    right: -40px;
     top: 14px;
-    width: 44px;
-    height: 44px;
+    width: 52px;
+    height: 52px;
     font-size: 26px;
     border-radius: 10px;
     background: #fff;
     border: 1px solid rgba(0,0,0,0.2);
     box-shadow: 0 2px 4px rgba(0,0,0,0.12);
-    z-index: 900;
+    z-index: 999;
 }
 
 /* When nav is closed: keep toggle inside top area and slightly larger */
 .side-nav.closed .nav-toggle-btn {
-    position: absolute;
-    left: 50%;
+	position: absolute;
+    /* left: 50%; */
     transform: translateX(-50%);
-    top: 10px;
+    /* top: 10px; */
     width: 52px;
     height: 52px;
+	/* padding: 10px; */
     font-size: 26px;
     border-radius: 12px;
     background: #fff;
@@ -184,6 +173,10 @@
     cursor: pointer;
 }
 
+.nav-toggle-btn:hover{
+	background: blue;
+	cursor: pointer;
+}
 .mini-nav-link:hover{
 	background: rgba(0,0,0,0.04);
 }
