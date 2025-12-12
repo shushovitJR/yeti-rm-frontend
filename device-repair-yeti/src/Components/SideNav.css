@@ -25,11 +25,26 @@
 }
 /* .side-nav-header{
 	height: 10px;
-} */
-/* .nav-items{
-	display: flex;
-	flex-direction: column;
-} */
+	} */
+	/* .nav-items{
+		display: flex;
+		flex-direction: column;
+		} */
+.nav-full{
+			display: flex;
+			flex-direction: column;
+			position: absolute;
+			margin-top: 10vh;
+			transition: opacity 180ms ease, transform 180ms ease;
+		}
+.nav-mini{
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: flex-start;
+			margin-top: 10vh;
+			transition: opacity 180ms ease, transform 180ms ease;
+		}
 .nav-link, .dropdown-toggle{
 	display: flex;
 	align-items: center;
@@ -74,9 +89,6 @@
 .dropdown-item:hover{
 	background: rgba(0,0,0,0.03);
 }
-.nav-full{
-	transition: opacity 180ms ease, transform 180ms ease;
-}
 .side-nav.closed .nav-full{
 	opacity: 0;
 	transform: translateX(-8px);
@@ -88,14 +100,6 @@
 	pointer-events: auto;
 }
 
-.nav-mini{
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: flex-start;
-	margin-top: 10vh;
-	transition: opacity 180ms ease, transform 180ms ease;
-}
 .side-nav.open .nav-mini{
 	opacity: 0;
 	transform: translateX(8px) scale(0.95);
@@ -107,13 +111,14 @@
 	pointer-events: auto;
 }
 .mini-nav-link{
-		/* display: flex;
+		display: flex;
 	align-items: center; 
-	justify-content: center;  */
+	justify-content: center; 
 	text-decoration: none;
 	color: #111;
 	font-size: 20px; 
-	padding: 10px;
+	width: 52px;
+	height: 52px;
 	border-radius: 8px;
 	background: #fff;
     border: 1px solid rgba(0,0,0,0.15);
@@ -128,8 +133,8 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 40px;
-	height: 36px;
+	 width: 52px;
+    height: 52px;
 	font-size: 20px;
 	border-radius: 8px;
 	background: #ffffff;
@@ -145,9 +150,9 @@
 .side-nav.open .nav-toggle-btn {
     position: absolute;
     right: -40px;
-    top: 14px;
-    width: 52px;
-    height: 52px;
+    top: 25px;
+    /* width: 52px;
+    height: 52px; */
     font-size: 26px;
     border-radius: 10px;
     background: #fff;
@@ -162,8 +167,8 @@
     /* left: 50%; */
     transform: translateX(-50%);
     /* top: 10px; */
-    width: 52px;
-    height: 52px;
+    /* width: 52px;
+    height: 52px; */
 	/* padding: 10px; */
     font-size: 26px;
     border-radius: 12px;

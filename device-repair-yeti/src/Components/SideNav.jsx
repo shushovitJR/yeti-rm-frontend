@@ -12,8 +12,11 @@ export function SideNav() {
       const newState = !v;
       if (newState){
         document.body.classList.remove("nav-close");
+        document.body.classList.remove("img-left");
+
       } else {
         document.body.classList.add("nav-close");
+        document.body.classList.add("img-left");
       }
       return newState;
     })
@@ -35,7 +38,7 @@ export function SideNav() {
             className="text-3xl font-light hover:text-red-600 nav-toggle-btn"
             aria-label="Toggle navigation"
           >
-            {navOpen ? "\u00d7" : "\u00bb"}
+            {navOpen ? "\u00ab" : "\u00bb"}
           </button>
         </div>
 
@@ -83,6 +86,8 @@ export function SideNav() {
             Request
           </Link>
         </nav>
+        
+
       </aside>
       
     </>

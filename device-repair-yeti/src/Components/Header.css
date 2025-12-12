@@ -12,5 +12,10 @@ header{
 }
 .image-section img{
     height: 50px;
+    margin-left: 265px;
+    transition: margin-left 0.3s ease;
+}
+.img-left img{
+    margin-left: 0;
 }
 
