@@ -191,3 +191,17 @@
 	padding: 28px;
 }
 
+.logout-icon:hover{
+	background-color: red;
+}
+.logout-link{
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	color: red;
+}
+.logout-link:hover{
+	background-color: red;
+	color: white;
+}
+

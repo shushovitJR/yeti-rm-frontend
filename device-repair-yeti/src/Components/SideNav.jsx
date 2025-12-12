@@ -53,6 +53,9 @@ export function SideNav() {
           <Link to="/request" className="mini-nav-link" title="Request">
             <i className="fa-solid fa-hand"></i>
           </Link>
+          <Link to="/" className="mini-nav-link logout-icon" title="LogOut">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </Link>
         </div>
 
         <nav className="nav-full" aria-hidden={!navOpen}>
@@ -85,7 +88,13 @@ export function SideNav() {
           <Link to="/request" className="nav-link">
             Request
           </Link>
+
+          <Link to="/" className="nav-link logout-link">
+           <i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out
+          </Link>
         </nav>
+
+        
         
 
       </aside>
