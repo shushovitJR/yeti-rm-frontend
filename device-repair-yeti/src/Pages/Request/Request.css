@@ -1,12 +1,3 @@
-/* Center the request form and apply simple, larger controls */
-.page-container{
-    display: flex;
-    align-items: flex-start;
-}
-.main-content{
-    flex: 1;
-    padding: 28px;
-}
 .request-header{
     text-align: center;
     font-size: 28px;

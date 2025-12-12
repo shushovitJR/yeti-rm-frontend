@@ -4,10 +4,13 @@
 	align-items: flex-start;
 } */
 .side-nav-section{
+	z-index: 100;
 	width: 260px;
 	padding: 28px 18px;
 	background: #f7f7f8;
-	min-height: calc(110vh - 70px); 
+	position: fixed;
+	top: 0;
+	bottom: 0;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
@@ -44,6 +47,7 @@
 	background: rgba(0,0,0,0.04);
 }
 .dropdown-toggle{
+	width: 100%;
 	background: transparent;
 }
 .caret{
@@ -71,10 +75,14 @@
 	/* width: 100px; */
 	padding: 28px 18px;
 	background: #f7f7f8;
-	min-height: calc(110vh - 70px); 
+	position: fixed;
+	top: 0;
+	bottom: 0;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
+	/* justify-content: center; */
+	align-items: center;
 }
 /* .mini-nav-section-header{
 	display: inline-flex;

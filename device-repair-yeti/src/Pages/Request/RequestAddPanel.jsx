@@ -25,7 +25,7 @@ const RequestAddPanel = ({ isOpen, onClose, onAdd }) => {
         style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000 }}
       />
       <div
-        className="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl z-50 p-6 overflow-y-auto"
+        className="fixed right-0 top-0 w-96 bg-white shadow-2xl z-50 p-6 overflow-y-auto"
         style={{ position: 'fixed', right: 0, top: 0, height: '100%', zIndex: 1100 }}
       >
         <div className="flex justify-between items-center mb-6">

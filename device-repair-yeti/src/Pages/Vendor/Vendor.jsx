@@ -21,7 +21,7 @@ export function Vendor(){
       <div className="page-container">
         <SideNav />
         <div className="main-content">
-          <div className="min-h-screen bg-gray-50 p-6 relative">
+          <div className="p-6 relative">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold text-gray-800">Vendor Repairs</h1>

@@ -1,11 +1,3 @@
-.page-container{
-    display: flex;
-    align-items: flex-start;
-}
-.main-content{
-    flex: 1;
-    padding: 28px;
-}
 .vendor-header{
     display: flex;
     align-items: center;
