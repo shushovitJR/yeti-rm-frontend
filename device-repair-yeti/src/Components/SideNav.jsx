@@ -1,4 +1,5 @@
-import { useState } from "react";
+// eslint-disable-next-line no-unused-vars
+import { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./SideNav.css";
 
@@ -6,9 +7,27 @@ export function SideNav() {
   const [repairOpen, setRepairOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(true);
   const toggleRepair = () => setRepairOpen((v) => !v);
-  const toggleNav = () => setNavOpen((v) => !v);
+  const toggleNav = () => {
+    setNavOpen((v)=>{
+      const newState = !v;
+      if (newState){
+        document.body.classList.add("nav-open");
+      } else {
+        document.body.classList.remove("nav-open");
+      }
+      return newState;
+    })
+  }
+
+//   useEffect(() => {
+//   if (navOpen) document.body.classList.add("nav-open");
+//   return () => document.body.classList.remove("nav-open");
+// }, []);
+
+
   return (
     <>
+            
       {navOpen && (
         <aside className="side-nav-section">
           <div className="side-nav-header">
@@ -73,6 +92,7 @@ export function SideNav() {
           </div>
         </div>
       )}
+      
     </>
   );
 }
