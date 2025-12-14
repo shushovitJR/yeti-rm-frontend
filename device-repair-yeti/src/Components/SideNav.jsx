@@ -85,12 +85,12 @@ export function SideNav() {
             Request
           </Link>
         </nav>
-        
+
         <div className="side-nav-footer">
           {navOpen ? (
             <div className="footer-open">
             <Link to="/" className="nav-link logout-link">
-           <i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out
+           <i className="fa-solid fa-arrow-right-from-bracket"></i> Log Out
           </Link>
           </div>
           ) : (

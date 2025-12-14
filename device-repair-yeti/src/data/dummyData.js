@@ -3,17 +3,17 @@ let repairs = [
     id: 1,
     deviceName: "Monitor",
     inDate: "2025-11-20",
-    problem: "Screen flickering",
+    problem: "Problem ProblemProblemProblemProblemProblemProblemProblemProblemProblemProblem",
     endDate: "2025-11-25",
-    remarks: "Replaced display assembly"
+    remarks: "Replaced display assembly ProblemProblemProblemProblemProblemProblemProblemProblemProblem"
   },
   {
     id: 2,
     deviceName: "Laptop",
     inDate: "2025-12-01",
-    problem: "Battery draining fast",
+    problem: "Battery draining fast ProblemProblemProblemProblemProblemProblemProblemProblemProblemProblem",
     endDate: "",
-    remarks: "Under diagnosis"
+    remarks: "Under diagnosis ProblemProblemProblemProblemProblemProblemProblemProblemProblemProblem"
   }
 ];
 
