@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 
 const RepairTable = ({ repairs }) => {
   const [showFilter, setShowFilter] = useState(false);
@@ -19,6 +19,34 @@ const RepairTable = ({ repairs }) => {
       return true;
     });
   }, [repairs, startDate, endDate]);
+
+  // Pagination based on max container height
+  const PAGE_MAX_HEIGHT = 250; // px - change to taste
+  const sampleRowRef = useRef(null);
+  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [currentPage, setCurrentPage] = useState(0);
+
+  useEffect(() => {
+    const measure = () => {
+      const sample = sampleRowRef.current;
+      if (sample) {
+        const rh = sample.getBoundingClientRect().height || 48;
+        const rows = Math.max(3, Math.floor(PAGE_MAX_HEIGHT / rh));
+        setRowsPerPage(rows);
+      }
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCurrentPage(0);
+  }, [startDate, endDate, repairs]);
+
+  const pageCount = Math.max(1, Math.ceil(displayedRepairs.length / rowsPerPage));
+  const pagedRepairs = displayedRepairs.slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage);
 
   const exportToPDF = () => {
     const doc = new jsPDF();
@@ -43,6 +71,19 @@ const RepairTable = ({ repairs }) => {
 
   return (
     <div className="overflow-x-auto mt-6">
+      {/* sample row used only for measuring row height */}
+      {/* <table style={{ position: 'absolute', left: -9999, top: -9999 }} aria-hidden>
+        <tbody>
+          <tr ref={sampleRowRef} className="border-t">
+            <td className="px-4 py-3">Sample</td>
+            <td className="px-4 py-3">2020-01-01</td>
+            <td className="px-4 py-3">Problem</td>
+            <td className="px-4 py-3">-</td>
+            <td className="px-4 py-3">-</td>
+          </tr>
+        </tbody>
+      </table> */}
+
       <table className="min-w-full border border-gray-300">
         <thead className="bg-gray-100">
           <tr>
@@ -111,14 +152,14 @@ const RepairTable = ({ repairs }) => {
           </tr>
         </thead>
         <tbody>
-          {displayedRepairs.length === 0 ? (
+          {pagedRepairs.length === 0 ? (
             <tr>
               <td colSpan="5" className="text-center py-4 text-gray-500">
                 No repairs added yet.
               </td>
             </tr>
           ) : (
-            displayedRepairs.map((repair) => (
+            pagedRepairs.map((repair) => (
               <tr key={repair.id} className="border-t">
                 <td className="px-4 py-3">{repair.deviceName}</td>
                 <td className="px-4 py-3">{repair.inDate || "-"}</td>
@@ -130,6 +171,15 @@ const RepairTable = ({ repairs }) => {
           )}
         </tbody>
       </table>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+        <div style={{ fontSize: 12, color: '#555' }}>
+          Showing page {currentPage + 1} of {pageCount}
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={() => setCurrentPage(p => Math.max(0, p - 1))} disabled={currentPage === 0} className="px-3 py-1 bg-gray-100 rounded">Prev</button>
+          <button onClick={() => setCurrentPage(p => Math.min(pageCount - 1, p + 1))} disabled={currentPage >= pageCount - 1} className="px-3 py-1 bg-gray-100 rounded">Next</button>
+        </div>
+      </div>
     </div>
   );
 };
