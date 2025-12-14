@@ -74,7 +74,7 @@ const VendorRepairTable = ({ repairs }) => {
   return (
     <div className="overflow-x-auto mt-6">
       {/* sample row for measuring */}
-      {/* <table style={{ position: 'absolute', left: -9999, top: -9999 }} aria-hidden>
+      <table style={{ position: 'absolute', left: -9999, top: -9999 }} aria-hidden>
         <tbody>
           <tr ref={sampleRowRef} className="border-t">
             <td className="px-4 py-3">Sample</td>
@@ -85,7 +85,7 @@ const VendorRepairTable = ({ repairs }) => {
             <td className="px-4 py-3">-</td>
           </tr>
         </tbody>
-      </table> */}
+      </table>
 
       <table className="min-w-full border border-gray-300">
         <thead className="bg-gray-100">
