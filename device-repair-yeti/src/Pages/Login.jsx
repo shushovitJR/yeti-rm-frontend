@@ -5,7 +5,7 @@ import './Login.css';
 export function Login() {
     return(
         <>
-        <Header />
+        <Header compact />
         <div className="login-section">
                 <h1 className="text-center text-3xl text-grey-900">Login</h1>
             <div className="login-form-container">
