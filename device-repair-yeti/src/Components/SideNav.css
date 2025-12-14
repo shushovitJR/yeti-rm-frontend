@@ -204,4 +204,7 @@
 	background-color: red;
 	color: white;
 }
-
+.footer{
+	position: absolute;
+	bottom: 0;
+}

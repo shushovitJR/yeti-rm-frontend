@@ -94,7 +94,7 @@ export function SideNav() {
           </Link>
         </nav>
 
-        
+        <div className="footer">#####S#######S</div>
         
 
       </aside>

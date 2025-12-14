@@ -9,6 +9,7 @@
     padding-left: 20vw;
     transition: padding-left 0.3s ease;
 }
+
 .nav-close .main-content{
     padding: 28px;
 }
