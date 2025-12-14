@@ -5,11 +5,11 @@
 }
 .main-content{
     flex: 1;
-    padding: 28px;
+    padding: 0 28px 28px 28px;
     padding-left: 20vw;
     transition: padding-left 0.3s ease;
 }
 
 .nav-close .main-content{
-    padding: 28px;
+    padding: 0 28px 28px 28px;
 }

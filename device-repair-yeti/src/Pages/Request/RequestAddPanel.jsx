@@ -7,6 +7,7 @@ const RequestAddPanel = ({ isOpen, onClose, onAdd }) => {
     const newRequest = {
       name: formData.get('name'),
       deviceName: formData.get('deviceName'),
+      requestDate: formData.get('requestDate'),
       requestFrom: formData.get('requestFrom'),
       description: formData.get('description')
     };
@@ -50,6 +51,8 @@ const RequestAddPanel = ({ isOpen, onClose, onAdd }) => {
             />
           </div>
 
+
+
           <div>
             <label className="block text-sm font-medium mb-1">Device Name</label>
             <select
@@ -64,6 +67,16 @@ const RequestAddPanel = ({ isOpen, onClose, onAdd }) => {
               <option value="Monitor">Monitor</option>
               <option value="Keyboard">Keyboard</option>
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Date</label>
+            <input
+              type="date"
+              name="requestDate"
+              required
+              className="w-full border rounded px-3 py-2"
+            />
           </div>
 
           <div>

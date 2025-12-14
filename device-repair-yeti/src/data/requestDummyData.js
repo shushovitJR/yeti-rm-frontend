@@ -3,6 +3,7 @@ let requests = [{
     id:1,
     name: "Ram Joshi",
     deviceName: "Laptop",
+    requestDate: "2025-11-25",
     requestFrom: "Call Center",
     description: "Screen flickering issue"
 },
@@ -10,6 +11,7 @@ let requests = [{
     id:2,
     name: "Sita Shrestha",
     deviceName: "Monitor",
+    requestDate: "2025-12-10",
     requestFrom: "HR",
     description: "Screen Cracked"
 }

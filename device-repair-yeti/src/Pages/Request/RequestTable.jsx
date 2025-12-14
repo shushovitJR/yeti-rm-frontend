@@ -12,10 +12,11 @@ const RequestTable = ({ requests }) => {
     doc.text("List of Requests", 14, 15);
 
     autoTable(doc, {
-      head: [["Name", "Device Name", "Request From", "Description"]],
+      head: [["Name", "Device Name", "Date" , "Request From", "Description"]],
       body: requests.map((r) => [
         r.name,
         r.deviceName,
+        r.requestDate,
         r.requestFrom,
         r.description,
       ]),
@@ -33,6 +34,7 @@ const RequestTable = ({ requests }) => {
           <tr>
             <th className="px-4 py-2 text-left">Name</th>
             <th className="px-4 py-2 text-left">Device Name</th>
+            <th className="px-4 py-2 text-left">Date</th>
             <th className="px-4 py-2 text-left">Request From</th>
             <th className="px-4 py-2 text-left">Description</th>
             <th>
@@ -55,6 +57,7 @@ const RequestTable = ({ requests }) => {
               <tr key={request.id} className="border-t">
                 <td className="px-4 py-3">{request.name}</td>
                 <td className="px-4 py-3">{request.deviceName}</td>
+                <td className="px-4 py-3">{request.requestDate}</td>
                 <td className="px-4 py-3">{request.requestFrom}</td>
                 <td className="px-4 py-3">{request.description}</td>
               </tr>

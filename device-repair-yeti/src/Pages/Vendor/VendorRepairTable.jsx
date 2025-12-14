@@ -21,7 +21,7 @@ const VendorRepairTable = ({ repairs }) => {
   }, [repairs, startDate, endDate]);
 
   // Pagination based on max container height
-  const PAGE_MAX_HEIGHT = 250; // px
+  const PAGE_MAX_HEIGHT = 200; // px
   const sampleRowRef = useRef(null);
   const [rowsPerPage, setRowsPerPage] = useState(8);
   const [currentPage, setCurrentPage] = useState(0);
@@ -72,7 +72,72 @@ const VendorRepairTable = ({ repairs }) => {
 
 
   return (
-    <div className="overflow-x-auto mt-6">
+    <div style={{ maxHeight: '70vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 8 }} className="mt-6">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ position: 'relative' }}>
+            <button
+              className="bg-gray-100 bold px-4 py-3 rounded hover:bg-black/5 transition active:bg-black/10"
+              onClick={() => setShowFilter((v) => !v)}
+              aria-label="Toggle filter"
+            >
+              <i className="fa-solid fa-filter"></i>
+            </button>
+            {showFilter && (
+              <div
+                className="filter-panel"
+                style={{
+                  position: 'absolute',
+                  top: '40px',
+                  left: 0,
+                  background: 'white',
+                  border: '1px solid #ddd',
+                  padding: '8px',
+                  zIndex: 999,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                }}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontSize: '12px' }}>
+                    From
+                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                  </label>
+                  <label style={{ fontSize: '12px' }}>
+                    To
+                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                  </label>
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                    <button
+                      onClick={() => {
+                        setStartDate('');
+                        setEndDate('');
+                      }}
+                      className="px-2 py-1"
+                    >
+                      Reset
+                    </button>
+                    <button onClick={() => setShowFilter(false)} className="px-2 py-1">
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={exportToPDF}
+            className="bg-gray-100 bold text-left px-4 py-3 rounded hover:bg-black/5 transition active:bg-black/10"
+          >
+            Export
+          </button>
+        </div>
+      </div>
+
+      <div style={{ overflowY: 'auto' }}>
+
       {/* sample row for measuring */}
       <table style={{ position: 'absolute', left: -9999, top: -9999 }} aria-hidden>
         <tbody>
@@ -96,61 +161,6 @@ const VendorRepairTable = ({ repairs }) => {
             <th className="px-4 py-2 text-left">Problem</th>
             <th className="px-4 py-2 text-left">End Date</th>
             <th className="px-4 py-2 text-left">Remarks</th>
-            <th>
-              <div style={{ position: "relative" }}>
-                <button 
-                className="bg-gray-100 bold px-4 py-3 rounded hover:bg-black/5 transition active:bg-black/10 transition active:bg-black/10 transition"
-                onClick={() => setShowFilter((v) => !v)} aria-label="Toggle filter">
-                  <i className="fa-solid fa-filter"></i>
-                </button>
-                {showFilter && (
-                  <div
-                    className="filter-panel"
-                    style={{
-                      position: "absolute",
-                      top: "30px",
-                      left: 0,
-                      background: "white",
-                      border: "1px solid #ddd",
-                      padding: "8px",
-                      zIndex: 20,
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                    }}
-                  >
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                      <label style={{ fontSize: "12px" }}>
-                        From
-                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-                      </label>
-                      <label style={{ fontSize: "12px" }}>
-                        To
-                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-                      </label>
-                      <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
-                        <button
-                          onClick={() => {
-                            setStartDate("");
-                            setEndDate("");
-                          }}
-                          className="px-2 py-1"
-                        >
-                          Reset
-                        </button>
-                        <button onClick={() => setShowFilter(false)} className="px-2 py-1">
-                          Apply
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </th>
-            <th>
-            <button
-          onClick={exportToPDF}
-          className="bg-gray-100 bold text-left px-4 py-3 rounded hover:bg-black/5 transition active:bg-black/10 transition active:bg-black/10 transition">
-          Export</button>
-            </th>
           </tr>
         </thead>
         <tbody>
@@ -174,6 +184,8 @@ const VendorRepairTable = ({ repairs }) => {
           )}
         </tbody>
       </table>
+      </div>
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
         <div style={{ fontSize: 12, color: '#555' }}>
           Showing page {currentPage + 1} of {pageCount}
