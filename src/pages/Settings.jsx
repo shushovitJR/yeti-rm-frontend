@@ -162,7 +162,7 @@ function Settings() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEditItem(category)}
-                        className="btn-sm bg-blue-100 text-blue-600 hover:bg-blue-200"
+                        className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                       >
                         <Edit size={16} />
                       </button>
@@ -207,7 +207,7 @@ function Settings() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEditItem(status)}
-                        className="btn-sm bg-blue-100 text-blue-600 hover:bg-blue-200"
+                        className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                       >
                         <Edit size={16} />
                       </button>
@@ -252,7 +252,7 @@ function Settings() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEditItem(status)}
-                        className="btn-sm bg-blue-100 text-blue-600 hover:bg-blue-200"
+                        className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                       >
                         <Edit size={16} />
                       </button>

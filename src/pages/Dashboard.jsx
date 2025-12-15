@@ -29,7 +29,7 @@ function Dashboard() {
   ])
 
   const metrics = [
-    { label: 'Total Devices', value: '490', icon: Package, color: 'bg-blue-100', textColor: 'text-blue-600' },
+    { label: 'Total Devices', value: '490', icon: Package, color: 'bg-green-100', textColor: 'text-green-600' },
     { label: 'Under Repair', value: '23', icon: Wrench, color: 'bg-orange-100', textColor: 'text-orange-600' },
     { label: 'Pending Requests', value: '12', icon: FileText, color: 'bg-purple-100', textColor: 'text-purple-600' },
     { label: 'Approved Requests', value: '8', icon: CheckCircle, color: 'bg-green-100', textColor: 'text-green-600' },

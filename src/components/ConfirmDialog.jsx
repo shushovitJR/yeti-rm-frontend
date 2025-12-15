@@ -29,7 +29,7 @@ function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, confirmText
               className={`flex-1 px-4 py-2 text-white rounded-lg font-medium transition-colors ${
                 isDangerous
                   ? 'bg-red-600 hover:bg-red-700'
-                  : 'bg-primary hover:bg-blue-900'
+                  : 'bg-primary hover:bg-green-900'
               }`}
             >
               {confirmText}

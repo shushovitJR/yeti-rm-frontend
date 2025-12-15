@@ -170,7 +170,7 @@ function RepairManagement() {
                   <td className="px-6 py-4 flex gap-2">
                     <button
                       onClick={() => handleViewRepair(repair)}
-                      className="btn-sm bg-blue-100 text-blue-600 hover:bg-blue-200"
+                      className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                     >
                       <Eye size={16} />
                     </button>

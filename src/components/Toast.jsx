@@ -14,7 +14,7 @@ function Toast() {
       case 'warning':
         return <AlertTriangle size={20} className="text-yellow-600" />
       case 'info':
-        return <Info size={20} className="text-blue-600" />
+        return <Info size={20} className="text-green-600" />
       default:
         return null
     }
@@ -29,7 +29,7 @@ function Toast() {
       case 'warning':
         return 'bg-yellow-50 border-yellow-200'
       case 'info':
-        return 'bg-blue-50 border-blue-200'
+        return 'bg-green-50 border-green-200'
       default:
         return 'bg-gray-50 border-gray-200'
     }

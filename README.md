@@ -135,9 +135,9 @@ This creates an optimized production build in the `dist` folder.
 ## 🎨 Design Features
 
 ### Color Palette
-- **Primary**: Navy Blue (#1e3a8a)
+- **Primary**: Navy green (#1e3a8a)
 - **Secondary**: Slate Gray (#64748b)
-- **Accent**: Bright Blue (#3b82f6)
+- **Accent**: Bright green (#3b82f6)
 - **Success**: Emerald Green (#10b981)
 - **Warning**: Amber (#f59e0b)
 - **Danger**: Red (#ef4444)

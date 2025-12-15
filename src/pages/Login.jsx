@@ -48,9 +48,9 @@ function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary to-white-600 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-xl p-8">
+        <div className="bg-white rounded-lg shadow-xl p-10 w-[600px]">
           <div className="flex items-center justify-center mb-8">
-            <img src="/images/yeti-big-logo.png" alt="Yeti Logo" className="h-20" />
+            <img src="/images/yeti-big-logo.png" alt="Yeti Logo" className="h-25 w-160 mb-[-60px] mr-[50px]" />
           </div>
           
           <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">RepairMS</h1>
@@ -101,17 +101,11 @@ function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition-colors mt-6"
+              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition-colors mt-6"
             >
               {isLoading ? 'Logging in...' : 'Login'}
             </button>
           </form>
-
-          <div className="mt-8 pt-8 border-t border-gray-200">
-            <p className="text-xs text-gray-600 text-center">
-              Demo credentials: Any username with any password (minimum 6 characters)
-            </p>
-          </div>
         </div>
       </div>
     </div>

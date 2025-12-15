@@ -227,9 +227,9 @@ function Reports() {
       <div className="card p-6">
         <h2 className="text-lg font-bold text-gray-900 mb-4">Report Summary</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
             <p className="text-sm text-gray-600">Total Repairs</p>
-            <p className="text-2xl font-bold text-blue-600 mt-2">328</p>
+            <p className="text-2xl font-bold text-green-600 mt-2">328</p>
             <p className="text-xs text-gray-500 mt-1">+12% from last month</p>
           </div>
           <div className="p-4 bg-green-50 rounded-lg border border-green-200">

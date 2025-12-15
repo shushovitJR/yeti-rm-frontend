@@ -38,7 +38,8 @@ function Sidebar({ isOpen, setIsOpen }) {
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center gap-2">
-            <img src="/images/yeti-big-logo.png" alt="Yeti Logo" className="h-11" />
+            <img src="/images/yeti-mini-logo.png" alt="Yeti Logo" className="h-12" />
+            <h1 className="text-2xl font-bold text-gray-900">RepairMS</h1>
           </div>
           <button
             onClick={() => setIsOpen(false)}
@@ -59,8 +60,8 @@ function Sidebar({ isOpen, setIsOpen }) {
                 onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                   active
-                    ? 'bg-primary text-white shadow-card'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-green-600 text-white shadow-card'
+                    : 'text-gray-700 hover:bg-green-300'
                 }`}
               >
                 <Icon size={20} />
@@ -71,7 +72,7 @@ function Sidebar({ isOpen, setIsOpen }) {
         </nav>
 
         <div className="absolute bottom-6 left-4 right-4 space-y-3">
-          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
             <p className="text-xs font-semibold text-primary mb-2">LOGGED IN AS</p>
             <p className="text-sm font-medium text-gray-900">John Doe</p>
           </div>

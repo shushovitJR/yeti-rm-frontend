@@ -45,7 +45,7 @@ function DeviceRequests() {
   const getStatusBadge = (status) => {
     const badges = {
       pending: 'badge bg-yellow-100 text-yellow-800',
-      received: 'badge bg-blue-100 text-blue-800',
+      received: 'badge bg-green-100 text-green-800',
       'on-hold': 'badge bg-purple-100 text-purple-800',
       canceled: 'badge bg-red-100 text-red-800',
     }
@@ -181,7 +181,7 @@ function DeviceRequests() {
                   <td className="px-6 py-4 flex gap-2">
                     <button
                       onClick={() => handleViewRequest(request)}
-                      className="btn-sm bg-blue-100 text-blue-600 hover:bg-blue-200"
+                      className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                     >
                       <Eye size={16} />
                     </button>

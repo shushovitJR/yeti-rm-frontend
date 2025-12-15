@@ -44,7 +44,7 @@ function ManageRepairRequests() {
   const getStatusBadge = (status) => {
     const badges = {
       pending: 'badge bg-yellow-100 text-yellow-800',
-      'in-progress': 'badge bg-blue-100 text-blue-800',
+      'in-progress': 'badge bg-green-100 text-green-800',
       completed: 'badge bg-green-100 text-green-800',
     }
     return badges[status] || 'badge badge-info'
@@ -150,7 +150,7 @@ function ManageRepairRequests() {
                   <td className="px-6 py-4 flex gap-2">
                     <button
                       onClick={() => handleEditRepair(repair)}
-                      className="btn-sm bg-blue-100 text-blue-600 hover:bg-blue-200"
+                      className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                     >
                       <Edit size={16} />
                     </button>
