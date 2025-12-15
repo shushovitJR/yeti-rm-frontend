@@ -38,7 +38,7 @@ function Sidebar({ isOpen, setIsOpen }) {
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center gap-2">
-            <img src="/images/yeti-mini-logo.png" alt="Yeti Logo" className="h-10" />
+            <img src="/images/yeti-big-logo.png" alt="Yeti Logo" className="h-11" />
           </div>
           <button
             onClick={() => setIsOpen(false)}

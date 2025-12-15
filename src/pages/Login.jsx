@@ -46,11 +46,11 @@ function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary to-white-600 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-lg shadow-xl p-8">
           <div className="flex items-center justify-center mb-8">
-            <img src="/images/yeti-mini-logo.png" alt="Yeti Logo" className="h-16" />
+            <img src="/images/yeti-big-logo.png" alt="Yeti Logo" className="h-20" />
           </div>
           
           <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">RepairMS</h1>
