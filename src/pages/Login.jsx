@@ -50,9 +50,7 @@ function Login() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-lg shadow-xl p-8">
           <div className="flex items-center justify-center mb-8">
-            <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xl">
-              RM
-            </div>
+            <img src="/images/yeti-mini-logo.png" alt="Yeti Logo" className="h-16" />
           </div>
           
           <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">RepairMS</h1>

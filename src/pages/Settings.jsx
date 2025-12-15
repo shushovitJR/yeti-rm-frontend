@@ -29,6 +29,13 @@ function Settings() {
     { id: 4, name: 'On Hold', color: '#8b5cf6', description: 'Temporarily paused' },
   ])
 
+  const [deviceRequestStatuses] = useState([
+    { id: 1, name: 'Pending', color: '#f59e0b', description: 'Awaiting approval' },
+    { id: 2, name: 'Received', color: '#3b82f6', description: 'Request received and being processed' },
+    { id: 3, name: 'On Hold', color: '#8b5cf6', description: 'Request temporarily paused' },
+    { id: 4, name: 'Canceled', color: '#ef4444', description: 'Request has been canceled' },
+  ])
+
   const [vendors, setVendors] = useState([
     { id: 1, name: 'TechRepair Inc' },
     { id: 2, name: 'QuickFix Services' },
@@ -115,6 +122,7 @@ function Settings() {
           {[
             { id: 'categories', label: 'Device Categories' },
             { id: 'repair-status', label: 'Repair Status Types' },
+            { id: 'device-request-status', label: 'Device Request Status Types' },
             { id: 'vendors', label: 'Vendor Management' },
           ].map(tab => (
             <button
@@ -216,6 +224,51 @@ function Settings() {
             </div>
           )}
 
+          {activeTab === 'device-request-status' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-gray-900">Device Request Status Types</h2>
+                <button
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="btn-primary flex items-center gap-2"
+                >
+                  <Plus size={20} />
+                  Add Status
+                </button>
+              </div>
+              <div className="space-y-2">
+                {deviceRequestStatuses.map(status => (
+                  <div key={status.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                    <div className="flex items-center gap-4">
+                      <div
+                        className="w-4 h-4 rounded-full"
+                        style={{ backgroundColor: status.color }}
+                      />
+                      <div>
+                        <p className="font-medium text-gray-900">{status.name}</p>
+                        <p className="text-sm text-gray-600">{status.description}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEditItem(status)}
+                        className="btn-sm bg-blue-100 text-blue-600 hover:bg-blue-200"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteItem(status, 'Status')}
+                        className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {activeTab === 'vendors' && (
             <div className="space-y-4">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Vendor Management</h2>
@@ -280,30 +333,62 @@ function Settings() {
           title={`Add New ${activeTab === 'categories' ? 'Category' : 'Status'}`}
           size="md"
         >
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-              <input type="text" placeholder="Enter name" className="input-field" />
+          {(activeTab === 'repair-status' || activeTab === 'device-request-status') && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input type="text" placeholder="Enter name" className="input-field" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                <input type="color" className="input-field h-10" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea placeholder="Enter description" className="input-field h-20" />
+              </div>
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="flex-1 btn-secondary"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddItem}
+                  className="flex-1 btn-primary"
+                >
+                  Add
+                </button>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-              <textarea placeholder="Enter description" className="input-field h-20" />
+          )}
+          {activeTab === 'categories' && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input type="text" placeholder="Enter name" className="input-field" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea placeholder="Enter description" className="input-field h-20" />
+              </div>
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="flex-1 btn-secondary"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddItem}
+                  className="flex-1 btn-primary"
+                >
+                  Add
+                </button>
+              </div>
             </div>
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setIsAddModalOpen(false)}
-                className="flex-1 btn-secondary"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddItem}
-                className="flex-1 btn-primary"
-              >
-                Add
-              </button>
-            </div>
-          </div>
+          )}
         </Modal>
       )}
 

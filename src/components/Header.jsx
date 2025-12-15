@@ -14,9 +14,7 @@ function Header({ onMenuClick }) {
           >
             <Menu size={24} className="text-primary" />
           </button>
-          <h1 className="text-xl font-bold text-primary hidden sm:block">
-            Repair Management System
-          </h1>
+          <img src="/images/yeti-big-logo.png" alt="Yeti Logo" className="h-16 hidden sm:block" />
         </div>
 
         <div className="relative">

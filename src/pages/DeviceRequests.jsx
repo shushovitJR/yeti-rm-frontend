@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Search, Filter, Plus, Eye, Check, X } from 'lucide-react'
+import { Search, Filter, Plus, Eye, Edit } from 'lucide-react'
 import SideDrawer from '../components/SideDrawer'
 import Modal from '../components/Modal'
 import ConfirmDialog from '../components/ConfirmDialog'
@@ -11,8 +11,10 @@ function DeviceRequests() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false)
+  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [selectedRequest, setSelectedRequest] = useState(null)
+  const [editFormData, setEditFormData] = useState({})
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false })
 
   const [requests] = useState([
@@ -42,7 +44,9 @@ function DeviceRequests() {
 
   const getStatusBadge = (status) => {
     const badges = {
+      pending: 'badge bg-yellow-100 text-yellow-800',
       received: 'badge bg-blue-100 text-blue-800',
+      'on-hold': 'badge bg-purple-100 text-purple-800',
       canceled: 'badge bg-red-100 text-red-800',
     }
     return badges[status] || 'badge badge-info'
@@ -51,6 +55,19 @@ function DeviceRequests() {
   const handleViewRequest = (request) => {
     setSelectedRequest(request)
     setIsViewModalOpen(true)
+  }
+
+  const handleEditRequest = (request) => {
+    setSelectedRequest(request)
+    setEditFormData({
+      requestedBy: request.requestedBy,
+      department: request.department,
+      deviceType: request.deviceType,
+      reason: request.reason,
+      requestDate: request.requestDate,
+      status: request.status,
+    })
+    setIsEditDrawerOpen(true)
   }
 
   const handleStatusChange = (request, newStatus) => {
@@ -64,6 +81,18 @@ function DeviceRequests() {
         setConfirmDialog({ isOpen: false })
       },
     })
+  }
+
+  const handleSaveRequest = () => {
+    setIsEditDrawerOpen(false)
+    addToast('Device request updated successfully', 'success')
+  }
+
+  const handleInputChange = (field, value) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
   }
 
   const handleAddRequest = () => {
@@ -117,7 +146,9 @@ function DeviceRequests() {
           className="input-field"
         >
           <option value="all">All Status</option>
+          <option value="pending">Pending</option>
           <option value="received">Received</option>
+          <option value="on-hold">On Hold</option>
           <option value="canceled">Canceled</option>
         </select>
       </div>
@@ -154,24 +185,12 @@ function DeviceRequests() {
                     >
                       <Eye size={16} />
                     </button>
-                    {request.status !== 'received' && (
-                      <button
-                        onClick={() => handleStatusChange(request, 'received')}
-                        className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
-                        title="Mark as Received"
-                      >
-                        <Check size={16} />
-                      </button>
-                    )}
-                    {request.status !== 'canceled' && (
-                      <button
-                        onClick={() => handleStatusChange(request, 'canceled')}
-                        className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
-                        title="Mark as Canceled"
-                      >
-                        <X size={16} />
-                      </button>
-                    )}
+                    <button
+                      onClick={() => handleEditRequest(request)}
+                      className="btn-sm bg-orange-100 text-orange-600 hover:bg-orange-200"
+                    >
+                      <Edit size={16} />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -280,6 +299,96 @@ function DeviceRequests() {
               className="flex-1 btn-primary"
             >
               Submit Request
+            </button>
+          </div>
+        </div>
+      </SideDrawer>
+
+      <SideDrawer
+        isOpen={isEditDrawerOpen}
+        onClose={() => setIsEditDrawerOpen(false)}
+        title="Edit Device Request"
+        width="w-96"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Requested By</label>
+            <input
+              type="text"
+              value={editFormData.requestedBy}
+              onChange={(e) => handleInputChange('requestedBy', e.target.value)}
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+            <input
+              type="text"
+              value={editFormData.department}
+              onChange={(e) => handleInputChange('department', e.target.value)}
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Device Type</label>
+            <select
+              value={editFormData.deviceType}
+              onChange={(e) => handleInputChange('deviceType', e.target.value)}
+              className="input-field"
+            >
+              <option>Laptop</option>
+              <option>Desktop</option>
+              <option>Tablet</option>
+              <option>Phone</option>
+              <option>Printer</option>
+              <option>Monitor</option>
+              <option>Headset</option>
+              <option>Network Device</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Request Date</label>
+            <input
+              type="date"
+              value={editFormData.requestDate}
+              onChange={(e) => handleInputChange('requestDate', e.target.value)}
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Request</label>
+            <textarea
+              value={editFormData.reason}
+              onChange={(e) => handleInputChange('reason', e.target.value)}
+              className="input-field h-24"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select
+              value={editFormData.status}
+              onChange={(e) => handleInputChange('status', e.target.value)}
+              className="input-field"
+            >
+              <option value="pending">Pending</option>
+              <option value="received">Received</option>
+              <option value="on-hold">On Hold</option>
+              <option value="canceled">Canceled</option>
+            </select>
+          </div>
+          <div className="flex gap-3 mt-8">
+            <button
+              onClick={() => setIsEditDrawerOpen(false)}
+              className="flex-1 btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveRequest}
+              className="flex-1 btn-primary"
+            >
+              Save Changes
             </button>
           </div>
         </div>
