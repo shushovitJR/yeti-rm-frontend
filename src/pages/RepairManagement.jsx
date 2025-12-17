@@ -18,14 +18,14 @@ function RepairManagement() {
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false })
 
   const [repairs] = useState([
-    { id: 'REP001', deviceName: 'Dell Latitude 5520', deviceCategory: 'Laptop', issue: 'Screen flickering', issueDate: '2024-01-10', vendor: 'TechRepair Inc', status: 'pending' },
-    { id: 'REP002', deviceName: 'HP EliteBook 840', deviceCategory: 'Laptop', issue: 'Battery not charging', issueDate: '2024-01-08', vendor: 'QuickFix Services', status: 'in-progress' },
-    { id: 'REP003', deviceName: 'Lenovo ThinkPad', deviceCategory: 'Laptop', issue: 'Keyboard malfunction', issueDate: '2024-01-05', vendor: 'TechRepair Inc', status: 'completed' },
-    { id: 'REP004', deviceName: 'iPad Air 5', deviceCategory: 'Tablet', issue: 'Touch screen not responding', issueDate: '2024-01-12', vendor: 'Apple Care', status: 'pending' },
-    { id: 'REP005', deviceName: 'iPhone 14 Pro', deviceCategory: 'Phone', issue: 'Cracked screen', issueDate: '2024-01-09', vendor: 'Apple Care', status: 'in-progress' },
-    { id: 'REP006', deviceName: 'Dell OptiPlex 7090', deviceCategory: 'Desktop', issue: 'Hard drive failure', issueDate: '2024-01-06', vendor: 'TechRepair Inc', status: 'in-progress' },
-    { id: 'REP007', deviceName: 'Samsung Galaxy Tab', deviceCategory: 'Tablet', issue: 'Software crash', issueDate: '2024-01-11', vendor: 'QuickFix Services', status: 'pending' },
-    { id: 'REP008', deviceName: 'HP LaserJet Pro', deviceCategory: 'Printer', issue: 'Paper jam error', issueDate: '2024-01-07', vendor: 'Office Equipment Co', status: 'completed' },
+    { id: 'REP001', deviceName: 'Dell Latitude 5520', deviceCategory: 'Laptop', issue: 'Screen flickering', issueDate: '2024-01-10', returnedDate: '', vendor: 'TechRepair Inc', status: 'pending' },
+    { id: 'REP002', deviceName: 'HP EliteBook 840', deviceCategory: 'Laptop', issue: 'Battery not charging', issueDate: '2024-01-08', returnedDate: '', vendor: 'QuickFix Services', status: 'in-progress' },
+    { id: 'REP003', deviceName: 'Lenovo ThinkPad', deviceCategory: 'Laptop', issue: 'Keyboard malfunction', issueDate: '2024-01-05', returnedDate: '2024-01-12', vendor: 'TechRepair Inc', status: 'completed' },
+    { id: 'REP004', deviceName: 'iPad Air 5', deviceCategory: 'Tablet', issue: 'Touch screen not responding', issueDate: '2024-01-12', returnedDate: '', vendor: 'Apple Care', status: 'pending' },
+    { id: 'REP005', deviceName: 'iPhone 14 Pro', deviceCategory: 'Phone', issue: 'Cracked screen', issueDate: '2024-01-09', returnedDate: '', vendor: 'Apple Care', status: 'in-progress' },
+    { id: 'REP006', deviceName: 'Dell OptiPlex 7090', deviceCategory: 'Desktop', issue: 'Hard drive failure', issueDate: '2024-01-06', returnedDate: '', vendor: 'TechRepair Inc', status: 'in-progress' },
+    { id: 'REP007', deviceName: 'Samsung Galaxy Tab', deviceCategory: 'Tablet', issue: 'Software crash', issueDate: '2024-01-11', returnedDate: '', vendor: 'QuickFix Services', status: 'pending' },
+    { id: 'REP008', deviceName: 'HP LaserJet Pro', deviceCategory: 'Printer', issue: 'Paper jam error', issueDate: '2024-01-07', returnedDate: '2024-01-15', vendor: 'Office Equipment Co', status: 'completed' },
   ])
 
   const filteredRepairs = repairs.filter(repair => {
@@ -66,6 +66,7 @@ function RepairManagement() {
       deviceName: repair.deviceName,
       deviceCategory: repair.deviceCategory,
       issueDate: repair.issueDate,
+      returnedDate: repair.returnedDate || '',
       issue: repair.issue,
       vendor: repair.vendor,
       status: repair.status,
@@ -151,6 +152,7 @@ function RepairManagement() {
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Device Name</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Issue</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Issue Date</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Returned Date</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Vendor</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
@@ -163,6 +165,7 @@ function RepairManagement() {
                   <td className="px-6 py-4 text-sm text-gray-600">{repair.deviceName}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{repair.issue}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{repair.issueDate}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{repair.returnedDate || '-'}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{repair.vendor}</td>
                   <td className="px-6 py-4">
                     <span className={getStatusBadge(repair.status)}>{repair.status}</span>
@@ -254,6 +257,10 @@ function RepairManagement() {
             <input type="date" className="input-field" />
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Returned Date</label>
+            <input type="date" className="input-field" />
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Issue Description</label>
             <textarea placeholder="Describe the issue..." className="input-field h-24" />
           </div>
@@ -318,6 +325,15 @@ function RepairManagement() {
               type="date"
               value={editFormData.issueDate}
               onChange={(e) => handleInputChange('issueDate', e.target.value)}
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Returned Date</label>
+            <input
+              type="date"
+              value={editFormData.returnedDate || ''}
+              onChange={(e) => handleInputChange('returnedDate', e.target.value)}
               className="input-field"
             />
           </div>
@@ -402,6 +418,10 @@ function RepairManagement() {
               <div>
                 <p className="text-sm text-gray-600">Issue Date</p>
                 <p className="text-lg font-semibold text-gray-900">{selectedRepair.issueDate}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Returned Date</p>
+                <p className="text-lg font-semibold text-gray-900">{selectedRepair.returnedDate || '-'}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Vendor</p>
