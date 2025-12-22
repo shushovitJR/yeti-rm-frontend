@@ -8,41 +8,30 @@ function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const { login } = useAuth()
+  const { login, isLoading: authLoading } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    setIsLoading(true)
 
     if (!name.trim()) {
       setError('Please enter your username')
-      setIsLoading(false)
       return
     }
 
     if (!password) {
       setError('Please enter your password')
-      setIsLoading(false)
       return
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters')
-      setIsLoading(false)
-      return
-    }
-
-    const success = login(name, password)
+    const result = await login(name, password)
     
-    if (success) {
+    if (result.success) {
       navigate('/')
     } else {
-      setError('Invalid credentials. Please try again.')
+      setError(result.error || 'Invalid credentials. Please try again.')
     }
-    
-    setIsLoading(false)
   }
 
   return (
@@ -77,7 +66,7 @@ function Login() {
                 }}
                 placeholder="Enter your username"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                disabled={isLoading}
+                disabled={authLoading}
               />
             </div>
 
@@ -94,16 +83,16 @@ function Login() {
                 }}
                 placeholder="Enter your password"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                disabled={isLoading}
+                disabled={authLoading}
               />
             </div>
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={authLoading}
               className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition-colors mt-6"
             >
-              {isLoading ? 'Logging in...' : 'Login'}
+              {authLoading ? 'Logging in...' : 'Login'}
             </button>
           </form>
         </div>

@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
-import { Search, Filter, Plus, Eye, Edit } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Search, Filter, Plus, Eye, Edit, AlertCircle } from 'lucide-react'
 import SideDrawer from '../components/SideDrawer'
 import Modal from '../components/Modal'
 import ConfirmDialog from '../components/ConfirmDialog'
 import { useToast } from '../context/ToastContext'
+import { requestAPI } from '../services/api'
 
 function DeviceRequests() {
   const { addToast } = useToast()
@@ -14,21 +15,42 @@ function DeviceRequests() {
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [selectedRequest, setSelectedRequest] = useState(null)
+  const [requests, setRequests] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [addFormData, setAddFormData] = useState({
+    requestedBy: '',
+    department: '',
+    deviceType: '',
+    reason: '',
+    requestDate: '',
+    status: 'pending',
+  })
   const [editFormData, setEditFormData] = useState({})
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false })
 
-  const [requests] = useState([
-    { id: 'REQ001', requestedBy: 'John Smith', department: 'Sales', deviceType: 'Laptop', reason: 'New hire onboarding', requestDate: '2024-01-10', status: 'received' },
-    { id: 'REQ002', requestedBy: 'Sarah Johnson', department: 'HR', deviceType: 'Desktop', reason: 'Replacement for old unit', requestDate: '2024-01-08', status: 'received' },
-    { id: 'REQ003', requestedBy: 'Mike Davis', department: 'IT', deviceType: 'Tablet', reason: 'Field work support', requestDate: '2024-01-12', status: 'received' },
-    { id: 'REQ004', requestedBy: 'Emily Brown', department: 'Marketing', deviceType: 'Laptop', reason: 'Video editing work', requestDate: '2024-01-05', status: 'received' },
-    { id: 'REQ005', requestedBy: 'David Wilson', department: 'Finance', deviceType: 'Monitor', reason: 'Dual monitor setup', requestDate: '2024-01-11', status: 'canceled' },
-    { id: 'REQ006', requestedBy: 'Lisa Chen', department: 'Engineering', deviceType: 'Laptop', reason: 'Development work', requestDate: '2024-01-09', status: 'received' },
-    { id: 'REQ007', requestedBy: 'Tom Anderson', department: 'Operations', deviceType: 'Phone', reason: 'Mobile device for field', requestDate: '2024-01-06', status: 'received' },
-    { id: 'REQ008', requestedBy: 'Jessica Lee', department: 'Support', deviceType: 'Headset', reason: 'Call center equipment', requestDate: '2024-01-13', status: 'received' },
-  ])
 
-  const filteredRequests = requests.filter(request => {
+  // Fetch device requests on component mount
+  useEffect(() => {
+    fetchRequests()
+  }, [])
+
+  const fetchRequests = async () => {
+    setIsLoading(true)
+    setError('')
+    try {
+      const data = await requestAPI.getAll()
+      setRequests(Array.isArray(data) ? data : data.data || [])
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to fetch device requests'
+      setError(errorMsg)
+      addToast(errorMsg, 'error')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const filteredRequests = requests.filter((request) => {
     const matchesSearch = request.requestedBy.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          request.id.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || request.status === statusFilter
@@ -70,22 +92,38 @@ function DeviceRequests() {
     setIsEditDrawerOpen(true)
   }
 
-  const handleStatusChange = (request, newStatus) => {
+  const handleStatusChange = async (request, newStatus) => {
     setConfirmDialog({
       isOpen: true,
       title: 'Update Request Status',
       message: `Change request ${request.id} status to ${newStatus}?`,
       confirmText: 'Update',
-      onConfirm: () => {
-        addToast(`Request status updated to ${newStatus}`, 'success')
-        setConfirmDialog({ isOpen: false })
+      onConfirm: async () => {
+        try {
+          await requestAPI.update(request.id, { ...request, status: newStatus })
+          addToast(`Request status updated to ${newStatus}`, 'success')
+          setConfirmDialog({ isOpen: false })
+          fetchRequests()
+        } catch (err) {
+          const errorMsg = err.data?.message || err.message || 'Failed to update status'
+          addToast(errorMsg, 'error')
+        }
       },
     })
   }
 
-  const handleSaveRequest = () => {
-    setIsEditDrawerOpen(false)
-    addToast('Device request updated successfully', 'success')
+  const handleSaveRequest = async () => {
+    try {
+      if (selectedRequest?.id) {
+        await requestAPI.update(selectedRequest.id, editFormData)
+        addToast('Device request updated successfully', 'success')
+        setIsEditDrawerOpen(false)
+        fetchRequests()
+      }
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to update request'
+      addToast(errorMsg, 'error')
+    }
   }
 
   const handleInputChange = (field, value) => {
@@ -95,13 +133,40 @@ function DeviceRequests() {
     }))
   }
 
-  const handleAddRequest = () => {
-    setIsAddDrawerOpen(false)
-    addToast('Device request submitted successfully', 'success')
+  const handleAddRequest = async () => {
+    try {
+      if (!addFormData.requestedBy.trim()) {
+        addToast('Please fill in all required fields', 'error')
+        return
+      }
+      await requestAPI.create(addFormData)
+      addToast('Device request submitted successfully', 'success')
+      setIsAddDrawerOpen(false)
+      setAddFormData({
+        requestedBy: '',
+        department: '',
+        deviceType: '',
+        reason: '',
+        requestDate: '',
+        status: 'pending',
+      })
+      fetchRequests()
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to create request'
+      addToast(errorMsg, 'error')
+    }
   }
 
-  return (
+  return(
+    <>
     <div className="p-6 space-y-6">
+      {error && (
+        <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <AlertCircle size={20} className="text-red-600 flex-shrink-0" />
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
+      
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Device Requests</h1>
@@ -155,47 +220,57 @@ function DeviceRequests() {
 
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="table-header">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Request ID</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Requested By</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Department</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Device Type</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Request Date</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedRequests.map((request) => (
-                <tr key={request.id} className="table-row">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{request.id}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{request.requestedBy}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{request.department}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{request.deviceType}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{request.requestDate}</td>
-                  <td className="px-6 py-4">
-                    <span className={getStatusBadge(request.status)}>{request.status}</span>
-                  </td>
-                  <td className="px-6 py-4 flex gap-2">
-                    <button
-                      onClick={() => handleViewRequest(request)}
-                      className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
-                    >
-                      <Eye size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleEditRequest(request)}
-                      className="btn-sm bg-orange-100 text-orange-600 hover:bg-orange-200"
-                    >
-                      <Edit size={16} />
-                    </button>
-                  </td>
+          {isLoading ? (
+            <div className="p-8 text-center">
+              <p className="text-gray-600">Loading device requests...</p>
+            </div>
+          ) : paginatedRequests.length === 0 ? (
+            <div className="p-8 text-center">
+              <p className="text-gray-600">No device requests found</p>
+            </div>
+          ) : (
+            <table>
+              <thead className="table-header">
+                <tr>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Request ID</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Requested By</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Department</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Device Type</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Request Date</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {paginatedRequests.map((request) => (
+                  <tr key={request.id} className="table-row">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{request.id}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{request.requestedBy}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{request.department}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{request.deviceType}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{request.requestDate}</td>
+                    <td className="px-6 py-4">
+                      <span className={getStatusBadge(request.status)}>{request.status}</span>
+                    </td>
+                    <td className="px-6 py-4 flex gap-2">
+                      <button
+                        onClick={() => handleViewRequest(request)}
+                        className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleEditRequest(request)}
+                        className="btn-sm bg-orange-100 text-orange-600 hover:bg-orange-200"
+                      >
+                        <Edit size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
@@ -244,48 +319,61 @@ function DeviceRequests() {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Device Category</label>
-            <select className="input-field">
-              <option>Select category</option>
-              <option>Laptop</option>
-              <option>Desktop</option>
-              <option>Tablet</option>
-              <option>Phone</option>
-              <option>Printer</option>
-              <option>Network Device</option>
-              <option>Other</option>
-            </select>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Requested By *</label>
+            <input 
+              type="text" 
+              placeholder="Full name" 
+              value={addFormData.requestedBy}
+              onChange={(e) => setAddFormData({...addFormData, requestedBy: e.target.value})}
+              className="input-field" 
+            />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Device Name</label>
-            <input type="text" placeholder="e.g., Dell Latitude 5520" className="input-field" />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+            <input 
+              type="text" 
+              placeholder="e.g., Sales, HR, IT" 
+              value={addFormData.department}
+              onChange={(e) => setAddFormData({...addFormData, department: e.target.value})}
+              className="input-field" 
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Device Type</label>
+            <select 
+              value={addFormData.deviceType}
+              onChange={(e) => setAddFormData({...addFormData, deviceType: e.target.value})}
+              className="input-field"
+            >
+              <option value="">Select device type</option>
+              <option value="Laptop">Laptop</option>
+              <option value="Desktop">Desktop</option>
+              <option value="Tablet">Tablet</option>
+              <option value="Phone">Phone</option>
+              <option value="Printer">Printer</option>
+              <option value="Monitor">Monitor</option>
+              <option value="Headset">Headset</option>
+              <option value="Network Device">Network Device</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Request Date</label>
-            <input type="date" className="input-field" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-            <select className="input-field">
-              <option>Low</option>
-              <option>Medium</option>
-              <option>High</option>
-              <option>Urgent</option>
-            </select>
+            <input 
+              type="date" 
+              value={addFormData.requestDate}
+              onChange={(e) => setAddFormData({...addFormData, requestDate: e.target.value})}
+              className="input-field" 
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Request</label>
-            <textarea placeholder="Explain why you need this device..." className="input-field h-24" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Vendor (Optional)</label>
-            <select className="input-field">
-              <option>Select vendor</option>
-              <option>TechRepair Inc</option>
-              <option>QuickFix Services</option>
-              <option>Apple Care</option>
-              <option>Office Equipment Co</option>
-            </select>
+            <textarea 
+              placeholder="Explain why you need this device..." 
+              value={addFormData.reason}
+              onChange={(e) => setAddFormData({...addFormData, reason: e.target.value})}
+              className="input-field h-24" 
+            />
           </div>
           <div className="flex gap-3 mt-8">
             <button
@@ -452,6 +540,7 @@ function DeviceRequests() {
         isDangerous={confirmDialog.isDangerous}
       />
     </div>
+    </>
   )
 }
 

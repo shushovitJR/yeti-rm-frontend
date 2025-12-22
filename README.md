@@ -1,67 +1,128 @@
 # Repair & Device Request Management System
 
-A modern, professional, enterprise-grade web application for managing device repairs, device requests, and inventory tracking within organizations.
+> **Enterprise-grade Device Repair & Request Management System with Full Backend API Integration**
+
+**Status:** ✅ **API INTEGRATION COMPLETE - READY FOR DEPLOYMENT**
+
+A modern, professional, enterprise-grade web application for managing device repairs, device requests, and vendor management within organizations.
 
 ## 🎯 Overview
 
 This system provides a comprehensive solution for organizations to:
-- Track devices in inventory with detailed categorization
-- Manage repair requests and technician assignments
-- Handle device request approvals and workflows
-- Generate detailed reports and analytics
-- Manage users and role-based permissions
-- Configure system settings and preferences
+- ✅ Authenticate users securely with JWT tokens
+- ✅ Track device repairs with complete CRUD operations
+- ✅ Manage device requests with status tracking
+- ✅ Manage repair vendors efficiently
+- ✅ Real-time synchronization with backend APIs
+- ✅ Comprehensive error handling and user feedback
+- ✅ Role-based access control
 
 ## ✨ Key Features
 
+### 🔐 Authentication
+- Real API-based login
+- JWT token management
+- Persistent authentication
+- Automatic token attachment to requests
+- Secure logout functionality
+
+### 🔧 Repair Management
+- Create new repair tickets
+- Edit and update repairs
+- Status tracking (Pending, In Progress, Completed)
+- Search and filter repairs
+- Pagination support
+- Vendor assignment
+- Real-time data sync with backend
+
+### 📱 Device Requests
+- Submit device requests
+- Track request status
+- Update request details
+- Confirmation dialogs for status changes
+- Search and filter requests
+- Pagination support
+- Real-time data sync
+
+### 🏢 Vendor Management
+- Add new vendors
+- Delete vendors with confirmation
+- Input validation
+- Duplicate prevention
+- Real-time list updates
+
 ### 📊 Dashboard
-- Real-time metrics (Total Devices, Under Repair, Pending Requests, Approved Requests)
+- Real-time metrics
 - Monthly repairs trend visualization
 - Device category distribution charts
 - Recent activity feed
 
-### 🖥️ Device Inventory
-- Complete device catalog with search and filtering
-- Device status tracking (Available, Assigned, In Repair)
-- Category-based organization
-- Export to PDF/Excel
-- Pagination and detailed device views
+## 🚀 Getting Started
 
-### 🛠️ Repair Management
-- Repair ticket creation and tracking
-- Technician assignment
-- Status updates (Pending, In Progress, Completed)
-- Expected completion date tracking
-- Repair history and notes
+### Prerequisites
+- Node.js 16+ and npm/yarn
+- Backend server running on `http://localhost:500`
+- Modern web browser
 
-### 📥 Device Requests
-- User-friendly request submission form
-- Department-based organization
-- Approval workflow with role-based actions
-- Status tracking (Pending, Approved, Rejected)
-- Request history and details
+### Quick Start (5 minutes)
 
-### 📈 Reports
-- Daily repair trends
-- Monthly summary reports
-- Department-wise device usage analysis
-- Device category breakdown
-- Export capabilities (PDF/Excel)
-- Detailed analytics and metrics
+1. **Navigate to project directory**
+   ```bash
+   cd c:/Users/Asus/Desktop/yeti-repair-mngmt/Yeti-Repair-app
+   ```
 
-### 👥 User Management
-- User account creation and management
-- Role-based access control (Admin, IT Staff, Employee)
-- Permission management
-- User status activation/deactivation
-- Department assignment
+2. **Install dependencies** (if not already done)
+   ```bash
+   npm install
+   ```
 
-### ⚙️ Settings
-- Device category configuration
-- Repair status type customization
-- Approval rules management
-- Notification preferences
-- System configuration
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Login with test credentials**
+   - Use credentials provided by your team
+   - JWT token automatically stored
+   - Access dashboard and features
+
+**For detailed getting started guide, see [QUICK_START.md](QUICK_START.md)**
+
+## 🔌 API Integration
+
+### ✅ Full Backend API Integration
+
+All backend endpoints have been integrated:
+
+| Feature | Endpoints | Status |
+|---------|-----------|--------|
+| **Authentication** | `POST /auth/login` | ✅ Complete |
+| **Repair Management** | `GET/POST/PUT /api/repair` | ✅ Complete |
+| **Device Requests** | `GET/POST/PUT /api/request` | ✅ Complete |
+| **Vendor Management** | `GET/POST/DELETE /api/vendor` | ✅ Complete |
+
+### API Features
+- ✅ Automatic JWT token attachment
+- ✅ Comprehensive error handling
+- ✅ Loading states
+- ✅ User feedback (toasts)
+- ✅ Form validation
+- ✅ Confirmation dialogs
+
+**For detailed API documentation, see [API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md)**
+
+## 📚 Documentation
+
+Complete documentation is provided:
+
+1. **[QUICK_START.md](QUICK_START.md)** - Getting started (10 min read)
+2. **[API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md)** - Technical reference (30 min read)
+3. **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Project overview (20 min read)
+4. **[TESTING_CHECKLIST.md](TESTING_CHECKLIST.md)** - QA guide (100+ test cases)
+5. **[CHANGELOG.md](CHANGELOG.md)** - Change tracking
+6. **[INDEX.md](INDEX.md)** - Documentation navigation
+
+**See [INDEX.md](INDEX.md) for complete documentation index**
 
 ## 🏗️ Technology Stack
 
@@ -71,66 +132,84 @@ This system provides a comprehensive solution for organizations to:
 - **Charts & Visualization**: Recharts 2.10.0
 - **Icons**: Lucide React 0.294.0
 - **Build Tool**: Vite 5.0.0
-- **Export Utilities**: jsPDF 2.5.1, XLSX 0.18.5
+- **HTTP**: Fetch API (no external HTTP library needed)
+- **State Management**: React Context API
+- **API Service**: Centralized service layer (`src/services/api.js`)
 
 ## 📋 Project Structure
 
 ```
 src/
-├── components/
-│   ├── Header.jsx          # Top navigation bar
-│   ├── Sidebar.jsx         # Left sidebar navigation
-│   ├── Modal.jsx           # Reusable modal component
-│   ├── ConfirmDialog.jsx   # Confirmation dialog
-│   └── Toast.jsx           # Toast notifications
+├── services/
+│   └── api.js              # ✨ NEW - API service layer
 ├── context/
-│   └── ToastContext.jsx    # Toast notification context
+│   ├── AuthContext.jsx     # 🔄 JWT token & user management
+│   └── ToastContext.jsx    # Notifications
+├── components/
+│   ├── Header.jsx          # Navigation
+│   ├── Sidebar.jsx         # Sidebar menu
+│   ├── Modal.jsx           # Modal dialog
+│   ├── SideDrawer.jsx      # Side form drawer
+│   ├── ConfirmDialog.jsx   # Confirmation
+│   ├── Toast.jsx           # Notifications
+│   └── ProtectedRoute.jsx  # Auth guard
 ├── pages/
-│   ├── Dashboard.jsx       # Dashboard page
-│   ├── DeviceInventory.jsx # Device inventory management
-│   ├── RepairManagement.jsx # Repair tracking
-│   ├── DeviceRequests.jsx  # Device request handling
-│   ├── Reports.jsx         # Reports and analytics
-│   ├── UserManagement.jsx  # User management
-│   └── Settings.jsx        # System settings
-├── App.jsx                 # Main app component
-├── main.jsx                # Entry point
-└── index.css               # Global styles
+│   ├── Dashboard.jsx       # Dashboard
+│   ├── RepairManagement.jsx # 🔄 API integrated
+│   ├── DeviceRequests.jsx  # 🔄 API integrated
+│   ├── Settings.jsx        # 🔄 Vendor API
+│   ├── Login.jsx           # 🔄 JWT Auth
+│   └── Reports.jsx         # Reports
+├── App.jsx                 # Main app
+└── main.jsx                # Entry point
 ```
 
-## 🚀 Getting Started
+## 🔐 Authentication
 
-### Prerequisites
-- Node.js 16+ and npm/yarn
-- Modern web browser
+### JWT Token Management
+- Login via `POST /auth/login`
+- Token stored in localStorage
+- Automatic token attachment to requests
+- Bearer token format: `Authorization: Bearer <token>`
+- Token cleared on logout
 
-### Installation
-
-1. **Clone or navigate to the project directory**
-   ```bash
-   cd c:/Users/Asus/Desktop/Yeti-Repair-app
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Start the development server**
-   ```bash
-   npm run dev
-   ```
-
-4. **Open in browser**
-   - The application will automatically open at `http://localhost:3000`
-
-### Build for Production
-
-```bash
-npm run build
+### Secure API Calls
+```javascript
+// All API calls automatically include JWT token
+const response = await fetch('http://localhost:500/api/repair', {
+  headers: {
+    'Authorization': 'Bearer <token>',
+    'Content-Type': 'application/json'
+  }
+})
 ```
 
-This creates an optimized production build in the `dist` folder.
+## 🔄 Data Flow
+
+### Example: Create New Repair
+```
+User clicks "New Repair"
+  ↓
+Fill form fields
+  ↓
+Click "Create"
+  ↓
+repairAPI.create(data)
+  ↓
+POST /api/repair (with JWT token)
+  ↓
+Backend processes & returns id
+  ↓
+Update local state
+  ↓
+Refresh repairs list
+  ↓
+Show success toast
+  ↓
+Close form drawer
+```
+
+## ✨ Features
 
 ## 🎨 Design Features
 

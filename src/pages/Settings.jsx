@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Plus, Edit, Trash2, Save, AlertCircle } from 'lucide-react'
 import Modal from '../components/Modal'
 import ConfirmDialog from '../components/ConfirmDialog'
 import { useToast } from '../context/ToastContext'
+import { vendorAPI } from '../services/api'
 
 function Settings() {
   const { addToast } = useToast()
@@ -13,6 +14,9 @@ function Settings() {
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false })
   const [newVendorName, setNewVendorName] = useState('')
   const [vendorError, setVendorError] = useState('')
+  const [vendors, setVendors] = useState([])
+  const [isLoadingVendors, setIsLoadingVendors] = useState(false)
+  const [vendorLoadError, setVendorLoadError] = useState('')
 
   const [categories] = useState([
     { id: 1, name: 'Laptops', description: 'Portable computing devices' },
@@ -36,12 +40,25 @@ function Settings() {
     { id: 4, name: 'Canceled', color: '#ef4444', description: 'Request has been canceled' },
   ])
 
-  const [vendors, setVendors] = useState([
-    { id: 1, name: 'TechRepair Inc' },
-    { id: 2, name: 'QuickFix Services' },
-    { id: 3, name: 'Apple Care' },
-    { id: 4, name: 'Office Equipment Co' },
-  ])
+  // Fetch vendors on component mount
+  useEffect(() => {
+    fetchVendors()
+  }, [])
+
+  const fetchVendors = async () => {
+    setIsLoadingVendors(true)
+    setVendorLoadError('')
+    try {
+      const data = await vendorAPI.getAll()
+      setVendors(Array.isArray(data) ? data : data.data || [])
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to fetch vendors'
+      setVendorLoadError(errorMsg)
+      addToast(errorMsg, 'error')
+    } finally {
+      setIsLoadingVendors(false)
+    }
+  }
 
   const handleDeleteItem = (item, type) => {
     setConfirmDialog({
@@ -72,7 +89,7 @@ function Settings() {
     addToast('Item updated successfully', 'success')
   }
 
-  const handleAddVendor = () => {
+  const handleAddVendor = async () => {
     setVendorError('')
     
     if (!newVendorName.trim()) {
@@ -85,14 +102,16 @@ function Settings() {
       return
     }
     
-    const newVendor = {
-      id: Math.max(...vendors.map(v => v.id), 0) + 1,
-      name: newVendorName
+    try {
+      await vendorAPI.create({ name: newVendorName })
+      setNewVendorName('')
+      addToast('Vendor added successfully', 'success')
+      fetchVendors()
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to add vendor'
+      setVendorError(errorMsg)
+      addToast(errorMsg, 'error')
     }
-    
-    setVendors([...vendors, newVendor])
-    setNewVendorName('')
-    addToast('Vendor added successfully', 'success')
   }
 
   const handleDeleteVendor = (vendor) => {
@@ -101,10 +120,16 @@ function Settings() {
       title: 'Delete Vendor',
       message: `Are you sure you want to delete "${vendor.name}"? This vendor will be removed from all repair assignments and device request forms.`,
       confirmText: 'Delete',
-      onConfirm: () => {
-        setVendors(vendors.filter(v => v.id !== vendor.id))
-        addToast('Vendor deleted successfully', 'success')
-        setConfirmDialog({ isOpen: false })
+      onConfirm: async () => {
+        try {
+          await vendorAPI.delete(vendor.vendorName)
+          addToast('Vendor deleted successfully', 'success')
+          setConfirmDialog({ isOpen: false })
+          fetchVendors()
+        } catch (err) {
+          const errorMsg = err.data?.message || err.message || 'Failed to delete vendor'
+          addToast(errorMsg, 'error')
+        }
       },
       isDangerous: true,
     })
@@ -272,6 +297,12 @@ function Settings() {
           {activeTab === 'vendors' && (
             <div className="space-y-4">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Vendor Management</h2>
+              {vendorLoadError && (
+                <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <AlertCircle size={20} className="text-red-600 flex-shrink-0" />
+                  <p className="text-sm text-red-600">{vendorLoadError}</p>
+                </div>
+              )}
               <div className="space-y-4">
                 <div className="p-4 border border-gray-200 rounded-lg">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Add New Vendor</label>
@@ -304,7 +335,9 @@ function Settings() {
 
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">Current Vendors</h3>
-                  {vendors.length === 0 ? (
+                  {isLoadingVendors ? (
+                    <p className="text-sm text-gray-600 p-4 text-center">Loading vendors...</p>
+                  ) : vendors.length === 0 ? (
                     <p className="text-sm text-gray-600 p-4 text-center">No vendors added yet</p>
                   ) : (
                     vendors.map(vendor => (

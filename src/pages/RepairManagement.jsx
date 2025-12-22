@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
-import { Search, Filter, Plus, Eye, Edit } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Search, Filter, Plus, Eye, Edit, AlertCircle } from 'lucide-react'
 import SideDrawer from '../components/SideDrawer'
 import Modal from '../components/Modal'
 import ConfirmDialog from '../components/ConfirmDialog'
 import { useToast } from '../context/ToastContext'
+import { repairAPI } from '../services/api'
 
 function RepairManagement() {
   const { addToast } = useToast()
@@ -14,21 +15,42 @@ function RepairManagement() {
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [selectedRepair, setSelectedRepair] = useState(null)
+  const [repairs, setRepairs] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [addFormData, setAddFormData] = useState({
+    deviceCategory: '',
+    deviceName: '',
+    issueDate: '',
+    returnedDate: '',
+    issue: '',
+    vendor: '',
+  })
   const [editFormData, setEditFormData] = useState({})
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false })
 
-  const [repairs] = useState([
-    { id: 'REP001', deviceName: 'Dell Latitude 5520', deviceCategory: 'Laptop', issue: 'Screen flickering', issueDate: '2024-01-10', returnedDate: '', vendor: 'TechRepair Inc', status: 'pending' },
-    { id: 'REP002', deviceName: 'HP EliteBook 840', deviceCategory: 'Laptop', issue: 'Battery not charging', issueDate: '2024-01-08', returnedDate: '', vendor: 'QuickFix Services', status: 'in-progress' },
-    { id: 'REP003', deviceName: 'Lenovo ThinkPad', deviceCategory: 'Laptop', issue: 'Keyboard malfunction', issueDate: '2024-01-05', returnedDate: '2024-01-12', vendor: 'TechRepair Inc', status: 'completed' },
-    { id: 'REP004', deviceName: 'iPad Air 5', deviceCategory: 'Tablet', issue: 'Touch screen not responding', issueDate: '2024-01-12', returnedDate: '', vendor: 'Apple Care', status: 'pending' },
-    { id: 'REP005', deviceName: 'iPhone 14 Pro', deviceCategory: 'Phone', issue: 'Cracked screen', issueDate: '2024-01-09', returnedDate: '', vendor: 'Apple Care', status: 'in-progress' },
-    { id: 'REP006', deviceName: 'Dell OptiPlex 7090', deviceCategory: 'Desktop', issue: 'Hard drive failure', issueDate: '2024-01-06', returnedDate: '', vendor: 'TechRepair Inc', status: 'in-progress' },
-    { id: 'REP007', deviceName: 'Samsung Galaxy Tab', deviceCategory: 'Tablet', issue: 'Software crash', issueDate: '2024-01-11', returnedDate: '', vendor: 'QuickFix Services', status: 'pending' },
-    { id: 'REP008', deviceName: 'HP LaserJet Pro', deviceCategory: 'Printer', issue: 'Paper jam error', issueDate: '2024-01-07', returnedDate: '2024-01-15', vendor: 'Office Equipment Co', status: 'completed' },
-  ])
 
-  const filteredRepairs = repairs.filter(repair => {
+  // Fetch repairs on component mount
+  useEffect(() => {
+    fetchRepairs()
+  }, [])
+
+  const fetchRepairs = async () => {
+    setIsLoading(true)
+    setError('')
+    try {
+      const data = await repairAPI.getAll()
+      setRepairs(Array.isArray(data) ? data : data.data || [])
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to fetch repairs'
+      setError(errorMsg)
+      addToast(errorMsg, 'error')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const filteredRepairs = repairs.filter((repair) => {
     const matchesSearch = repair.deviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          repair.id.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || repair.status === statusFilter
@@ -74,9 +96,18 @@ function RepairManagement() {
     setIsEditDrawerOpen(true)
   }
 
-  const handleSaveRepair = () => {
-    setIsEditDrawerOpen(false)
-    addToast('Repair ticket updated successfully', 'success')
+  const handleSaveRepair = async () => {
+    try {
+      if (selectedRepair?.id) {
+        await repairAPI.update(selectedRepair.id, editFormData)
+        addToast('Repair ticket updated successfully', 'success')
+        setIsEditDrawerOpen(false)
+        fetchRepairs()
+      }
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to update repair'
+      addToast(errorMsg, 'error')
+    }
   }
 
   const handleInputChange = (field, value) => {
@@ -86,13 +117,40 @@ function RepairManagement() {
     }))
   }
 
-  const handleAddRepair = () => {
-    setIsAddDrawerOpen(false)
-    addToast('Repair ticket created successfully', 'success')
+  const handleAddRepair = async () => {
+    try {
+      if (!addFormData.deviceName.trim()) {
+        addToast('Please fill in all required fields', 'error')
+        return
+      }
+      await repairAPI.create(addFormData)
+      addToast('Repair ticket created successfully', 'success')
+      setIsAddDrawerOpen(false)
+      setAddFormData({
+        deviceCategory: '',
+        deviceName: '',
+        issueDate: '',
+        returnedDate: '',
+        issue: '',
+        vendor: '',
+      })
+      fetchRepairs()
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to create repair'
+      addToast(errorMsg, 'error')
+    }
   }
 
   return (
+    <>
     <div className="p-6 space-y-6">
+      {error && (
+        <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <AlertCircle size={20} className="text-red-600 flex-shrink-0" />
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
+      
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Repair Management</h1>
@@ -145,49 +203,59 @@ function RepairManagement() {
 
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="table-header">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Repair ID</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Device Name</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Issue</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Issue Date</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Returned Date</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Vendor</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedRepairs.map((repair) => (
-                <tr key={repair.id} className="table-row">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{repair.id}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{repair.deviceName}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{repair.issue}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{repair.issueDate}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{repair.returnedDate || '-'}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{repair.vendor}</td>
-                  <td className="px-6 py-4">
-                    <span className={getStatusBadge(repair.status)}>{repair.status}</span>
-                  </td>
-                  <td className="px-6 py-4 flex gap-2">
-                    <button
-                      onClick={() => handleViewRepair(repair)}
-                      className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
-                    >
-                      <Eye size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleEditRepair(repair)}
-                      className="btn-sm bg-orange-100 text-orange-600 hover:bg-orange-200"
-                    >
-                      <Edit size={16} />
-                    </button>
-                  </td>
+          {isLoading ? (
+            <div className="p-8 text-center">
+              <p className="text-gray-600">Loading repair requests...</p>
+            </div>
+          ) : paginatedRepairs.length === 0 ? (
+            <div className="p-8 text-center">
+              <p className="text-gray-600">No repair requests found</p>
+            </div>
+          ) : (
+            <table>
+              <thead className="table-header">
+                <tr>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Repair ID</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Device Name</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Issue</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Issue Date</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Returned Date</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Vendor</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {paginatedRepairs.map((repair) => (
+                  <tr key={repair.id} className="table-row">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{repair.id}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{repair.deviceName}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{repair.issue}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{repair.issueDate}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{repair.returnedDate || '-'}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{repair.vendor}</td>
+                    <td className="px-6 py-4">
+                      <span className={getStatusBadge(repair.status)}>{repair.status}</span>
+                    </td>
+                    <td className="px-6 py-4 flex gap-2">
+                      <button
+                        onClick={() => handleViewRepair(repair)}
+                        className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleEditRepair(repair)}
+                        className="btn-sm bg-orange-100 text-orange-600 hover:bg-orange-200"
+                      >
+                        <Edit size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
@@ -237,41 +305,70 @@ function RepairManagement() {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Device Category</label>
-            <select className="input-field">
-              <option>Select category</option>
-              <option>Laptop</option>
-              <option>Desktop</option>
-              <option>Tablet</option>
-              <option>Phone</option>
-              <option>Printer</option>
-              <option>Network Device</option>
-              <option>Other</option>
+            <select 
+              value={addFormData.deviceCategory}
+              onChange={(e) => setAddFormData({...addFormData, deviceCategory: e.target.value})}
+              className="input-field"
+            >
+              <option value="">Select category</option>
+              <option value="Laptop">Laptop</option>
+              <option value="Desktop">Desktop</option>
+              <option value="Tablet">Tablet</option>
+              <option value="Phone">Phone</option>
+              <option value="Printer">Printer</option>
+              <option value="Network Device">Network Device</option>
+              <option value="Other">Other</option>
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Device Name</label>
-            <input type="text" placeholder="e.g., Dell Latitude 5520" className="input-field" />
+            <input 
+              type="text" 
+              placeholder="e.g., Dell Latitude 5520" 
+              value={addFormData.deviceName}
+              onChange={(e) => setAddFormData({...addFormData, deviceName: e.target.value})}
+              className="input-field" 
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Issue Date</label>
-            <input type="date" className="input-field" />
+            <input 
+              type="date" 
+              value={addFormData.issueDate}
+              onChange={(e) => setAddFormData({...addFormData, issueDate: e.target.value})}
+              className="input-field" 
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Returned Date</label>
-            <input type="date" className="input-field" />
+            <input 
+              type="date" 
+              value={addFormData.returnedDate}
+              onChange={(e) => setAddFormData({...addFormData, returnedDate: e.target.value})}
+              className="input-field" 
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Issue Description</label>
-            <textarea placeholder="Describe the issue..." className="input-field h-24" />
+            <textarea 
+              placeholder="Describe the issue..." 
+              value={addFormData.issue}
+              onChange={(e) => setAddFormData({...addFormData, issue: e.target.value})}
+              className="input-field h-24" 
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Assignment *</label>
-            <select className="input-field">
-              <option>Select vendor</option>
-              <option>TechRepair Inc</option>
-              <option>QuickFix Services</option>
-              <option>Apple Care</option>
-              <option>Office Equipment Co</option>
+            <select 
+              value={addFormData.vendor}
+              onChange={(e) => setAddFormData({...addFormData, vendor: e.target.value})}
+              className="input-field"
+            >
+              <option value="">Select vendor</option>
+              <option value="TechRepair Inc">TechRepair Inc</option>
+              <option value="QuickFix Services">QuickFix Services</option>
+              <option value="Apple Care">Apple Care</option>
+              <option value="Office Equipment Co">Office Equipment Co</option>
             </select>
           </div>
           <div className="flex gap-3 mt-8">
@@ -447,7 +544,8 @@ function RepairManagement() {
         isDangerous={confirmDialog.isDangerous}
       />
     </div>
-  )
+    </>
+  );
 }
 
 export default RepairManagement
