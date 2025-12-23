@@ -74,7 +74,7 @@ function Sidebar({ isOpen, setIsOpen }) {
         <div className="absolute bottom-6 left-4 right-4 space-y-3">
           <div className="p-4 bg-green-50 rounded-lg border border-green-200">
             <p className="text-xs font-semibold text-primary mb-2">LOGGED IN AS</p>
-            <p className="text-sm font-medium text-gray-900">John Doe</p>
+            <p className="text-sm font-medium text-gray-900"></p>
           </div>
           <button
             onClick={handleLogout}

@@ -19,11 +19,9 @@ function DeviceRequests() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [addFormData, setAddFormData] = useState({
-    requestedBy: '',
-    department: '',
+    deviceName: '',
     deviceType: '',
     reason: '',
-    requestDate: '',
     status: 'pending',
   })
   const [editFormData, setEditFormData] = useState({})
@@ -82,11 +80,9 @@ function DeviceRequests() {
   const handleEditRequest = (request) => {
     setSelectedRequest(request)
     setEditFormData({
-      requestedBy: request.requestedBy,
-      department: request.department,
+      deviceName: request.deviceName,
       deviceType: request.deviceType,
       reason: request.reason,
-      requestDate: request.requestDate,
       status: request.status,
     })
     setIsEditDrawerOpen(true)
@@ -135,7 +131,7 @@ function DeviceRequests() {
 
   const handleAddRequest = async () => {
     try {
-      if (!addFormData.requestedBy.trim()) {
+      if (!addFormData.deviceName.trim() || !addFormData.deviceType.trim() || !addFormData.reason.trim()) {
         addToast('Please fill in all required fields', 'error')
         return
       }
@@ -143,11 +139,9 @@ function DeviceRequests() {
       addToast('Device request submitted successfully', 'success')
       setIsAddDrawerOpen(false)
       setAddFormData({
-        requestedBy: '',
-        department: '',
+        deviceName: '',
         deviceType: '',
         reason: '',
-        requestDate: '',
         status: 'pending',
       })
       fetchRequests()
@@ -235,6 +229,7 @@ function DeviceRequests() {
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Request ID</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Requested By</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Department</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Device Name</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Device Type</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Request Date</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
@@ -247,6 +242,7 @@ function DeviceRequests() {
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">{request.id}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{request.requestedBy}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{request.department}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{request.deviceName}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{request.deviceType}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{request.requestDate}</td>
                     <td className="px-6 py-4">
@@ -319,22 +315,12 @@ function DeviceRequests() {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Requested By *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Device Name</label>
             <input 
               type="text" 
-              placeholder="Full name" 
-              value={addFormData.requestedBy}
-              onChange={(e) => setAddFormData({...addFormData, requestedBy: e.target.value})}
-              className="input-field" 
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-            <input 
-              type="text" 
-              placeholder="e.g., Sales, HR, IT" 
-              value={addFormData.department}
-              onChange={(e) => setAddFormData({...addFormData, department: e.target.value})}
+              placeholder="e.g., Dell Latitude 5520" 
+              value={addFormData.deviceName}
+              onChange={(e) => setAddFormData({...addFormData, deviceName: e.target.value})}
               className="input-field" 
             />
           </div>
@@ -356,15 +342,6 @@ function DeviceRequests() {
               <option value="Network Device">Network Device</option>
               <option value="Other">Other</option>
             </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Request Date</label>
-            <input 
-              type="date" 
-              value={addFormData.requestDate}
-              onChange={(e) => setAddFormData({...addFormData, requestDate: e.target.value})}
-              className="input-field" 
-            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Request</label>
@@ -400,20 +377,12 @@ function DeviceRequests() {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Requested By</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Device Name</label>
             <input
               type="text"
-              value={editFormData.requestedBy}
-              onChange={(e) => handleInputChange('requestedBy', e.target.value)}
-              className="input-field"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-            <input
-              type="text"
-              value={editFormData.department}
-              onChange={(e) => handleInputChange('department', e.target.value)}
+              placeholder="e.g., Dell Latitude 5520"
+              value={editFormData.deviceName || ''}
+              onChange={(e) => handleInputChange('deviceName', e.target.value)}
               className="input-field"
             />
           </div>
@@ -434,15 +403,6 @@ function DeviceRequests() {
               <option>Network Device</option>
               <option>Other</option>
             </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Request Date</label>
-            <input
-              type="date"
-              value={editFormData.requestDate}
-              onChange={(e) => handleInputChange('requestDate', e.target.value)}
-              className="input-field"
-            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Request</label>
@@ -506,6 +466,10 @@ function DeviceRequests() {
               <div>
                 <p className="text-sm text-gray-600">Department</p>
                 <p className="text-lg font-semibold text-gray-900">{selectedRequest.department}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Device Name</p>
+                <p className="text-lg font-semibold text-gray-900">{selectedRequest.deviceName}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Device Type</p>

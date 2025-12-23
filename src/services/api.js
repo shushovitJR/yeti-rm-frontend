@@ -67,7 +67,8 @@ export const repairAPI = {
     const response = await apiRequest('/api/repair')
     // Transform backend response to frontend format
     return response.map(item => ({
-      id: item.RepairId,
+      id: Number(item.RepairId.replace(/\D/g, '')), // Extract numeric part from "REP001"
+      displayId: item.RepairId, // Keep formatted ID for display
       deviceName: item.DeviceName,
       deviceCategory: item.Category,
       issue: item.Issue,
@@ -80,7 +81,8 @@ export const repairAPI = {
   getById: async (id) => {
     const response = await apiRequest(`/api/repair/${id}`)
     return {
-      id: response.RepairId,
+      id: Number(response.RepairId.replace(/\D/g, '')), // Extract numeric part from "REP001"
+      displayId: response.RepairId,
       deviceName: response.DeviceName,
       deviceCategory: response.Category,
       issue: response.Issue,
@@ -107,17 +109,26 @@ export const repairAPI = {
     })
   },
   update: (id, data) => {
+    // Ensure ID is a number
+    const repairId = Number(id)
+    console.log('Updating repair with ID:', id, 'Converted to:', repairId, 'Type:', typeof repairId)
+    
+    if (isNaN(repairId) || repairId <= 0) {
+      const error = new Error('Invalid repair ID: ' + id)
+      console.error(error)
+      throw error
+    }
+    
     // Transform frontend data to backend format
     const transformedData = {
-      DeviceCategory: data.deviceCategory,
-      DeviceName: data.deviceName,
       IssueDescription: data.issue,
       IssueDate: data.issueDate,
-      ReturnDate: data.returnedDate || null,
+      ReturnDate: data.returnedDate && data.returnedDate !== '-' ? data.returnedDate : null,
       VendorName: data.vendor,
       RepairStatus: data.status || 'Pending',
     }
-    return apiRequest(`/api/repair/${id}`, {
+    console.log('Sending to backend:', `/api/repair/${repairId}`, transformedData)
+    return apiRequest(`/api/repair/${repairId}`, {
       method: 'PUT',
       body: transformedData,
     })

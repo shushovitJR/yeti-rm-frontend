@@ -4,7 +4,7 @@ import SideDrawer from '../components/SideDrawer'
 import Modal from '../components/Modal'
 import ConfirmDialog from '../components/ConfirmDialog'
 import { useToast } from '../context/ToastContext'
-import { repairAPI } from '../services/api'
+import { repairAPI, vendorAPI } from '../services/api'
 
 function RepairManagement() {
   const { addToast } = useToast()
@@ -18,6 +18,9 @@ function RepairManagement() {
   const [repairs, setRepairs] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [vendors, setVendors] = useState([])
+  const [isLoadingVendors, setIsLoadingVendors] = useState(false)
+  const [vendorError, setVendorError] = useState('')
   const [addFormData, setAddFormData] = useState({
     deviceCategory: '',
     deviceName: '',
@@ -26,13 +29,22 @@ function RepairManagement() {
     issue: '',
     vendor: '',
   })
-  const [editFormData, setEditFormData] = useState({})
+  const [editFormData, setEditFormData] = useState({
+    deviceName: '',
+    deviceCategory: '',
+    issueDate: '',
+    returnedDate: '',
+    issue: '',
+    vendor: '',
+    status: 'pending',
+  })
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false })
 
 
-  // Fetch repairs on component mount
+  // Fetch repairs and vendors on component mount
   useEffect(() => {
     fetchRepairs()
+    fetchVendors()
   }, [])
 
   const fetchRepairs = async () => {
@@ -50,9 +62,24 @@ function RepairManagement() {
     }
   }
 
+  const fetchVendors = async () => {
+    setIsLoadingVendors(true)
+    setVendorError('')
+    try {
+      const data = await vendorAPI.getAll()
+      setVendors(Array.isArray(data) ? data : data.data || [])
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to fetch vendors'
+      setVendorError(errorMsg)
+      console.error('Vendor fetch error:', err)
+    } finally {
+      setIsLoadingVendors(false)
+    }
+  }
+
   const filteredRepairs = repairs.filter((repair) => {
     const matchesSearch = repair.deviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         repair.id.toLowerCase().includes(searchTerm.toLowerCase())
+                         repair.displayId.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || repair.status === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -66,16 +93,15 @@ function RepairManagement() {
 
   const getStatusBadge = (status) => {
     const badges = {
-      pending: 'badge badge-warning',
-      'in-progress': 'badge badge-info',
-      completed: 'badge badge-success',
+      Pending: 'badge badge-warning',
+      'In Progress': 'badge badge-info',
+      Completed: 'badge badge-success',
     }
     return badges[status] || 'badge badge-info'
   }
 
-  const vendors = ['TechRepair Inc', 'QuickFix Services', 'Apple Care', 'Office Equipment Co']
   const deviceCategories = ['Laptop', 'Desktop', 'Tablet', 'Phone', 'Printer', 'Network Device', 'Other']
-  const statuses = ['pending', 'in-progress', 'completed']
+  const statuses = ['Pending', 'In Progress', 'Completed']
 
   const handleViewRepair = (repair) => {
     setSelectedRepair(repair)
@@ -88,7 +114,7 @@ function RepairManagement() {
       deviceName: repair.deviceName,
       deviceCategory: repair.deviceCategory,
       issueDate: repair.issueDate,
-      returnedDate: repair.returnedDate || '',
+      returnedDate: repair.returnedDate === '-' ? '' : repair.returnedDate,
       issue: repair.issue,
       vendor: repair.vendor,
       status: repair.status,
@@ -195,9 +221,9 @@ function RepairManagement() {
           className="input-field"
         >
           <option value="all">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="in-progress">In Progress</option>
-          <option value="completed">Completed</option>
+          <option value="Pending">Pending</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
         </select>
       </div>
 
@@ -228,7 +254,7 @@ function RepairManagement() {
               <tbody>
                 {paginatedRepairs.map((repair) => (
                   <tr key={repair.id} className="table-row">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{repair.id}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{repair.displayId}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{repair.deviceName}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{repair.issue}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{repair.issueDate}</td>
@@ -359,16 +385,19 @@ function RepairManagement() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Assignment *</label>
+            {vendorError && (
+              <p className="text-sm text-red-600 mb-2">{vendorError}</p>
+            )}
             <select 
               value={addFormData.vendor}
               onChange={(e) => setAddFormData({...addFormData, vendor: e.target.value})}
               className="input-field"
+              disabled={isLoadingVendors || vendors.length === 0}
             >
-              <option value="">Select vendor</option>
-              <option value="TechRepair Inc">TechRepair Inc</option>
-              <option value="QuickFix Services">QuickFix Services</option>
-              <option value="Apple Care">Apple Care</option>
-              <option value="Office Equipment Co">Office Equipment Co</option>
+              <option value="">{isLoadingVendors ? 'Loading vendors...' : vendors.length === 0 ? 'No vendors available' : 'Select vendor'}</option>
+              {vendors.map(vendor => (
+                <option key={vendor.name} value={vendor.name}>{vendor.name}</option>
+              ))}
             </select>
           </div>
           <div className="flex gap-3 mt-8">
@@ -444,13 +473,18 @@ function RepairManagement() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Assignment *</label>
+            {vendorError && (
+              <p className="text-sm text-red-600 mb-2">{vendorError}</p>
+            )}
             <select
-              value={editFormData.vendor}
+              value={editFormData.vendor || ''}
               onChange={(e) => handleInputChange('vendor', e.target.value)}
               className="input-field"
+              disabled={isLoadingVendors || vendors.length === 0}
             >
-              {vendors.map(v => (
-                <option key={v} value={v}>{v}</option>
+              <option value="">{isLoadingVendors ? 'Loading vendors...' : vendors.length === 0 ? 'No vendors available' : 'Select vendor'}</option>
+              {vendors.map(vendor => (
+                <option key={vendor.name} value={vendor.name}>{vendor.name}</option>
               ))}
             </select>
           </div>
@@ -494,7 +528,7 @@ function RepairManagement() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-gray-600">Repair ID</p>
-                <p className="text-lg font-semibold text-gray-900">{selectedRepair.id}</p>
+                <p className="text-lg font-semibold text-gray-900">{selectedRepair.displayId}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Device Name</p>
