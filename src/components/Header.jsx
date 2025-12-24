@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { Menu, LogOut, User, Lock, ChevronDown } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 function Header({ onMenuClick }) {
   const [profileOpen, setProfileOpen] = useState(false)
+  const { currentUser } = useAuth()
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-card sticky top-0 z-40">
@@ -25,7 +27,7 @@ function Header({ onMenuClick }) {
               JD
             </div>
             <div className="hidden sm:block text-left">
-              <p className="text-sm font-medium text-gray-900">John Doe</p>
+              <p className="text-sm font-medium text-gray-900">{currentUser || 'User'}</p>
             </div>
             <ChevronDown size={18} className="text-gray-500" />
           </button>

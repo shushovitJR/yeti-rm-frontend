@@ -122,7 +122,7 @@ function Settings() {
       confirmText: 'Delete',
       onConfirm: async () => {
         try {
-          await vendorAPI.delete(vendor.vendorName)
+          await vendorAPI.delete(vendor.id)
           addToast('Vendor deleted successfully', 'success')
           setConfirmDialog({ isOpen: false })
           fetchVendors()

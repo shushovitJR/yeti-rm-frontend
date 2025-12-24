@@ -207,11 +207,10 @@ export const vendorAPI = {
   getAll: async () => {
     const response = await apiRequest('/api/vendor')
     // Transform backend response to frontend format
-    // Note: Backend doesn't return VendorId, so we use VendorName as identifier
-    return response.map((item, index) => ({
-      id: index, // Use index as temporary ID since backend doesn't provide it
+    return response.map((item) => ({
+      id: item.VendorId,
       name: item.VendorName,
-      vendorName: item.VendorName, // Keep original name for deletion
+      vendorName: item.VendorName,
     }))
   },
   create: (data) => {
@@ -224,11 +223,18 @@ export const vendorAPI = {
       body: transformedData,
     })
   },
-  delete: (vendorName) =>
-    // Use vendor name to find and delete by making a request
-    apiRequest(`/api/vendor/${vendorName}`, {
+  delete: (id) => {
+    // Use numeric vendor ID to delete
+    const vendorId = Number(id)
+    if (isNaN(vendorId) || vendorId <= 0) {
+      const error = new Error('Invalid vendor ID: ' + id)
+      console.error(error)
+      throw error
+    }
+    return apiRequest(`/api/vendor/${vendorId}`, {
       method: 'DELETE',
-    }),
+    })
+  },
 }
 
 export default {
