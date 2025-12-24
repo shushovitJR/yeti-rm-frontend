@@ -144,19 +144,23 @@ export const requestAPI = {
       id: item.RequestId,
       requestedBy: item.RequestedBy,
       department: item.Department,
-      deviceType: item.DeviceName,
+      deviceName: item.DeviceName,
+      deviceType: item.Category,
       reason: item.Reason,
       requestDate: item.RequestDate,
       status: item.Status,
     }))
   },
   getById: async (id) => {
-    const response = await apiRequest(`/api/request/${id}`)
+    // Extract numeric ID from formatted ID (e.g., "REQ001" -> 1)
+    const numericId = Number(id.replace(/\D/g, ''))
+    const response = await apiRequest(`/api/request/${numericId}`)
     return {
       id: response.RequestId,
       requestedBy: response.RequestedBy,
       department: response.Department,
-      deviceType: response.DeviceCategory,
+      deviceName: response.DeviceName,
+      deviceType: response.category,
       reason: response.Reason,
       requestDate: response.RequestDate,
       status: response.Status,
@@ -166,7 +170,7 @@ export const requestAPI = {
     // Transform frontend data to backend format
     const transformedData = {
       DeviceCategory: data.deviceType,
-      DeviceName: data.deviceType,
+      DeviceName: data.deviceName,
       Reason: data.reason,
       RequestStatus: data.status || 'Pending',
     }
@@ -176,14 +180,22 @@ export const requestAPI = {
     })
   },
   update: (id, data) => {
+    // Extract numeric ID from formatted ID (e.g., "REQ001" -> 1)
+    const numericId = Number(id.replace(/\D/g, ''))
+    
+    if (isNaN(numericId) || numericId <= 0) {
+      const error = new Error('Invalid request ID: ' + id)
+      console.error(error)
+      throw error
+    }
+    
     // Transform frontend data to backend format
     const transformedData = {
-      DeviceCategory: data.deviceType,
-      DeviceName: data.deviceType,
       Reason: data.reason,
       RequestStatus: data.status || 'Pending',
     }
-    return apiRequest(`/api/request/${id}`, {
+    console.log('Updating request with ID:', id, 'Converted to:', numericId)
+    return apiRequest(`/api/request/${numericId}`, {
       method: 'PUT',
       body: transformedData,
     })

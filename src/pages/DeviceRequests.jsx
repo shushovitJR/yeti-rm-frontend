@@ -22,13 +22,11 @@ function DeviceRequests() {
     deviceName: '',
     deviceType: '',
     reason: '',
-    status: 'pending',
+    status: 'Pending',
   })
   const [editFormData, setEditFormData] = useState({})
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false })
 
-
-  // Fetch device requests on component mount
   useEffect(() => {
     fetchRequests()
   }, [])
@@ -51,7 +49,17 @@ function DeviceRequests() {
   const filteredRequests = requests.filter((request) => {
     const matchesSearch = request.requestedBy.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          request.id.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === 'all' || request.status === statusFilter
+    let matchesStatus = true
+    if (statusFilter !== 'all') {
+      // Normalize status comparison: convert filter value to match backend response
+      const filterMap = {
+        'pending': 'Pending',
+        'received': 'Received',
+        'on-hold': 'On Hold',
+        'canceled': 'Canceled'
+      }
+      matchesStatus = request.status === (filterMap[statusFilter] || statusFilter)
+    }
     return matchesSearch && matchesStatus
   })
 
@@ -64,10 +72,10 @@ function DeviceRequests() {
 
   const getStatusBadge = (status) => {
     const badges = {
-      pending: 'badge bg-yellow-100 text-yellow-800',
-      received: 'badge bg-green-100 text-green-800',
-      'on-hold': 'badge bg-purple-100 text-purple-800',
-      canceled: 'badge bg-red-100 text-red-800',
+      Pending: 'badge bg-yellow-100 text-yellow-800',
+      Received: 'badge bg-green-100 text-green-800',
+      'On Hold': 'badge bg-purple-100 text-purple-800',
+      Canceled: 'badge bg-red-100 text-red-800',
     }
     return badges[status] || 'badge badge-info'
   }
@@ -142,7 +150,7 @@ function DeviceRequests() {
         deviceName: '',
         deviceType: '',
         reason: '',
-        status: 'pending',
+        status: 'Pending',
       })
       fetchRequests()
     } catch (err) {
@@ -415,14 +423,14 @@ function DeviceRequests() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
             <select
-              value={editFormData.status}
+              value={editFormData.status || 'Pending'}
               onChange={(e) => handleInputChange('status', e.target.value)}
               className="input-field"
             >
-              <option value="pending">Pending</option>
-              <option value="received">Received</option>
-              <option value="on-hold">On Hold</option>
-              <option value="canceled">Canceled</option>
+              <option value="Pending">Pending</option>
+              <option value="Received">Received</option>
+              <option value="On Hold">On Hold</option>
+              <option value="Canceled">Canceled</option>
             </select>
           </div>
           <div className="flex gap-3 mt-8">
