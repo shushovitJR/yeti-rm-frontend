@@ -223,14 +223,25 @@ export const vendorAPI = {
       body: transformedData,
     })
   },
+  update: (id, data) => {
+    const numericId = Number(id);
+    const transformedData = {
+      vendorName: data.name,
+    }
+    console.log("Updating status of id:",numericId);
+    return apiRequest(`/api/vendor/${numericId}`,{
+      method: 'PUT',
+      body: transformedData,
+    })
+  },
   delete: (id) => {
     // Use numeric vendor ID to delete
     const vendorId = Number(id)
-    if (isNaN(vendorId) || vendorId <= 0) {
-      const error = new Error('Invalid vendor ID: ' + id)
-      console.error(error)
-      throw error
-    }
+    // if (isNaN(vendorId) || vendorId <= 0) {
+    //   const error = new Error('Invalid vendor ID: ' + id)
+    //   console.error(error)
+    //   throw error
+    // }
     return apiRequest(`/api/vendor/${vendorId}`, {
       method: 'DELETE',
     })

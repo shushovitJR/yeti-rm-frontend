@@ -151,7 +151,7 @@ function Settings() {
     setEditingVendorName('')
   }
 
-  const handleSaveVendorEdit = () => {
+  const handleSaveVendorEdit = async () => {
     if (!editingVendorName.trim()) {
       addToast('Vendor name cannot be empty', 'error')
       return
@@ -161,13 +161,17 @@ function Settings() {
       addToast('A vendor with this name already exists', 'error')
       return
     }
+     try{
+      await vendorAPI.update(editingVendorId, {name: editingVendorName})
+      addToast('Vendor Edited Successfully', 'success')
+      fetchVendors()
+      handleCancelEditVendor()
+      } catch (err){
+        const errMsg = err.data?.message || err.message || 'Failed to edit vendor'
+        addToast(errMsg, 'error') 
+      }
 
-    // Update vendor in local state (UI-only, no backend call)
-    setVendors(vendors.map(v => 
-      v.id === editingVendorId ? { ...v, name: editingVendorName } : v
-    ))
-    addToast('Vendor updated successfully', 'success')
-    handleCancelEditVendor()
+
   }
 
   return (
