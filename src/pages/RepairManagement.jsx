@@ -62,20 +62,20 @@ function RepairManagement() {
     }
   }
 
-  const fetchVendors = async () => {
-    setIsLoadingVendors(true)
-    setVendorError('')
-    try {
-      const data = await vendorAPI.getAll()
-      setVendors(Array.isArray(data) ? data : data.data || [])
-    } catch (err) {
-      const errorMsg = err.data?.message || err.message || 'Failed to fetch vendors'
-      setVendorError(errorMsg)
-      console.error('Vendor fetch error:', err)
-    } finally {
-      setIsLoadingVendors(false)
-    }
-  }
+  // const fetchVendors = async () => {
+  //   setIsLoadingVendors(true)
+  //   setVendorError('')
+  //   try {
+  //     const data = await vendorAPI.getAll()
+  //     setVendors(Array.isArray(data) ? data : data.data || [])
+  //   } catch (err) {
+  //     const errorMsg = err.data?.message || err.message || 'Failed to fetch vendors'
+  //     setVendorError(errorMsg)
+  //     console.error('Vendor fetch error:', err)
+  //   } finally {
+  //     setIsLoadingVendors(false)
+  //   }
+  // }
 
   const filteredRepairs = repairs.filter((repair) => {
     const matchesSearch = repair.deviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -477,15 +477,18 @@ function RepairManagement() {
               <p className="text-sm text-red-600 mb-2">{vendorError}</p>
             )}
             <select
-              value={editFormData.vendor || ''}
-              onChange={(e) => handleInputChange('vendor', e.target.value)}
-              className="input-field"
-              disabled={isLoadingVendors || vendors.length === 0}
+              // value={editFormData.vendor || ''}
+              // onChange={(e) => handleInputChange('vendor', e.target.value)}
+              // className="input-field"
+              // disabled={isLoadingVendors || vendors.length === 0}
             >
-              <option value="">{isLoadingVendors ? 'Loading vendors...' : vendors.length === 0 ? 'No vendors available' : 'Select vendor'}</option>
-              {vendors.map(vendor => (
+              {/* <option value="">{isLoadingVendors ? 'Loading vendors...' : vendors.length === 0 ? 'No vendors available' : 'Select vendor'}</option> */}
+              {/* {vendors.map(vendor => (
                 <option key={vendor.name} value={vendor.name}>{vendor.name}</option>
-              ))}
+              ))} */}
+              <option value="">Vendor Name</option>
+              <option value="">Vendor Name</option>
+              <option value="">Vendor Name</option>
             </select>
           </div>
           <div>

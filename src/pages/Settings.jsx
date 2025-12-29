@@ -11,12 +11,16 @@ function Settings() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
+  const [editingItemColor, setEditingItemColor] = useState('')
+  const [addingItemColor, setAddingItemColor] = useState('#3b82f6')
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false })
   const [newVendorName, setNewVendorName] = useState('')
   const [vendorError, setVendorError] = useState('')
   const [vendors, setVendors] = useState([])
   const [isLoadingVendors, setIsLoadingVendors] = useState(false)
   const [vendorLoadError, setVendorLoadError] = useState('')
+  const [editingVendorId, setEditingVendorId] = useState(null)
+  const [editingVendorName, setEditingVendorName] = useState('')
 
   const [categories] = useState([
     { id: 1, name: 'Laptops', description: 'Portable computing devices' },
@@ -76,11 +80,13 @@ function Settings() {
 
   const handleAddItem = () => {
     setIsAddModalOpen(false)
+    setAddingItemColor('#3b82f6')
     addToast('Item added successfully', 'success')
   }
 
   const handleEditItem = (item) => {
     setSelectedItem(item)
+    setEditingItemColor(item.color || '#3b82f6')
     setIsEditModalOpen(true)
   }
 
@@ -133,6 +139,35 @@ function Settings() {
       },
       isDangerous: true,
     })
+  }
+
+  const handleEditVendor = (vendor) => {
+    setEditingVendorId(vendor.id)
+    setEditingVendorName(vendor.name)
+  }
+
+  const handleCancelEditVendor = () => {
+    setEditingVendorId(null)
+    setEditingVendorName('')
+  }
+
+  const handleSaveVendorEdit = () => {
+    if (!editingVendorName.trim()) {
+      addToast('Vendor name cannot be empty', 'error')
+      return
+    }
+
+    if (vendors.some(v => v.id !== editingVendorId && v.name.toLowerCase() === editingVendorName.toLowerCase())) {
+      addToast('A vendor with this name already exists', 'error')
+      return
+    }
+
+    // Update vendor in local state (UI-only, no backend call)
+    setVendors(vendors.map(v => 
+      v.id === editingVendorId ? { ...v, name: editingVendorName } : v
+    ))
+    addToast('Vendor updated successfully', 'success')
+    handleCancelEditVendor()
   }
 
   return (
@@ -342,13 +377,51 @@ function Settings() {
                   ) : (
                     vendors.map(vendor => (
                       <div key={vendor.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                        <p className="font-medium text-gray-900">{vendor.name}</p>
-                        <button
-                          onClick={() => handleDeleteVendor(vendor)}
-                          className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        {editingVendorId === vendor.id ? (
+                          <div className="flex-1 flex gap-2 items-center">
+                            <input
+                              type="text"
+                              value={editingVendorName}
+                              onChange={(e) => setEditingVendorName(e.target.value)}
+                              className="flex-1 input-field"
+                              autoFocus
+                            />
+                            <button
+                              onClick={handleSaveVendorEdit}
+                              className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
+                              title="Save"
+                            >
+                              <Save size={16} />
+                            </button>
+                            <button
+                              onClick={handleCancelEditVendor}
+                              className="btn-sm bg-gray-100 text-gray-600 hover:bg-gray-200"
+                              title="Cancel"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="font-medium text-gray-900">{vendor.name}</p>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleEditVendor(vendor)}
+                                className="btn-sm bg-blue-100 text-blue-600 hover:bg-blue-200"
+                                title="Edit"
+                              >
+                                <Edit size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteVendor(vendor)}
+                                className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </>
+                        )}
                       </div>
                     ))
                   )}
@@ -374,7 +447,40 @@ function Settings() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
-                <input type="color" className="input-field h-10" />
+                <div className="flex items-center gap-4">
+                  <div className="flex gap-2 flex-wrap">
+                    {['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#ec4899', '#f97316', '#06b6d4'].map(color => (
+                      <button
+                        key={color}
+                        onClick={() => setAddingItemColor(color)}
+                        className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                          addingItemColor === color ? 'border-gray-800 ring-2 ring-offset-2 ring-gray-400' : 'border-gray-300'
+                        }`}
+                        style={{ backgroundColor: color }}
+                        title={color}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium text-gray-700">Custom:</label>
+                    <input
+                      type="color"
+                      value={addingItemColor}
+                      onChange={(e) => setAddingItemColor(e.target.value)}
+                      className="w-12 h-10 rounded border border-gray-300 cursor-pointer"
+                    />
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-3">
+                  <p className="text-sm text-gray-600">Preview:</p>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-8 h-8 rounded-full border border-gray-300"
+                      style={{ backgroundColor: addingItemColor }}
+                    />
+                    <span className="text-sm font-mono text-gray-700">{addingItemColor}</span>
+                  </div>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -441,6 +547,45 @@ function Settings() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
               <textarea defaultValue={selectedItem.description} className="input-field h-20" />
             </div>
+            {(activeTab === 'repair-status' || activeTab === 'device-request-status') && selectedItem.color && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">Color</label>
+                <div className="flex items-center gap-4">
+                  <div className="flex gap-2 flex-wrap">
+                    {['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#ec4899', '#f97316', '#06b6d4'].map(color => (
+                      <button
+                        key={color}
+                        onClick={() => setEditingItemColor(color)}
+                        className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                          editingItemColor === color ? 'border-gray-800 ring-2 ring-offset-2 ring-gray-400' : 'border-gray-300'
+                        }`}
+                        style={{ backgroundColor: color }}
+                        title={color}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium text-gray-700">Custom:</label>
+                    <input
+                      type="color"
+                      value={editingItemColor}
+                      onChange={(e) => setEditingItemColor(e.target.value)}
+                      className="w-12 h-10 rounded border border-gray-300 cursor-pointer"
+                    />
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-3">
+                  <p className="text-sm text-gray-600">Preview:</p>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-8 h-8 rounded-full border border-gray-300"
+                      style={{ backgroundColor: editingItemColor }}
+                    />
+                    <span className="text-sm font-mono text-gray-700">{editingItemColor}</span>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setIsEditModalOpen(false)}
