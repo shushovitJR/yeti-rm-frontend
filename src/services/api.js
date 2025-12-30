@@ -228,7 +228,7 @@ export const vendorAPI = {
     const transformedData = {
       vendorName: data.name,
     }
-    console.log("Updating status of id:",numericId);
+    // console.log("Updating status of id:",numericId);
     return apiRequest(`/api/vendor/${numericId}`,{
       method: 'PUT',
       body: transformedData,
@@ -265,6 +265,19 @@ export const deviceAPI = {
     }
     return apiRequest('/api/device',{
       method: 'POST',
+      body: transformedData,
+    })
+  },
+  update: (id, data) => {
+    const numericId = Number(id);
+    transformedData = {
+      DeviceCatName: data.name,
+      DeviceDescription: data.description,
+    }
+    console.log("Updating status of:",numericId)
+    console.log(transformedData)
+    return apiRequest(`api/device/${numericId}`,{
+      method: 'PUT',
       body: transformedData,
     })
   },

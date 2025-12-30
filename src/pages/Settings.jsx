@@ -25,6 +25,9 @@ function Settings() {
   const [categories, setCategories] = useState([])
   const [newCategoryName, setNewCategoryName] = useState('')
   const [newCategoryDescription, setNewCategoryDescription] = useState('')
+  const [editingCategoryId, setEditingCategoryId] = useState(null)
+  const [editingCategoryName, setEditingCategoryName] = useState('')
+  const [editingCategoryDescription, setEditingCategoryDescription] = useState('')
 
 
   const [repairStatuses] = useState([
@@ -176,6 +179,7 @@ function Settings() {
     setEditingVendorName(vendor.name)
   }
 
+
   const handleCancelEditVendor = () => {
     setEditingVendorId(null)
     setEditingVendorName('')
@@ -203,6 +207,7 @@ function Settings() {
 
 
   }
+
 
   return (
     <div className="p-6 space-y-6">
