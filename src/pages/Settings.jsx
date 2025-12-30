@@ -3,7 +3,7 @@ import { Plus, Edit, Trash2, Save, AlertCircle } from 'lucide-react'
 import Modal from '../components/Modal'
 import ConfirmDialog from '../components/ConfirmDialog'
 import { useToast } from '../context/ToastContext'
-import { vendorAPI } from '../services/api'
+import { vendorAPI, deviceAPI } from '../services/api'
 
 function Settings() {
   const { addToast } = useToast()
@@ -22,13 +22,10 @@ function Settings() {
   const [editingVendorId, setEditingVendorId] = useState(null)
   const [editingVendorName, setEditingVendorName] = useState('')
 
-  const [categories] = useState([
-    { id: 1, name: 'Laptops', description: 'Portable computing devices' },
-    { id: 2, name: 'Desktops', description: 'Desktop computers' },
-    { id: 3, name: 'Tablets', description: 'Tablet devices' },
-    { id: 4, name: 'Phones', description: 'Mobile phones' },
-    { id: 5, name: 'Printers', description: 'Printing devices' },
-  ])
+  const [categories, setCategories] = useState([])
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [newCategoryDescription, setNewCategoryDescription] = useState('No description provided')
+
 
   const [repairStatuses] = useState([
     { id: 1, name: 'Pending', color: '#f59e0b', description: 'Awaiting repair initiation' },
@@ -40,13 +37,14 @@ function Settings() {
   const [deviceRequestStatuses] = useState([
     { id: 1, name: 'Pending', color: '#f59e0b', description: 'Awaiting approval' },
     { id: 2, name: 'Received', color: '#3b82f6', description: 'Request received and being processed' },
-    { id: 3, name: 'On Hold', color: '#8b5cf6', description: 'Request temporarily paused' },
-    { id: 4, name: 'Canceled', color: '#ef4444', description: 'Request has been canceled' },
+    { id: 3, name: 'On Hold', color: '#123456', description: 'Request temporarily paused' },
+    { id: 4, name: 'Canceled', color: '#000000', description: 'Request has been canceled' },
   ])
 
   // Fetch vendors on component mount
   useEffect(() => {
-    fetchVendors()
+    fetchVendors(),
+    fetchCategories()
   }, [])
 
   const fetchVendors = async () => {
@@ -64,6 +62,16 @@ function Settings() {
     }
   }
 
+  const fetchCategories = async () => {
+    try{
+      const data = await deviceAPI.getAll()
+      setCategories(Array.isArray(data) ? data : data.data || [])
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to fetch devices'
+      addToast(errorMsg, 'error')
+    }
+  }
+
   const handleDeleteItem = (item, type) => {
     setConfirmDialog({
       isOpen: true,
@@ -76,6 +84,27 @@ function Settings() {
       },
       isDangerous: true,
     })
+  }
+
+  const handleAddCategory = async () => {
+    if (!newCategoryName.trim()){
+      addToast('Category name cannot be empty', 'error')
+      return
+    };
+    if (categories.some(c=>c.name.toLowerCase() === newCategoryName.toLowerCase())){
+      addToast('The category name already exists', 'error')
+      return
+    };
+    try{
+      await deviceAPI.create({ name:newCategoryName, description:newCategoryDescription })
+      setNewCategoryName('')
+      setNewCategoryDescription('')
+      addToast('Successfully added category', 'success')
+      fetchCategories()
+    } catch (err){
+      const errMsg = err.data?.message || err.message || 'Failed to add category'
+      addToast(errMsg, 'error')
+    }
   }
 
   const handleAddItem = () => {
@@ -411,7 +440,7 @@ function Settings() {
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleEditVendor(vendor)}
-                                className="btn-sm bg-blue-100 text-blue-600 hover:bg-blue-200"
+                                className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                                 title="Edit"
                               >
                                 <Edit size={16} />
@@ -510,11 +539,21 @@ function Settings() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input type="text" placeholder="Enter name" className="input-field" />
+                <input type="text" placeholder="Enter name" className="input-field" 
+                  value = {newCategoryName}
+                  onChange={(e)=>{
+                    setNewCategoryName(e.target.value)
+                  }}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea placeholder="Enter description" className="input-field h-20" />
+                <textarea placeholder="Enter description" className="input-field h-20" 
+                  value = {newCategoryDescription}
+                  onChange={(e)=>{
+                    setNewCategoryDescription(e.target.value)
+                  }}
+                />
               </div>
               <div className="flex gap-3 mt-6">
                 <button
@@ -524,7 +563,7 @@ function Settings() {
                   Cancel
                 </button>
                 <button
-                  onClick={handleAddItem}
+                  onClick={handleAddCategory}
                   className="flex-1 btn-primary"
                 >
                   Add

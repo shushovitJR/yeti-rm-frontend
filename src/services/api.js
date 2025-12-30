@@ -248,9 +248,33 @@ export const vendorAPI = {
   },
 }
 
+//Device Category Management API
+export const deviceAPI = {
+  getAll: async () =>{
+    const response = await apiRequest('/api/device')
+    return response.map((item)=>({
+      id: item.DeviceCategoryId,
+      name: item.DeviceCategoryName,
+      description: item.DeviceDescription,
+    }))
+  },
+  create: (data) =>{
+    const transformedData = {
+      DeviceCatName: data.name,
+      DeviceDescription: data.description
+    }
+    console.log(transformedData);
+    return apiRequest('/api/device',{
+      method: 'POST',
+      body: transformedData,
+    })
+  },
+}
+
 export default {
   authAPI,
   repairAPI,
   requestAPI,
   vendorAPI,
+  deviceAPI,
 }
