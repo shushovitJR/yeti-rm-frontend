@@ -289,10 +289,36 @@ export const deviceAPI = {
   },
 }
 
+//Repair Status Management API
+export const repairStatusAPI = {
+  getAll: async () => {
+    const response = await apiRequest('/api/repairStatus')
+    return response.map((item)=>({
+      id: item.RepairStatusId,
+      name: item.RepairStatusName,
+      description: item.StatusDescription,
+      color: item.Color,
+    }))
+  },
+  create: (data) => {
+      const transformedData = {
+        statusName: data.name,
+        statusColor: data.color,
+        statusDescription: data.description,
+      }
+      console.log(transformedData)
+      return apiRequest('/api/repairStatus',{
+        method: 'POST',
+        body: transformedData,
+      })
+  },
+}
+
 export default {
   authAPI,
   repairAPI,
   requestAPI,
   vendorAPI,
   deviceAPI,
+  repairStatusAPI,
 }
