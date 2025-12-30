@@ -334,6 +334,46 @@ export const repairStatusAPI = {
   }
 }
 
+//Request Status Management API
+export const requestStatusAPI = {
+  getAll: async () => {
+    const response = await apiRequest('/api/requestStatus')
+    return response.map((item)=>({
+      id: item.RequestStatusId,
+      name: item.RequestStatusName,
+      description: item.StatusDescription,
+      color: item.Color,
+    }))
+  },
+  create: (data) => {
+    const transformedData = {
+      statusName: data.name,
+      statusDescription: data.description,
+      statusColor: data.color,
+    }
+    // console.log(transformedData);
+    return apiRequest('/api/requestStatus',{
+      method: 'POST',
+      body: transformedData,
+    })
+  },
+  update: (id, data) => {
+    const numericId = Number(id);
+    const transformedData = {
+      statusName: data.name,
+      statusDescription: data.description,
+      statusColor: data.color,
+    }
+    console.log("Editing id:", numericId);
+    console.log(transformedData);
+
+    return apiRequest(`/api/requestStatus/${numericId}`, {
+      method: 'PUT',
+      body: transformedData,
+    })
+  },
+}
+
 export default {
   authAPI,
   repairAPI,
@@ -341,4 +381,5 @@ export default {
   vendorAPI,
   deviceAPI,
   repairStatusAPI,
+  requestStatusAPI,
 }

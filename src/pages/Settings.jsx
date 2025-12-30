@@ -3,7 +3,7 @@ import { Plus, Edit, Trash2, Save, AlertCircle } from "lucide-react";
 import Modal from "../components/Modal";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useToast } from "../context/ToastContext";
-import { vendorAPI, deviceAPI, repairStatusAPI } from "../services/api";
+import { vendorAPI, deviceAPI, repairStatusAPI, requestStatusAPI } from "../services/api";
 
 function Settings() {
   const { addToast } = useToast();
@@ -18,66 +18,31 @@ function Settings() {
   const [newCategoryDescription, setNewCategoryDescription] = useState("");
   const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [editingCategoryName, setEditingCategoryName] = useState("");
-  const [editingCategoryDescription, setEditingCategoryDescription] =
-    useState("");
+  const [editingCategoryDescription, setEditingCategoryDescription] = useState("");
 
   // ============= Repair Status State =============
   const [repairStatuses, setRepairStatuses] = useState([]);
-  const [isAddRepairStatusModalOpen, setIsAddRepairStatusModalOpen] =
-    useState(false);
-  const [isEditRepairStatusModalOpen, setIsEditRepairStatusModalOpen] =
-    useState(false);
+  const [isAddRepairStatusModalOpen, setIsAddRepairStatusModalOpen] = useState(false);
+  const [isEditRepairStatusModalOpen, setIsEditRepairStatusModalOpen] = useState(false);
   const [newRepairStatusName, setNewRepairStatusName] = useState("");
   const [newRepairStatusColor, setNewRepairStatusColor] = useState("");
-  const [newRepairStatusDescription, setNewRepairStatusDescription] =
-    useState("");
+  const [newRepairStatusDescription, setNewRepairStatusDescription] = useState("");
   const [editingRepairStatusId, setEditingRepairStatusId] = useState(null);
   const [editingRepairStatusName, setEditingRepairStatusName] = useState("");
   const [editingRepairStatusColor, setEditingRepairStatusColor] = useState("");
-  const [editingRepairStatusDescription, setEditingRepairStatusDescription] =
-    useState("");
+  const [editingRepairStatusDescription, setEditingRepairStatusDescription] = useState("");
 
   // ============= Device Request Status State =============
-  const [deviceRequestStatuses, setDeviceRequestStatuses] = useState([
-    {
-      id: 1,
-      name: "Pending",
-      color: "#f59e0b",
-      description: "Awaiting approval",
-    },
-    {
-      id: 2,
-      name: "Received",
-      color: "#3b82f6",
-      description: "Request received and being processed",
-    },
-    {
-      id: 3,
-      name: "On Hold",
-      color: "#123456",
-      description: "Request temporarily paused",
-    },
-    {
-      id: 4,
-      name: "Canceled",
-      color: "#000000",
-      description: "Request has been canceled",
-    },
-  ]);
-  const [isAddRequestStatusModalOpen, setIsAddRequestStatusModalOpen] =
-    useState(false);
-  const [isEditRequestStatusModalOpen, setIsEditRequestStatusModalOpen] =
-    useState(false);
+  const [deviceRequestStatuses, setDeviceRequestStatuses] = useState([]);
+  const [isAddRequestStatusModalOpen, setIsAddRequestStatusModalOpen] = useState(false);
+  const [isEditRequestStatusModalOpen, setIsEditRequestStatusModalOpen] = useState(false);
   const [newRequestStatusName, setNewRequestStatusName] = useState("");
-  const [newRequestStatusColor, setNewRequestStatusColor] = useState("#3b82f6");
-  const [newRequestStatusDescription, setNewRequestStatusDescription] =
-    useState("");
+  const [newRequestStatusColor, setNewRequestStatusColor] = useState("");
+  const [newRequestStatusDescription, setNewRequestStatusDescription] = useState("");
   const [editingRequestStatusId, setEditingRequestStatusId] = useState(null);
   const [editingRequestStatusName, setEditingRequestStatusName] = useState("");
-  const [editingRequestStatusColor, setEditingRequestStatusColor] =
-    useState("");
-  const [editingRequestStatusDescription, setEditingRequestStatusDescription] =
-    useState("");
+  const [editingRequestStatusColor, setEditingRequestStatusColor] = useState("");
+  const [editingRequestStatusDescription, setEditingRequestStatusDescription] = useState("");
 
   // ============= Vendor State =============
   const [vendors, setVendors] = useState([]);
@@ -93,6 +58,7 @@ function Settings() {
     fetchVendors();
     fetchCategories();
     fetchRepairStatuses();
+    fetchRequestStatuses();
   }, []);
 
   // ============= Fetch Functions =============
@@ -129,6 +95,16 @@ function Settings() {
       setRepairStatuses(Array.isArray(data) ? data: data.data || []);
     } catch (err){
       const errMsg = err.data?.message || err.message || 'Failed to fetch repair status'
+      addToast(errMsg, 'error');
+    }
+  }
+
+  const fetchRequestStatuses = async () => {
+    try{
+      const data = await requestStatusAPI.getAll();
+      setDeviceRequestStatuses(Array.isArray(data) ? data : data.data || []);
+    } catch (err){
+      const errMsg = err.data?.message || err.message || 'Failed to fetch device statuses'
       addToast(errMsg, 'error');
     }
   }
@@ -345,7 +321,7 @@ function Settings() {
     setIsEditRequestStatusModalOpen(false);
   };
 
-  const saveEditedRequestStatus = () => {
+  const saveEditedRequestStatus = async () => {
     if (!editingRequestStatusName.trim()) {
       addToast("Status name cannot be empty", "error");
       return;
@@ -362,19 +338,20 @@ function Settings() {
       return;
     }
 
-    const updatedStatuses = deviceRequestStatuses.map((s) =>
-      s.id === editingRequestStatusId
-        ? {
-            ...s,
-            name: editingRequestStatusName,
-            color: editingRequestStatusColor,
-            description: editingRequestStatusDescription,
-          }
-        : s
-    );
-    setDeviceRequestStatuses(updatedStatuses);
-    addToast("Request status updated successfully", "success");
-    closeEditRequestStatusMode();
+    try{
+      await requestStatusAPI.update(editingRequestStatusId, {
+        name: editingRequestStatusName,
+        description: editingRequestStatusDescription,
+        color: editingRequestStatusColor,
+      })
+      addToast('Successfully edited device status', 'success');
+      closeEditRequestStatusMode();
+      fetchRequestStatuses();
+
+    } catch (err){
+      const errMsg = err.data?.message || err.message || 'Failed to edit request status'
+      addToast(errMsg, 'error')
+    }
   };
 
   const deleteRequestStatus = (status) => {
@@ -394,7 +371,7 @@ function Settings() {
     });
   };
 
-  const createRequestStatus = () => {
+  const createRequestStatus = async () => {
     if (!newRequestStatusName.trim()) {
       addToast("Status name cannot be empty", "error");
       return;
@@ -409,19 +386,22 @@ function Settings() {
       return;
     }
 
-    const newId = Math.max(...deviceRequestStatuses.map((s) => s.id), 0) + 1;
-    const newStatus = {
-      id: newId,
-      name: newRequestStatusName,
-      color: newRequestStatusColor,
-      description: newRequestStatusDescription,
-    };
-    setDeviceRequestStatuses([...deviceRequestStatuses, newStatus]);
-    setNewRequestStatusName("");
-    setNewRequestStatusColor("#3b82f6");
-    setNewRequestStatusDescription("");
-    addToast("Request status created successfully", "success");
-    setIsAddRequestStatusModalOpen(false);
+    try{
+      await requestStatusAPI.create({
+        name: newRequestStatusName,
+        description: newRequestStatusDescription,
+        color: newRequestStatusColor,
+      })
+      addToast("Successfully created request status", 'success')
+      setNewRequestStatusName('');
+      setNewRequestStatusDescription('');
+      setNewRequestStatusColor('');
+      setIsAddRequestStatusModalOpen(false);
+      fetchRequestStatuses();
+    } catch (err){
+      const errMsg = err.data?.message || err.message || 'Failed to add request status'
+      addToast(errMsg, 'error');
+    }
   };
 
   // ============= Vendor Functions =============
