@@ -263,7 +263,6 @@ export const deviceAPI = {
       DeviceCatName: data.name,
       DeviceDescription: data.description
     }
-    console.log(transformedData);
     return apiRequest('/api/device',{
       method: 'POST',
       body: transformedData,

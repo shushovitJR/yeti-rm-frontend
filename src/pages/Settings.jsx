@@ -24,7 +24,7 @@ function Settings() {
 
   const [categories, setCategories] = useState([])
   const [newCategoryName, setNewCategoryName] = useState('')
-  const [newCategoryDescription, setNewCategoryDescription] = useState('No description provided')
+  const [newCategoryDescription, setNewCategoryDescription] = useState('')
 
 
   const [repairStatuses] = useState([
@@ -101,6 +101,7 @@ function Settings() {
       setNewCategoryDescription('')
       addToast('Successfully added category', 'success')
       fetchCategories()
+      setIsAddModalOpen(false)
     } catch (err){
       const errMsg = err.data?.message || err.message || 'Failed to add category'
       addToast(errMsg, 'error')
