@@ -270,16 +270,22 @@ export const deviceAPI = {
   },
   update: (id, data) => {
     const numericId = Number(id);
-    transformedData = {
+    const transformedData = {
       DeviceCatName: data.name,
       DeviceDescription: data.description,
     }
     console.log("Updating status of:",numericId)
     console.log(transformedData)
-    return apiRequest(`api/device/${numericId}`,{
+    return apiRequest(`/api/device/${numericId}`,{
       method: 'PUT',
       body: transformedData,
     })
+  },
+  delete: (id) => {
+      const numericId = Number(id);
+      return apiRequest(`/api/device/${numericId}`,{
+        method: 'DELETE',
+      })
   },
 }
 

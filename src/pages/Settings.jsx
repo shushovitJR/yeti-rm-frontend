@@ -8,48 +8,68 @@ import { vendorAPI, deviceAPI } from '../services/api'
 function Settings() {
   const { addToast } = useToast()
   const [activeTab, setActiveTab] = useState('categories')
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [selectedItem, setSelectedItem] = useState(null)
-  const [editingItemColor, setEditingItemColor] = useState('')
-  const [addingItemColor, setAddingItemColor] = useState('#3b82f6')
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false })
-  const [newVendorName, setNewVendorName] = useState('')
-  const [vendorError, setVendorError] = useState('')
-  const [vendors, setVendors] = useState([])
-  const [isLoadingVendors, setIsLoadingVendors] = useState(false)
-  const [vendorLoadError, setVendorLoadError] = useState('')
-  const [editingVendorId, setEditingVendorId] = useState(null)
-  const [editingVendorName, setEditingVendorName] = useState('')
 
+  // ============= Device Category State =============
   const [categories, setCategories] = useState([])
+  const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false)
+  const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
   const [newCategoryDescription, setNewCategoryDescription] = useState('')
   const [editingCategoryId, setEditingCategoryId] = useState(null)
   const [editingCategoryName, setEditingCategoryName] = useState('')
   const [editingCategoryDescription, setEditingCategoryDescription] = useState('')
 
-
-  const [repairStatuses] = useState([
+  // ============= Repair Status State =============
+  const [repairStatuses, setRepairStatuses] = useState([
     { id: 1, name: 'Pending', color: '#f59e0b', description: 'Awaiting repair initiation' },
     { id: 2, name: 'In Progress', color: '#3b82f6', description: 'Currently being repaired' },
     { id: 3, name: 'Completed', color: '#10b981', description: 'Repair finished' },
     { id: 4, name: 'On Hold', color: '#8b5cf6', description: 'Temporarily paused' },
   ])
+  const [isAddRepairStatusModalOpen, setIsAddRepairStatusModalOpen] = useState(false)
+  const [isEditRepairStatusModalOpen, setIsEditRepairStatusModalOpen] = useState(false)
+  const [newRepairStatusName, setNewRepairStatusName] = useState('')
+  const [newRepairStatusColor, setNewRepairStatusColor] = useState('#3b82f6')
+  const [newRepairStatusDescription, setNewRepairStatusDescription] = useState('')
+  const [editingRepairStatusId, setEditingRepairStatusId] = useState(null)
+  const [editingRepairStatusName, setEditingRepairStatusName] = useState('')
+  const [editingRepairStatusColor, setEditingRepairStatusColor] = useState('')
+  const [editingRepairStatusDescription, setEditingRepairStatusDescription] = useState('')
 
-  const [deviceRequestStatuses] = useState([
+  // ============= Device Request Status State =============
+  const [deviceRequestStatuses, setDeviceRequestStatuses] = useState([
     { id: 1, name: 'Pending', color: '#f59e0b', description: 'Awaiting approval' },
     { id: 2, name: 'Received', color: '#3b82f6', description: 'Request received and being processed' },
     { id: 3, name: 'On Hold', color: '#123456', description: 'Request temporarily paused' },
     { id: 4, name: 'Canceled', color: '#000000', description: 'Request has been canceled' },
   ])
+  const [isAddRequestStatusModalOpen, setIsAddRequestStatusModalOpen] = useState(false)
+  const [isEditRequestStatusModalOpen, setIsEditRequestStatusModalOpen] = useState(false)
+  const [newRequestStatusName, setNewRequestStatusName] = useState('')
+  const [newRequestStatusColor, setNewRequestStatusColor] = useState('#3b82f6')
+  const [newRequestStatusDescription, setNewRequestStatusDescription] = useState('')
+  const [editingRequestStatusId, setEditingRequestStatusId] = useState(null)
+  const [editingRequestStatusName, setEditingRequestStatusName] = useState('')
+  const [editingRequestStatusColor, setEditingRequestStatusColor] = useState('')
+  const [editingRequestStatusDescription, setEditingRequestStatusDescription] = useState('')
 
-  // Fetch vendors on component mount
+  // ============= Vendor State =============
+  const [vendors, setVendors] = useState([])
+  const [isLoadingVendors, setIsLoadingVendors] = useState(false)
+  const [vendorLoadError, setVendorLoadError] = useState('')
+  const [newVendorName, setNewVendorName] = useState('')
+  const [vendorError, setVendorError] = useState('')
+  const [editingVendorId, setEditingVendorId] = useState(null)
+  const [editingVendorName, setEditingVendorName] = useState('')
+
+  // ============= Initialize Data =============
   useEffect(() => {
-    fetchVendors(),
+    fetchVendors()
     fetchCategories()
   }, [])
 
+  // ============= Fetch Functions =============
   const fetchVendors = async () => {
     setIsLoadingVendors(true)
     setVendorLoadError('')
@@ -66,7 +86,7 @@ function Settings() {
   }
 
   const fetchCategories = async () => {
-    try{
+    try {
       const data = await deviceAPI.getAll()
       setCategories(Array.isArray(data) ? data : data.data || [])
     } catch (err) {
@@ -75,85 +95,280 @@ function Settings() {
     }
   }
 
-  const handleDeleteItem = (item, type) => {
+  // ============= Device Category Functions =============
+  const openEditCategoryMode = (category) => {
+    setEditingCategoryId(category.id)
+    setEditingCategoryName(category.name)
+    setEditingCategoryDescription(category.description)
+    setIsEditCategoryModalOpen(true)
+  }
+
+  const closeEditCategoryMode = () => {
+    setEditingCategoryId(null)
+    setEditingCategoryName('')
+    setEditingCategoryDescription('')
+    setIsEditCategoryModalOpen(false)
+  }
+
+  const saveEditedCategory = async () => {
+    if (!editingCategoryName.trim()) {
+      addToast('Category name cannot be empty', 'error')
+      return
+    }
+
+    if (categories.some(c => c.id !== editingCategoryId && c.name.toLowerCase() === editingCategoryName.toLowerCase())) {
+      addToast('A category with this name already exists', 'error')
+      return
+    }
+
+    try {
+      await deviceAPI.update(editingCategoryId, { name: editingCategoryName, description: editingCategoryDescription })
+      addToast('Category updated successfully', 'success')
+      fetchCategories()
+      closeEditCategoryMode()
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to update category'
+      addToast(errorMsg, 'error')
+    }
+  }
+
+  const deleteCategory = (category) => {
     setConfirmDialog({
       isOpen: true,
-      title: `Delete ${type}`,
-      message: `Are you sure you want to delete "${item.name}"? This action cannot be undone.`,
+      title: 'Delete Category',
+      message: `Are you sure you want to delete "${category.name}"? This action cannot be undone.`,
+      confirmText: 'Delete',
+      onConfirm: async () => {
+        try {
+          await deviceAPI.delete(category.id)
+          addToast('Category deleted successfully', 'success')
+          setConfirmDialog({ isOpen: false })
+          fetchCategories()
+        } catch (err) {
+          const errorMsg = err.data?.message || err.message || 'Failed to delete category'
+          addToast(errorMsg, 'error')
+        }
+      },
+      isDangerous: true,
+    })
+  }
+
+  const createCategory = async () => {
+    if (!newCategoryName.trim()) {
+      addToast('Category name cannot be empty', 'error')
+      return
+    }
+
+    if (categories.some(c => c.name.toLowerCase() === newCategoryName.toLowerCase())) {
+      addToast('The category name already exists', 'error')
+      return
+    }
+
+    try {
+      await deviceAPI.create({ name: newCategoryName, description: newCategoryDescription })
+      setNewCategoryName('')
+      setNewCategoryDescription('')
+      addToast('Category added successfully', 'success')
+      setIsAddCategoryModalOpen(false)
+      fetchCategories()
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to add category'
+      addToast(errorMsg, 'error')
+    }
+  }
+
+  // ============= Repair Status Functions =============
+  const openEditRepairStatusMode = (status) => {
+    setEditingRepairStatusId(status.id)
+    setEditingRepairStatusName(status.name)
+    setEditingRepairStatusColor(status.color)
+    setEditingRepairStatusDescription(status.description)
+    setIsEditRepairStatusModalOpen(true)
+  }
+
+  const closeEditRepairStatusMode = () => {
+    setEditingRepairStatusId(null)
+    setEditingRepairStatusName('')
+    setEditingRepairStatusColor('')
+    setEditingRepairStatusDescription('')
+    setIsEditRepairStatusModalOpen(false)
+  }
+
+  const saveEditedRepairStatus = () => {
+    if (!editingRepairStatusName.trim()) {
+      addToast('Status name cannot be empty', 'error')
+      return
+    }
+
+    if (repairStatuses.some(s => s.id !== editingRepairStatusId && s.name.toLowerCase() === editingRepairStatusName.toLowerCase())) {
+      addToast('A status with this name already exists', 'error')
+      return
+    }
+
+    const updatedStatuses = repairStatuses.map(s =>
+      s.id === editingRepairStatusId
+        ? { ...s, name: editingRepairStatusName, color: editingRepairStatusColor, description: editingRepairStatusDescription }
+        : s
+    )
+    setRepairStatuses(updatedStatuses)
+    addToast('Repair status updated successfully', 'success')
+    closeEditRepairStatusMode()
+  }
+
+  const deleteRepairStatus = (status) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Repair Status',
+      message: `Are you sure you want to delete "${status.name}"? This action cannot be undone.`,
       confirmText: 'Delete',
       onConfirm: () => {
-        addToast(`${type} deleted successfully`, 'success')
+        setRepairStatuses(repairStatuses.filter(s => s.id !== status.id))
+        addToast('Repair status deleted successfully', 'success')
         setConfirmDialog({ isOpen: false })
       },
       isDangerous: true,
     })
   }
 
-  const handleAddCategory = async () => {
-    if (!newCategoryName.trim()){
-      addToast('Category name cannot be empty', 'error')
-      return
-    };
-    if (categories.some(c=>c.name.toLowerCase() === newCategoryName.toLowerCase())){
-      addToast('The category name already exists', 'error')
-      return
-    };
-    try{
-      await deviceAPI.create({ name:newCategoryName, description:newCategoryDescription })
-      setNewCategoryName('')
-      setNewCategoryDescription('')
-      addToast('Successfully added category', 'success')
-      fetchCategories()
-      setIsAddModalOpen(false)
-    } catch (err){
-      const errMsg = err.data?.message || err.message || 'Failed to add category'
-      addToast(errMsg, 'error')
-    }
-  }
-
-  const handleAddItem = () => {
-    setIsAddModalOpen(false)
-    setAddingItemColor('#3b82f6')
-    addToast('Item added successfully', 'success')
-  }
-
-  const handleEditItem = (item) => {
-    setSelectedItem(item)
-    setEditingItemColor(item.color || '#3b82f6')
-    setIsEditModalOpen(true)
-  }
-
-  const handleSaveEdit = () => {
-    setIsEditModalOpen(false)
-    addToast('Item updated successfully', 'success')
-  }
-
-  const handleAddVendor = async () => {
-    setVendorError('')
-    
-    if (!newVendorName.trim()) {
-      setVendorError('Vendor name cannot be empty')
+  const createRepairStatus = () => {
+    if (!newRepairStatusName.trim()) {
+      addToast('Status name cannot be empty', 'error')
       return
     }
-    
-    if (vendors.some(v => v.name.toLowerCase() === newVendorName.toLowerCase())) {
-      setVendorError('This vendor already exists')
+
+    if (repairStatuses.some(s => s.name.toLowerCase() === newRepairStatusName.toLowerCase())) {
+      addToast('A status with this name already exists', 'error')
       return
     }
-    
+
+    const newId = Math.max(...repairStatuses.map(s => s.id), 0) + 1
+    const newStatus = {
+      id: newId,
+      name: newRepairStatusName,
+      color: newRepairStatusColor,
+      description: newRepairStatusDescription,
+    }
+    setRepairStatuses([...repairStatuses, newStatus])
+    setNewRepairStatusName('')
+    setNewRepairStatusColor('#3b82f6')
+    setNewRepairStatusDescription('')
+    addToast('Repair status created successfully', 'success')
+    setIsAddRepairStatusModalOpen(false)
+  }
+
+  // ============= Device Request Status Functions =============
+  const openEditRequestStatusMode = (status) => {
+    setEditingRequestStatusId(status.id)
+    setEditingRequestStatusName(status.name)
+    setEditingRequestStatusColor(status.color)
+    setEditingRequestStatusDescription(status.description)
+    setIsEditRequestStatusModalOpen(true)
+  }
+
+  const closeEditRequestStatusMode = () => {
+    setEditingRequestStatusId(null)
+    setEditingRequestStatusName('')
+    setEditingRequestStatusColor('')
+    setEditingRequestStatusDescription('')
+    setIsEditRequestStatusModalOpen(false)
+  }
+
+  const saveEditedRequestStatus = () => {
+    if (!editingRequestStatusName.trim()) {
+      addToast('Status name cannot be empty', 'error')
+      return
+    }
+
+    if (deviceRequestStatuses.some(s => s.id !== editingRequestStatusId && s.name.toLowerCase() === editingRequestStatusName.toLowerCase())) {
+      addToast('A status with this name already exists', 'error')
+      return
+    }
+
+    const updatedStatuses = deviceRequestStatuses.map(s =>
+      s.id === editingRequestStatusId
+        ? { ...s, name: editingRequestStatusName, color: editingRequestStatusColor, description: editingRequestStatusDescription }
+        : s
+    )
+    setDeviceRequestStatuses(updatedStatuses)
+    addToast('Request status updated successfully', 'success')
+    closeEditRequestStatusMode()
+  }
+
+  const deleteRequestStatus = (status) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Request Status',
+      message: `Are you sure you want to delete "${status.name}"? This action cannot be undone.`,
+      confirmText: 'Delete',
+      onConfirm: () => {
+        setDeviceRequestStatuses(deviceRequestStatuses.filter(s => s.id !== status.id))
+        addToast('Request status deleted successfully', 'success')
+        setConfirmDialog({ isOpen: false })
+      },
+      isDangerous: true,
+    })
+  }
+
+  const createRequestStatus = () => {
+    if (!newRequestStatusName.trim()) {
+      addToast('Status name cannot be empty', 'error')
+      return
+    }
+
+    if (deviceRequestStatuses.some(s => s.name.toLowerCase() === newRequestStatusName.toLowerCase())) {
+      addToast('A status with this name already exists', 'error')
+      return
+    }
+
+    const newId = Math.max(...deviceRequestStatuses.map(s => s.id), 0) + 1
+    const newStatus = {
+      id: newId,
+      name: newRequestStatusName,
+      color: newRequestStatusColor,
+      description: newRequestStatusDescription,
+    }
+    setDeviceRequestStatuses([...deviceRequestStatuses, newStatus])
+    setNewRequestStatusName('')
+    setNewRequestStatusColor('#3b82f6')
+    setNewRequestStatusDescription('')
+    addToast('Request status created successfully', 'success')
+    setIsAddRequestStatusModalOpen(false)
+  }
+
+  // ============= Vendor Functions =============
+  const openEditVendorMode = (vendor) => {
+    setEditingVendorId(vendor.id)
+    setEditingVendorName(vendor.name)
+  }
+
+  const closeEditVendorMode = () => {
+    setEditingVendorId(null)
+    setEditingVendorName('')
+  }
+
+  const saveEditedVendor = async () => {
+    if (!editingVendorName.trim()) {
+      addToast('Vendor name cannot be empty', 'error')
+      return
+    }
+
+    if (vendors.some(v => v.id !== editingVendorId && v.name.toLowerCase() === editingVendorName.toLowerCase())) {
+      addToast('A vendor with this name already exists', 'error')
+      return
+    }
+
     try {
-      await vendorAPI.create({ name: newVendorName })
-      setNewVendorName('')
-      addToast('Vendor added successfully', 'success')
+      await vendorAPI.update(editingVendorId, { name: editingVendorName })
+      addToast('Vendor updated successfully', 'success')
       fetchVendors()
+      closeEditVendorMode()
     } catch (err) {
-      const errorMsg = err.data?.message || err.message || 'Failed to add vendor'
-      setVendorError(errorMsg)
+      const errorMsg = err.data?.message || err.message || 'Failed to update vendor'
       addToast(errorMsg, 'error')
     }
   }
 
-  const handleDeleteVendor = (vendor) => {
+  const deleteVendor = (vendor) => {
     setConfirmDialog({
       isOpen: true,
       title: 'Delete Vendor',
@@ -174,38 +389,29 @@ function Settings() {
     })
   }
 
-  const handleEditVendor = (vendor) => {
-    setEditingVendorId(vendor.id)
-    setEditingVendorName(vendor.name)
-  }
+  const createVendor = async () => {
+    setVendorError('')
 
-
-  const handleCancelEditVendor = () => {
-    setEditingVendorId(null)
-    setEditingVendorName('')
-  }
-
-  const handleSaveVendorEdit = async () => {
-    if (!editingVendorName.trim()) {
-      addToast('Vendor name cannot be empty', 'error')
+    if (!newVendorName.trim()) {
+      setVendorError('Vendor name cannot be empty')
       return
     }
 
-    if (vendors.some(v => v.id !== editingVendorId && v.name.toLowerCase() === editingVendorName.toLowerCase())) {
-      addToast('A vendor with this name already exists', 'error')
+    if (vendors.some(v => v.name.toLowerCase() === newVendorName.toLowerCase())) {
+      setVendorError('This vendor already exists')
       return
     }
-     try{
-      await vendorAPI.update(editingVendorId, {name: editingVendorName})
-      addToast('Vendor Edited Successfully', 'success')
+
+    try {
+      await vendorAPI.create({ name: newVendorName })
+      setNewVendorName('')
+      addToast('Vendor added successfully', 'success')
       fetchVendors()
-      handleCancelEditVendor()
-      } catch (err){
-        const errMsg = err.data?.message || err.message || 'Failed to edit vendor'
-        addToast(errMsg, 'error') 
-      }
-
-
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to add vendor'
+      setVendorError(errorMsg)
+      addToast(errorMsg, 'error')
+    }
   }
 
 
@@ -244,7 +450,7 @@ function Settings() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-bold text-gray-900">Device Categories</h2>
                 <button
-                  onClick={() => setIsAddModalOpen(true)}
+                  onClick={() => setIsAddCategoryModalOpen(true)}
                   className="btn-primary flex items-center gap-2"
                 >
                   <Plus size={20} />
@@ -260,13 +466,13 @@ function Settings() {
                     </div>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => handleEditItem(category)}
+                        onClick={() => openEditCategoryMode(category)}
                         className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                       >
                         <Edit size={16} />
                       </button>
                       <button
-                        onClick={() => handleDeleteItem(category, 'Category')}
+                        onClick={() => deleteCategory(category)}
                         className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
                       >
                         <Trash2 size={16} />
@@ -283,7 +489,7 @@ function Settings() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-bold text-gray-900">Repair Status Types</h2>
                 <button
-                  onClick={() => setIsAddModalOpen(true)}
+                  onClick={() => setIsAddRepairStatusModalOpen(true)}
                   className="btn-primary flex items-center gap-2"
                 >
                   <Plus size={20} />
@@ -305,13 +511,13 @@ function Settings() {
                     </div>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => handleEditItem(status)}
+                        onClick={() => openEditRepairStatusMode(status)}
                         className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                       >
                         <Edit size={16} />
                       </button>
                       <button
-                        onClick={() => handleDeleteItem(status, 'Status')}
+                        onClick={() => deleteRepairStatus(status)}
                         className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
                       >
                         <Trash2 size={16} />
@@ -328,7 +534,7 @@ function Settings() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-bold text-gray-900">Device Request Status Types</h2>
                 <button
-                  onClick={() => setIsAddModalOpen(true)}
+                  onClick={() => setIsAddRequestStatusModalOpen(true)}
                   className="btn-primary flex items-center gap-2"
                 >
                   <Plus size={20} />
@@ -350,13 +556,13 @@ function Settings() {
                     </div>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => handleEditItem(status)}
+                        onClick={() => openEditRequestStatusMode(status)}
                         className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                       >
                         <Edit size={16} />
                       </button>
                       <button
-                        onClick={() => handleDeleteItem(status, 'Status')}
+                        onClick={() => deleteRequestStatus(status)}
                         className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
                       >
                         <Trash2 size={16} />
@@ -392,7 +598,7 @@ function Settings() {
                       className="flex-1 input-field"
                     />
                     <button
-                      onClick={handleAddVendor}
+                      onClick={createVendor}
                       className="btn-primary flex items-center gap-2"
                     >
                       <Plus size={20} />
@@ -426,14 +632,14 @@ function Settings() {
                               autoFocus
                             />
                             <button
-                              onClick={handleSaveVendorEdit}
+                              onClick={saveEditedVendor}
                               className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                               title="Save"
                             >
                               <Save size={16} />
                             </button>
                             <button
-                              onClick={handleCancelEditVendor}
+                              onClick={closeEditVendorMode}
                               className="btn-sm bg-gray-100 text-gray-600 hover:bg-gray-200"
                               title="Cancel"
                             >
@@ -445,14 +651,14 @@ function Settings() {
                             <p className="font-medium text-gray-900">{vendor.name}</p>
                             <div className="flex gap-2">
                               <button
-                                onClick={() => handleEditVendor(vendor)}
+                                onClick={() => openEditVendorMode(vendor)}
                                 className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                                 title="Edit"
                               >
                                 <Edit size={16} />
                               </button>
                               <button
-                                onClick={() => handleDeleteVendor(vendor)}
+                                onClick={() => deleteVendor(vendor)}
                                 className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
                                 title="Delete"
                               >
@@ -471,179 +677,409 @@ function Settings() {
         </div>
       </div>
 
-      {activeTab !== 'vendors' && (
-        <Modal
-          isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
-          title={`Add New ${activeTab === 'categories' ? 'Category' : 'Status'}`}
-          size="md"
-        >
-          {(activeTab === 'repair-status' || activeTab === 'device-request-status') && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input type="text" placeholder="Enter name" className="input-field" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
-                <div className="flex items-center gap-4">
-                  <div className="flex gap-2 flex-wrap">
-                    {['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#ec4899', '#f97316', '#06b6d4'].map(color => (
-                      <button
-                        key={color}
-                        onClick={() => setAddingItemColor(color)}
-                        className={`w-10 h-10 rounded-lg border-2 transition-all ${
-                          addingItemColor === color ? 'border-gray-800 ring-2 ring-offset-2 ring-gray-400' : 'border-gray-300'
-                        }`}
-                        style={{ backgroundColor: color }}
-                        title={color}
-                      />
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium text-gray-700">Custom:</label>
-                    <input
-                      type="color"
-                      value={addingItemColor}
-                      onChange={(e) => setAddingItemColor(e.target.value)}
-                      className="w-12 h-10 rounded border border-gray-300 cursor-pointer"
-                    />
-                  </div>
-                </div>
-                <div className="mt-3 flex items-center gap-3">
-                  <p className="text-sm text-gray-600">Preview:</p>
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-8 h-8 rounded-full border border-gray-300"
-                      style={{ backgroundColor: addingItemColor }}
-                    />
-                    <span className="text-sm font-mono text-gray-700">{addingItemColor}</span>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea placeholder="Enter description" className="input-field h-20" />
-              </div>
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="flex-1 btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleAddItem}
-                  className="flex-1 btn-primary"
-                >
-                  Add
-                </button>
-              </div>
-            </div>
-          )}
-          {activeTab === 'categories' && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input type="text" placeholder="Enter name" className="input-field" 
-                  value = {newCategoryName}
-                  onChange={(e)=>{
-                    setNewCategoryName(e.target.value)
-                  }}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea placeholder="Enter description" className="input-field h-20" 
-                  value = {newCategoryDescription}
-                  onChange={(e)=>{
-                    setNewCategoryDescription(e.target.value)
-                  }}
-                />
-              </div>
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="flex-1 btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleAddCategory}
-                  className="flex-1 btn-primary"
-                >
-                  Add
-                </button>
-              </div>
-            </div>
-          )}
-        </Modal>
-      )}
+      {/* Add Category Modal */}
+      <Modal
+        isOpen={isAddCategoryModalOpen}
+        onClose={() => setIsAddCategoryModalOpen(false)}
+        title="Add New Category"
+        size="md"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <input
+              type="text"
+              placeholder="Enter category name"
+              className="input-field"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea
+              placeholder="Enter description"
+              className="input-field h-20"
+              value={newCategoryDescription}
+              onChange={(e) => setNewCategoryDescription(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-3 mt-6">
+            <button
+              onClick={() => setIsAddCategoryModalOpen(false)}
+              className="flex-1 btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={createCategory}
+              className="flex-1 btn-primary"
+            >
+              Add Category
+            </button>
+          </div>
+        </div>
+      </Modal>
 
-      {selectedItem && activeTab !== 'vendors' && (
+      {/* Edit Category Modal */}
+      {editingCategoryId && (
         <Modal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          title="Edit Item"
+          isOpen={isEditCategoryModalOpen}
+          onClose={closeEditCategoryMode}
+          title="Edit Category"
           size="md"
         >
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-              <input type="text" defaultValue={selectedItem.name} className="input-field" />
+              <input
+                type="text"
+                className="input-field"
+                value={editingCategoryName}
+                onChange={(e) => setEditingCategoryName(e.target.value)}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-              <textarea defaultValue={selectedItem.description} className="input-field h-20" />
+              <textarea
+                className="input-field h-20"
+                value={editingCategoryDescription}
+                onChange={(e) => setEditingCategoryDescription(e.target.value)}
+              />
             </div>
-            {(activeTab === 'repair-status' || activeTab === 'device-request-status') && selectedItem.color && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Color</label>
-                <div className="flex items-center gap-4">
-                  <div className="flex gap-2 flex-wrap">
-                    {['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#ec4899', '#f97316', '#06b6d4'].map(color => (
-                      <button
-                        key={color}
-                        onClick={() => setEditingItemColor(color)}
-                        className={`w-10 h-10 rounded-lg border-2 transition-all ${
-                          editingItemColor === color ? 'border-gray-800 ring-2 ring-offset-2 ring-gray-400' : 'border-gray-300'
-                        }`}
-                        style={{ backgroundColor: color }}
-                        title={color}
-                      />
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium text-gray-700">Custom:</label>
-                    <input
-                      type="color"
-                      value={editingItemColor}
-                      onChange={(e) => setEditingItemColor(e.target.value)}
-                      className="w-12 h-10 rounded border border-gray-300 cursor-pointer"
-                    />
-                  </div>
-                </div>
-                <div className="mt-3 flex items-center gap-3">
-                  <p className="text-sm text-gray-600">Preview:</p>
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-8 h-8 rounded-full border border-gray-300"
-                      style={{ backgroundColor: editingItemColor }}
-                    />
-                    <span className="text-sm font-mono text-gray-700">{editingItemColor}</span>
-                  </div>
-                </div>
-              </div>
-            )}
             <div className="flex gap-3 mt-6">
               <button
-                onClick={() => setIsEditModalOpen(false)}
+                onClick={closeEditCategoryMode}
                 className="flex-1 btn-secondary"
               >
                 Cancel
               </button>
               <button
-                onClick={handleSaveEdit}
+                onClick={saveEditedCategory}
+                className="flex-1 btn-primary"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Add Repair Status Modal */}
+      <Modal
+        isOpen={isAddRepairStatusModalOpen}
+        onClose={() => setIsAddRepairStatusModalOpen(false)}
+        title="Add New Repair Status"
+        size="md"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <input
+              type="text"
+              placeholder="Enter status name"
+              className="input-field"
+              value={newRepairStatusName}
+              onChange={(e) => setNewRepairStatusName(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+            <div className="flex items-center gap-4">
+              <div className="flex gap-2 flex-wrap">
+                {['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#ec4899', '#f97316', '#06b6d4'].map(color => (
+                  <button
+                    key={color}
+                    onClick={() => setNewRepairStatusColor(color)}
+                    className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                      newRepairStatusColor === color ? 'border-gray-800 ring-2 ring-offset-2 ring-gray-400' : 'border-gray-300'
+                    }`}
+                    style={{ backgroundColor: color }}
+                    title={color}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700">Custom:</label>
+                <input
+                  type="color"
+                  value={newRepairStatusColor}
+                  onChange={(e) => setNewRepairStatusColor(e.target.value)}
+                  className="w-12 h-10 rounded border border-gray-300 cursor-pointer"
+                />
+              </div>
+            </div>
+            <div className="mt-3 flex items-center gap-3">
+              <p className="text-sm text-gray-600">Preview:</p>
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-8 h-8 rounded-full border border-gray-300"
+                  style={{ backgroundColor: newRepairStatusColor }}
+                />
+                <span className="text-sm font-mono text-gray-700">{newRepairStatusColor}</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea
+              placeholder="Enter description"
+              className="input-field h-20"
+              value={newRepairStatusDescription}
+              onChange={(e) => setNewRepairStatusDescription(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-3 mt-6">
+            <button
+              onClick={() => setIsAddRepairStatusModalOpen(false)}
+              className="flex-1 btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={createRepairStatus}
+              className="flex-1 btn-primary"
+            >
+              Add Status
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit Repair Status Modal */}
+      {editingRepairStatusId && (
+        <Modal
+          isOpen={isEditRepairStatusModalOpen}
+          onClose={closeEditRepairStatusMode}
+          title="Edit Repair Status"
+          size="md"
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <input
+                type="text"
+                className="input-field"
+                value={editingRepairStatusName}
+                onChange={(e) => setEditingRepairStatusName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+              <div className="flex items-center gap-4">
+                <div className="flex gap-2 flex-wrap">
+                  {['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#ec4899', '#f97316', '#06b6d4'].map(color => (
+                    <button
+                      key={color}
+                      onClick={() => setEditingRepairStatusColor(color)}
+                      className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                        editingRepairStatusColor === color ? 'border-gray-800 ring-2 ring-offset-2 ring-gray-400' : 'border-gray-300'
+                      }`}
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    />
+                  ))}
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">Custom:</label>
+                  <input
+                    type="color"
+                    value={editingRepairStatusColor}
+                    onChange={(e) => setEditingRepairStatusColor(e.target.value)}
+                    className="w-12 h-10 rounded border border-gray-300 cursor-pointer"
+                  />
+                </div>
+              </div>
+              <div className="mt-3 flex items-center gap-3">
+                <p className="text-sm text-gray-600">Preview:</p>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-8 h-8 rounded-full border border-gray-300"
+                    style={{ backgroundColor: editingRepairStatusColor }}
+                  />
+                  <span className="text-sm font-mono text-gray-700">{editingRepairStatusColor}</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <textarea
+                className="input-field h-20"
+                value={editingRepairStatusDescription}
+                onChange={(e) => setEditingRepairStatusDescription(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={closeEditRepairStatusMode}
+                className="flex-1 btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveEditedRepairStatus}
+                className="flex-1 btn-primary"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Add Device Request Status Modal */}
+      <Modal
+        isOpen={isAddRequestStatusModalOpen}
+        onClose={() => setIsAddRequestStatusModalOpen(false)}
+        title="Add New Request Status"
+        size="md"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <input
+              type="text"
+              placeholder="Enter status name"
+              className="input-field"
+              value={newRequestStatusName}
+              onChange={(e) => setNewRequestStatusName(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+            <div className="flex items-center gap-4">
+              <div className="flex gap-2 flex-wrap">
+                {['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#ec4899', '#f97316', '#06b6d4'].map(color => (
+                  <button
+                    key={color}
+                    onClick={() => setNewRequestStatusColor(color)}
+                    className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                      newRequestStatusColor === color ? 'border-gray-800 ring-2 ring-offset-2 ring-gray-400' : 'border-gray-300'
+                    }`}
+                    style={{ backgroundColor: color }}
+                    title={color}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700">Custom:</label>
+                <input
+                  type="color"
+                  value={newRequestStatusColor}
+                  onChange={(e) => setNewRequestStatusColor(e.target.value)}
+                  className="w-12 h-10 rounded border border-gray-300 cursor-pointer"
+                />
+              </div>
+            </div>
+            <div className="mt-3 flex items-center gap-3">
+              <p className="text-sm text-gray-600">Preview:</p>
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-8 h-8 rounded-full border border-gray-300"
+                  style={{ backgroundColor: newRequestStatusColor }}
+                />
+                <span className="text-sm font-mono text-gray-700">{newRequestStatusColor}</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea
+              placeholder="Enter description"
+              className="input-field h-20"
+              value={newRequestStatusDescription}
+              onChange={(e) => setNewRequestStatusDescription(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-3 mt-6">
+            <button
+              onClick={() => setIsAddRequestStatusModalOpen(false)}
+              className="flex-1 btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={createRequestStatus}
+              className="flex-1 btn-primary"
+            >
+              Add Status
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit Device Request Status Modal */}
+      {editingRequestStatusId && (
+        <Modal
+          isOpen={isEditRequestStatusModalOpen}
+          onClose={closeEditRequestStatusMode}
+          title="Edit Request Status"
+          size="md"
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <input
+                type="text"
+                className="input-field"
+                value={editingRequestStatusName}
+                onChange={(e) => setEditingRequestStatusName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+              <div className="flex items-center gap-4">
+                <div className="flex gap-2 flex-wrap">
+                  {['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#ec4899', '#f97316', '#06b6d4'].map(color => (
+                    <button
+                      key={color}
+                      onClick={() => setEditingRequestStatusColor(color)}
+                      className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                        editingRequestStatusColor === color ? 'border-gray-800 ring-2 ring-offset-2 ring-gray-400' : 'border-gray-300'
+                      }`}
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    />
+                  ))}
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">Custom:</label>
+                  <input
+                    type="color"
+                    value={editingRequestStatusColor}
+                    onChange={(e) => setEditingRequestStatusColor(e.target.value)}
+                    className="w-12 h-10 rounded border border-gray-300 cursor-pointer"
+                  />
+                </div>
+              </div>
+              <div className="mt-3 flex items-center gap-3">
+                <p className="text-sm text-gray-600">Preview:</p>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-8 h-8 rounded-full border border-gray-300"
+                    style={{ backgroundColor: editingRequestStatusColor }}
+                  />
+                  <span className="text-sm font-mono text-gray-700">{editingRequestStatusColor}</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <textarea
+                className="input-field h-20"
+                value={editingRequestStatusDescription}
+                onChange={(e) => setEditingRequestStatusDescription(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={closeEditRequestStatusMode}
+                className="flex-1 btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveEditedRequestStatus}
                 className="flex-1 btn-primary"
               >
                 Save Changes
