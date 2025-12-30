@@ -251,36 +251,30 @@ function Settings() {
     setIsEditRepairStatusModalOpen(false);
   };
 
-  const saveEditedRepairStatus = () => {
+  const saveEditedRepairStatus = async () => {
     if (!editingRepairStatusName.trim()) {
       addToast("Status name cannot be empty", "error");
       return;
     }
 
     if (
-      repairStatuses.some(
-        (s) =>
-          s.id !== editingRepairStatusId &&
-          s.name.toLowerCase() === editingRepairStatusName.toLowerCase()
-      )
-    ) {
-      addToast("A status with this name already exists", "error");
-      return;
-    }
-
-    const updatedStatuses = repairStatuses.map((s) =>
-      s.id === editingRepairStatusId
-        ? {
-            ...s,
+      repairStatuses.some((s) =>s.id !== editingRepairStatusId && s.name.toLowerCase() === editingRepairStatusName.toLowerCase())) 
+      {addToast("A status with this name already exists", "error");
+      return;}
+        try{
+          await repairStatusAPI.update(editingRepairStatusId, {
             name: editingRepairStatusName,
-            color: editingRepairStatusColor,
             description: editingRepairStatusDescription,
-          }
-        : s
-    );
-    setRepairStatuses(updatedStatuses);
-    addToast("Repair status updated successfully", "success");
-    closeEditRepairStatusMode();
+            color: editingRepairStatusColor,
+          })
+          addToast('Successfully edited the status', 'success');
+          closeEditRepairStatusMode();
+          fetchRepairStatuses();
+        } catch(err){
+          const errMsg = err.data?.message || err.message || 'Failed to edit status'
+          addToast(errMsg, 'error');
+        }
+
   };
 
   const deleteRepairStatus = (status) => {
@@ -289,10 +283,16 @@ function Settings() {
       title: "Delete Repair Status",
       message: `Are you sure you want to delete "${status.name}"? This action cannot be undone.`,
       confirmText: "Delete",
-      onConfirm: () => {
-        setRepairStatuses(repairStatuses.filter((s) => s.id !== status.id));
-        addToast("Repair status deleted successfully", "success");
+      onConfirm: async () => {
+        try{
+          await repairStatusAPI.delete(status.id);
+          addToast("Repair status deleted successfully", "success");
         setConfirmDialog({ isOpen: false });
+        fetchRepairStatuses();
+        } catch (err){
+          const errMsg = err.data?.message || err.message || 'Failed to delete status'
+          addToast(errMsg, 'error');
+        }    
       },
       isDangerous: true,
     });

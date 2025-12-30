@@ -274,8 +274,8 @@ export const deviceAPI = {
       DeviceCatName: data.name,
       DeviceDescription: data.description,
     }
-    console.log("Updating status of:",numericId)
-    console.log(transformedData)
+    // console.log("Updating status of:",numericId)
+    // console.log(transformedData)
     return apiRequest(`/api/device/${numericId}`,{
       method: 'PUT',
       body: transformedData,
@@ -306,12 +306,32 @@ export const repairStatusAPI = {
         statusColor: data.color,
         statusDescription: data.description,
       }
-      console.log(transformedData)
       return apiRequest('/api/repairStatus',{
         method: 'POST',
         body: transformedData,
       })
   },
+  update: (id, data) => {
+    const numericId = Number(id);
+    const transformedData = {
+      statusName: data.name,
+      statusDescription: data.description,
+      statusColor: data.color,
+    }
+    // console.log("Editing id:",numericId);
+    // console.log(transformedData);
+    return apiRequest(`/api/repairStatus/${numericId}`, {
+      method: 'PUT',
+      body: transformedData,
+    })
+  },
+  delete: (id) => {
+    const numericId = Number(id);
+
+    return apiRequest(`/api/repairStatus/${numericId}`,{
+      method: 'DELETE',
+    })
+  }
 }
 
 export default {
