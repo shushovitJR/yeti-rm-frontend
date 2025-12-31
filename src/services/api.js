@@ -81,15 +81,15 @@ export const repairAPI = {
   getById: async (id) => {
     const response = await apiRequest(`/api/repair/${id}`)
     return {
-      id: Number(response.RepairId.replace(/\D/g, '')), // Extract numeric part from "REP001"
-      displayId: response.RepairId,
-      deviceName: response.DeviceName,
-      deviceCategory: response.Category,
-      issue: response.Issue,
-      issueDate: response.IssueDate,
-      returnedDate: response.ReturnDate,
-      status: response.Status,
-      vendor: response.Vendor,
+      id: Number(response.repairId.replace(/\D/g, '')), // Extract numeric part from "REP001"
+      displayId: response.repairId,
+      deviceName: response.name,
+      deviceCategory: response.category,
+      issue: response.issue,
+      issueDate: response.issueDate,
+      returnedDate: response.returnDate,
+      status: response.status,
+      vendor: response.vendor,
     }
   },
   create: (data) => {
