@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { Search, Filter, Plus, Eye, Edit, AlertCircle } from 'lucide-react'
+import { Search, Filter, Plus, Eye, Edit, Trash2, AlertCircle } from 'lucide-react'
 import SideDrawer from '../components/SideDrawer'
 import Modal from '../components/Modal'
 import ConfirmDialog from '../components/ConfirmDialog'
 import { useToast } from '../context/ToastContext'
-import { repairAPI, vendorAPI } from '../services/api'
+import { repairAPI, vendorAPI, deviceAPI, repairStatusAPI } from '../services/api'
 
 function RepairManagement() {
   const { addToast } = useToast()
@@ -21,6 +21,12 @@ function RepairManagement() {
   const [vendors, setVendors] = useState([])
   const [isLoadingVendors, setIsLoadingVendors] = useState(false)
   const [vendorError, setVendorError] = useState('')
+  const [devices, setDevices] = useState([])
+  const [isLoadingDevices, setIsLoadingDevices] = useState(false)
+  const [deviceError, setDeviceError] = useState('')
+  const [statuses, setStatuses] = useState([])
+  const [isLoadingStatuses, setIsLoadingStatuses] = useState(false)
+  const [statusError, setStatusError] = useState('')
   const [addFormData, setAddFormData] = useState({
     deviceCategory: '',
     deviceName: '',
@@ -28,15 +34,15 @@ function RepairManagement() {
     returnedDate: '',
     issue: '',
     vendor: '',
+    cost: '',
   })
   const [editFormData, setEditFormData] = useState({
-    deviceName: '',
-    deviceCategory: '',
     issueDate: '',
     returnedDate: '',
     issue: '',
     vendor: '',
-    status: 'pending',
+    status: 'Pending',
+    cost: '',
   })
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false })
 
@@ -45,6 +51,8 @@ function RepairManagement() {
   useEffect(() => {
     fetchRepairs()
     fetchVendors()
+    fetchDevices()
+    fetchStatuses()
   }, [])
 
   const fetchRepairs = async () => {
@@ -77,6 +85,36 @@ function RepairManagement() {
     }
   }
 
+  const fetchDevices = async () => {
+    setIsLoadingDevices(true)
+    setDeviceError('')
+    try {
+      const data = await deviceAPI.getAll()
+      setDevices(Array.isArray(data) ? data : data.data || [])
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to fetch devices'
+      setDeviceError(errorMsg)
+      console.error('Device fetch error:', err)
+    } finally {
+      setIsLoadingDevices(false)
+    }
+  }
+
+  const fetchStatuses = async () => {
+    setIsLoadingStatuses(true)
+    setStatusError('')
+    try {
+      const data = await repairStatusAPI.getAll()
+      setStatuses(Array.isArray(data) ? data : data.data || [])
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to fetch statuses'
+      setStatusError(errorMsg)
+      console.error('Status fetch error:', err)
+    } finally {
+      setIsLoadingStatuses(false)
+    }
+  }
+
   const filteredRepairs = repairs.filter((repair) => {
     const matchesSearch = repair.deviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          repair.displayId.toLowerCase().includes(searchTerm.toLowerCase())
@@ -92,17 +130,24 @@ function RepairManagement() {
   )
 
   const getStatusBadge = (status) => {
-    const badges = {
-      Pending: 'badge badge-warning',
-      'In Progress': 'badge badge-info',
-      Completed: 'badge badge-success',
+    const statusObj = statuses.find(s => s.name === status)
+    if (statusObj && statusObj.color) {
+      return { color: statusObj.color }
     }
-    return badges[status] || 'badge badge-info'
+    // Fallback colors if status not found
+    const colorMap = {
+      Pending: '#FCD34D',
+      'In Progress': '#60A5FA',
+      Completed: '#34D399',
+    }
+    return { color: colorMap[status] || '#E5E7EB' }
   }
 
-  const deviceCategories = ['Laptop', 'Desktop', 'Tablet', 'Phone', 'Printer', 'Network Device', 'Other']
-  const statuses = ['Pending', 'In Progress', 'Completed']
-
+  const formatCurrency = (amount) => {
+    // Show empty cell if cost is 0, null, or undefined
+    if (!amount || amount === 0 || amount === '0') return ''
+    return 'Rs. ' + Number(amount).toLocaleString('en-NP')
+  }
   const handleViewRepair = (repair) => {
     setSelectedRepair(repair)
     setIsViewModalOpen(true)
@@ -111,21 +156,47 @@ function RepairManagement() {
   const handleEditRepair = (repair) => {
     setSelectedRepair(repair)
     setEditFormData({
-      deviceName: repair.deviceName,
-      deviceCategory: repair.deviceCategory,
       issueDate: repair.issueDate,
       returnedDate: repair.returnedDate === '-' ? '' : repair.returnedDate,
       issue: repair.issue,
       vendor: repair.vendor,
       status: repair.status,
+      cost: repair.cost || '',
     })
     setIsEditDrawerOpen(true)
+  }
+
+  const handleDeleteRepair = (repair) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Repair Ticket',
+      message: `Are you sure you want to delete repair ${repair.displayId}? This action cannot be undone.`,
+      confirmText: 'Delete',
+      isDangerous: true,
+      onConfirm: async () => {
+        try {
+          await repairAPI.delete(repair.id)
+          addToast('Repair ticket deleted successfully', 'success')
+          setConfirmDialog({ isOpen: false })
+          fetchRepairs()
+        } catch (err) {
+          const errorMsg = err.data?.message || err.message || 'Failed to delete repair'
+          addToast(errorMsg, 'error')
+        }
+      },
+    })
   }
 
   const handleSaveRepair = async () => {
     try {
       if (selectedRepair?.id) {
-        await repairAPI.update(selectedRepair.id, editFormData)
+        // Prepare data, converting empty dates to null
+        const dataToSend = {
+          ...editFormData,
+          issueDate: editFormData.issueDate || null,
+          returnedDate: editFormData.returnedDate || null,
+        }
+        await repairAPI.update(selectedRepair.id, dataToSend)
         addToast('Repair ticket updated successfully', 'success')
         setIsEditDrawerOpen(false)
         fetchRepairs()
@@ -142,14 +213,19 @@ function RepairManagement() {
       [field]: value
     }))
   }
-
   const handleAddRepair = async () => {
     try {
       if (!addFormData.deviceName.trim()) {
         addToast('Please fill in all required fields', 'error')
         return
       }
-      await repairAPI.create(addFormData)
+      // Prepare data, converting empty dates to null
+      const dataToSend = {
+        ...addFormData,
+        issueDate: addFormData.issueDate || null,
+        returnedDate: addFormData.returnedDate || null,
+      }
+      await repairAPI.create(dataToSend)
       addToast('Repair ticket created successfully', 'success')
       setIsAddDrawerOpen(false)
       setAddFormData({
@@ -159,6 +235,7 @@ function RepairManagement() {
         returnedDate: '',
         issue: '',
         vendor: '',
+        cost: '',
       })
       fetchRepairs()
     } catch (err) {
@@ -246,6 +323,7 @@ function RepairManagement() {
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Issue</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Issue Date</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Returned Date</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Cost</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Vendor</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
@@ -258,10 +336,18 @@ function RepairManagement() {
                     <td className="px-6 py-4 text-sm text-gray-600">{repair.deviceName}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{repair.issue}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{repair.issueDate}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{repair.returnedDate || '-'}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{repair.returnedDate}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{formatCurrency(repair.cost)}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{repair.vendor}</td>
                     <td className="px-6 py-4">
-                      <span className={getStatusBadge(repair.status)}>{repair.status}</span>
+                      <span 
+                        className="badge text-white px-3 py-1 rounded-full text-xs font-semibold"
+                        style={{
+                          backgroundColor: getStatusBadge(repair.status).color,
+                        }}
+                      >
+                        {repair.status}
+                      </span>
                     </td>
                     <td className="px-6 py-4 flex gap-2">
                       <button
@@ -275,6 +361,12 @@ function RepairManagement() {
                         className="btn-sm bg-orange-100 text-orange-600 hover:bg-orange-200"
                       >
                         <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteRepair(repair)}
+                        className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
+                      >
+                        <Trash2 size={16} />
                       </button>
                     </td>
                   </tr>
@@ -331,19 +423,19 @@ function RepairManagement() {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Device Category</label>
+            {deviceError && (
+              <p className="text-sm text-red-600 mb-2">{deviceError}</p>
+            )}
             <select 
               value={addFormData.deviceCategory}
               onChange={(e) => setAddFormData({...addFormData, deviceCategory: e.target.value})}
               className="input-field"
+              disabled={isLoadingDevices || devices.length === 0}
             >
-              <option value="">Select category</option>
-              <option value="Laptop">Laptop</option>
-              <option value="Desktop">Desktop</option>
-              <option value="Tablet">Tablet</option>
-              <option value="Phone">Phone</option>
-              <option value="Printer">Printer</option>
-              <option value="Network Device">Network Device</option>
-              <option value="Other">Other</option>
+              <option value="">{isLoadingDevices ? 'Loading categories...' : devices.length === 0 ? 'No categories available' : 'Select category'}</option>
+              {devices.map(device => (
+                <option key={device.name} value={device.name}>{device.name}</option>
+              ))}
             </select>
           </div>
           <div>
@@ -381,6 +473,16 @@ function RepairManagement() {
               value={addFormData.issue}
               onChange={(e) => setAddFormData({...addFormData, issue: e.target.value})}
               className="input-field h-24" 
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Repair Cost (NPR)</label>
+            <input 
+              type="number" 
+              placeholder="e.g., 5000" 
+              value={addFormData.cost}
+              onChange={(e) => setAddFormData({...addFormData, cost: e.target.value})}
+              className="input-field" 
             />
           </div>
           <div>
@@ -425,27 +527,6 @@ function RepairManagement() {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Device Category</label>
-            <select
-              value={editFormData.deviceCategory}
-              onChange={(e) => handleInputChange('deviceCategory', e.target.value)}
-              className="input-field"
-            >
-              {deviceCategories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Device Name</label>
-            <input
-              type="text"
-              value={editFormData.deviceName}
-              onChange={(e) => handleInputChange('deviceName', e.target.value)}
-              className="input-field"
-            />
-          </div>
-          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Issue Date</label>
             <input
               type="date"
@@ -458,7 +539,7 @@ function RepairManagement() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Returned Date</label>
             <input
               type="date"
-              value={editFormData.returnedDate || ''}
+              value={editFormData.returnedDate}
               onChange={(e) => handleInputChange('returnedDate', e.target.value)}
               className="input-field"
             />
@@ -472,34 +553,46 @@ function RepairManagement() {
             />
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Repair Cost (NPR)</label>
+            <input
+              type="number"
+              placeholder="e.g., 5000"
+              value={editFormData.cost || ''}
+              onChange={(e) => handleInputChange('cost', e.target.value)}
+              className="input-field"
+            />
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Assignment *</label>
             {vendorError && (
               <p className="text-sm text-red-600 mb-2">{vendorError}</p>
             )}
             <select
-              // value={editFormData.vendor || ''}
-              // onChange={(e) => handleInputChange('vendor', e.target.value)}
-              // className="input-field"
-              // disabled={isLoadingVendors || vendors.length === 0}
+              value={editFormData.vendor || ''}
+              onChange={(e) => handleInputChange('vendor', e.target.value)}
+              className="input-field"
+              disabled={isLoadingVendors || vendors.length === 0}
             >
-              {/* <option value="">{isLoadingVendors ? 'Loading vendors...' : vendors.length === 0 ? 'No vendors available' : 'Select vendor'}</option> */}
-              {/* {vendors.map(vendor => (
+              <option value="">{isLoadingVendors ? 'Loading vendors...' : vendors.length === 0 ? 'No vendors available' : 'Select vendor'}</option>
+              {vendors.map(vendor => (
                 <option key={vendor.name} value={vendor.name}>{vendor.name}</option>
-              ))} */}
-              <option value="">Vendor Name</option>
-              <option value="">Vendor Name</option>
-              <option value="">Vendor Name</option>
+              ))}
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            {statusError && (
+              <p className="text-sm text-red-600 mb-2">{statusError}</p>
+            )}
             <select
               value={editFormData.status}
               onChange={(e) => handleInputChange('status', e.target.value)}
               className="input-field"
+              disabled={isLoadingStatuses || statuses.length === 0}
             >
+              <option value="">{isLoadingStatuses ? 'Loading statuses...' : statuses.length === 0 ? 'No statuses available' : 'Select status'}</option>
               {statuses.map(s => (
-                <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1).replace('-', ' ')}</option>
+                <option key={s.name} value={s.name}>{s.name}</option>
               ))}
             </select>
           </div>
@@ -543,11 +636,14 @@ function RepairManagement() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Status</p>
-                <span className={getStatusBadge(selectedRepair.status)}>{selectedRepair.status}</span>
-              </div>
-              <div className="col-span-2">
-                <p className="text-sm text-gray-600">Issue Description</p>
-                <p className="text-lg font-semibold text-gray-900">{selectedRepair.issue}</p>
+                <span 
+                  className="badge text-white px-3 py-1 rounded-full text-xs font-semibold"
+                  style={{
+                    backgroundColor: getStatusBadge(selectedRepair.status).color,
+                  }}
+                >
+                  {selectedRepair.status}
+                </span>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Issue Date</p>
@@ -555,11 +651,19 @@ function RepairManagement() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Returned Date</p>
-                <p className="text-lg font-semibold text-gray-900">{selectedRepair.returnedDate || '-'}</p>
+                <p className="text-lg font-semibold text-gray-900">{selectedRepair.returnedDate}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Vendor</p>
                 <p className="text-lg font-semibold text-gray-900">{selectedRepair.vendor}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Repair Cost</p>
+                <p className="text-lg font-semibold text-gray-900">{formatCurrency(selectedRepair.cost)}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-sm text-gray-600">Issue Description</p>
+                <p className="text-lg font-semibold text-gray-900">{selectedRepair.issue}</p>
               </div>
             </div>
             <button

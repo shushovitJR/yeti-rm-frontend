@@ -80,30 +80,33 @@ export const repairAPI = {
       cost: item.Cost,
     }))
   },
-  // getById: async (id) => {
-  //   const response = await apiRequest(`/api/repair/${id}`)
-  //   return {
-  //     id: Number(response.repairId.replace(/\D/g, '')), // Extract numeric part from "REP001"
-  //     displayId: response.repairId,
-  //     deviceName: response.name,
-  //     deviceCategory: response.category,
-  //     issue: response.issue,
-  //     issueDate: response.issueDate,
-  //     returnedDate: response.returnDate,
-  //     status: response.status,
-  //     vendor: response.vendor,
-  //   }
-  // },
+  getById: async (id) => {
+    const numericId = Number(id)
+    const response = await apiRequest(`/api/repair/${numericId}`)
+    return {
+      id: Number(response.repairId.replace(/\D/g, '')),
+      displayId: response.repairId,
+      deviceName: response.name,
+      deviceCategory: response.category,
+      issue: response.issue,
+      issueDate: response.issueDate,
+      returnedDate: response.returnedDate,
+      status: response.status,
+      vendor: response.vendor,
+      cost: response.cost,
+    }
+  },
   create: (data) => {
     // Transform frontend data to backend format
     const transformedData = {
-      DeviceCategory: data.deviceCategory,
+      Category: data.deviceCategory,
       DeviceName: data.deviceName,
       IssueDescription: data.issue,
-      IssueDate: data.issueDate,
+      IssueDate: data.issueDate || null,
       ReturnDate: data.returnedDate || null,
       VendorName: data.vendor,
-      RepairStatus: data.status || 'Pending',
+      Status: data.status || 'Pending',
+      Cost: data.cost || null,
     }
     return apiRequest('/api/repair', {
       method: 'POST',
@@ -113,7 +116,6 @@ export const repairAPI = {
   update: (id, data) => {
     // Ensure ID is a number
     const repairId = Number(id)
-    console.log('Updating repair with ID:', id, 'Converted to:', repairId, 'Type:', typeof repairId)
     
     if (isNaN(repairId) || repairId <= 0) {
       const error = new Error('Invalid repair ID: ' + id)
@@ -124,15 +126,26 @@ export const repairAPI = {
     // Transform frontend data to backend format
     const transformedData = {
       IssueDescription: data.issue,
-      IssueDate: data.issueDate,
+      IssueDate: data.issueDate || null,
       ReturnDate: data.returnedDate && data.returnedDate !== '-' ? data.returnedDate : null,
       VendorName: data.vendor,
-      RepairStatus: data.status || 'Pending',
+      Status: data.status || 'Pending',
+      Cost: data.cost || null,
     }
-    console.log('Sending to backend:', `/api/repair/${repairId}`, transformedData)
     return apiRequest(`/api/repair/${repairId}`, {
       method: 'PUT',
       body: transformedData,
+    })
+  },
+  delete: (id) => {
+    const numericId = Number(id)
+    if (isNaN(numericId) || numericId <= 0) {
+      const error = new Error('Invalid repair ID: ' + id)
+      console.error(error)
+      throw error
+    }
+    return apiRequest(`/api/repair/${numericId}`, {
+      method: 'DELETE',
     })
   },
 }
