@@ -76,22 +76,24 @@ export const repairAPI = {
       returnedDate: item.ReturnDate,
       status: item.Status,
       vendor: item.Vendor,
+      color: item.Color,
+      cost: item.Cost,
     }))
   },
-  getById: async (id) => {
-    const response = await apiRequest(`/api/repair/${id}`)
-    return {
-      id: Number(response.repairId.replace(/\D/g, '')), // Extract numeric part from "REP001"
-      displayId: response.repairId,
-      deviceName: response.name,
-      deviceCategory: response.category,
-      issue: response.issue,
-      issueDate: response.issueDate,
-      returnedDate: response.returnDate,
-      status: response.status,
-      vendor: response.vendor,
-    }
-  },
+  // getById: async (id) => {
+  //   const response = await apiRequest(`/api/repair/${id}`)
+  //   return {
+  //     id: Number(response.repairId.replace(/\D/g, '')), // Extract numeric part from "REP001"
+  //     displayId: response.repairId,
+  //     deviceName: response.name,
+  //     deviceCategory: response.category,
+  //     issue: response.issue,
+  //     issueDate: response.issueDate,
+  //     returnedDate: response.returnDate,
+  //     status: response.status,
+  //     vendor: response.vendor,
+  //   }
+  // },
   create: (data) => {
     // Transform frontend data to backend format
     const transformedData = {
@@ -139,33 +141,37 @@ export const repairAPI = {
 export const requestAPI = {
   getAll: async () => {
     const response = await apiRequest('/api/request')
-    // Transform backend response to frontend format
-    return response.map(item => ({
+    // Backend may return an array or an object like { requests: [...] } or { data: [...] }
+    const list = Array.isArray(response) ? response : (response.requests || response.data || [])
+
+    return list.map(item => ({
       id: item.RequestId,
-      requestedBy: item.RequestedBy,
+      requestedBy: item.Name,
       department: item.Department,
       deviceName: item.DeviceName,
       deviceType: item.Category,
       reason: item.Reason,
       requestDate: item.RequestDate,
+      recievedate: item.RecieveDate,
       status: item.Status,
+      color: item.Color,
     }))
   },
-  getById: async (id) => {
-    // Extract numeric ID from formatted ID (e.g., "REQ001" -> 1)
-    const numericId = Number(id.replace(/\D/g, ''))
-    const response = await apiRequest(`/api/request/${numericId}`)
-    return {
-      id: response.RequestId,
-      requestedBy: response.RequestedBy,
-      department: response.Department,
-      deviceName: response.DeviceName,
-      deviceType: response.category,
-      reason: response.Reason,
-      requestDate: response.RequestDate,
-      status: response.Status,
-    }
-  },
+  // getById: async (id) => {
+  //   // Extract numeric ID from formatted ID (e.g., "REQ001" -> 1)
+  //   const numericId = Number(id.replace(/\D/g, ''))
+  //   const response = await apiRequest(`/api/request/${numericId}`)
+  //   return {
+  //     id: response.RequestId,
+  //     requestedBy: response.RequestedBy,
+  //     department: response.Department,
+  //     deviceName: response.DeviceName,
+  //     deviceType: response.category,
+  //     reason: response.Reason,
+  //     requestDate: response.RequestDate,
+  //     status: response.Status,
+  //   }
+  // },
   create: (data) => {
     // Transform frontend data to backend format
     const transformedData = {
