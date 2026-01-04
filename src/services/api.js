@@ -80,22 +80,22 @@ export const repairAPI = {
       cost: item.Cost,
     }))
   },
-  getById: async (id) => {
-    const numericId = Number(id)
-    const response = await apiRequest(`/api/repair/${numericId}`)
-    return {
-      id: Number(response.repairId.replace(/\D/g, '')),
-      displayId: response.repairId,
-      deviceName: response.name,
-      deviceCategory: response.category,
-      issue: response.issue,
-      issueDate: response.issueDate,
-      returnedDate: response.returnedDate,
-      status: response.status,
-      vendor: response.vendor,
-      cost: response.cost,
-    }
-  },
+  // getById: async (id) => {
+  //   const numericId = Number(id)
+  //   const response = await apiRequest(`/api/repair/${numericId}`)
+  //   return {
+  //     id: Number(response.repairId.replace(/\D/g, '')),
+  //     displayId: response.repairId,
+  //     deviceName: response.name,
+  //     deviceCategory: response.category,
+  //     issue: response.issue,
+  //     issueDate: response.issueDate,
+  //     returnedDate: response.returnedDate,
+  //     status: response.status,
+  //     vendor: response.vendor,
+  //     cost: response.cost,
+  //   }
+  // },
   create: (data) => {
     // Transform frontend data to backend format
     const transformedData = {
@@ -139,11 +139,7 @@ export const repairAPI = {
   },
   delete: (id) => {
     const numericId = Number(id)
-    if (isNaN(numericId) || numericId <= 0) {
-      const error = new Error('Invalid repair ID: ' + id)
-      console.error(error)
-      throw error
-    }
+    
     return apiRequest(`/api/repair/${numericId}`, {
       method: 'DELETE',
     })
@@ -158,7 +154,8 @@ export const requestAPI = {
     const list = Array.isArray(response) ? response : (response.requests || response.data || [])
 
     return list.map(item => ({
-      id: item.RequestId,
+      id: Number(item.RequestId.replace(/\D/g, '')),
+      displayId: item.RequestId,
       requestedBy: item.Name,
       department: item.Department,
       deviceName: item.DeviceName,
@@ -188,10 +185,10 @@ export const requestAPI = {
   create: (data) => {
     // Transform frontend data to backend format
     const transformedData = {
-      DeviceCategory: data.deviceType,
+      Category: data.deviceType,
       DeviceName: data.deviceName,
       Reason: data.reason,
-      RequestStatus: data.status || 'Pending',
+      Status: data.status || 'Pending',
     }
     return apiRequest('/api/request', {
       method: 'POST',
@@ -200,23 +197,25 @@ export const requestAPI = {
   },
   update: (id, data) => {
     // Extract numeric ID from formatted ID (e.g., "REQ001" -> 1)
-    const numericId = Number(id.replace(/\D/g, ''))
-    
-    if (isNaN(numericId) || numericId <= 0) {
-      const error = new Error('Invalid request ID: ' + id)
-      console.error(error)
-      throw error
-    }
-    
+    const numericId = Number(id.replace(/\D/g, ''))  
     // Transform frontend data to backend format
     const transformedData = {
       Reason: data.reason,
-      RequestStatus: data.status || 'Pending',
+      RequestDate: data.requestDate,
+      RecieveDate: data.recieveDate,
+      Status: data.status || 'Pending',
     }
-    console.log('Updating request with ID:', id, 'Converted to:', numericId)
+    console.log('Updating request with ID:', numericId)
     return apiRequest(`/api/request/${numericId}`, {
       method: 'PUT',
       body: transformedData,
+    })
+  },
+  delete: (id) => {
+    const numericId = Number(id);
+    
+    return apiRequest(`/api/request/${numericId}`, {
+      method: "DELETE",
     })
   },
 }

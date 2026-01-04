@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { Search, Filter, Plus, Eye, Edit, AlertCircle } from 'lucide-react'
+import { Search, Filter, Plus, Eye, Edit, AlertCircle, Trash2 } from 'lucide-react'
 import SideDrawer from '../components/SideDrawer'
 import Modal from '../components/Modal'
 import ConfirmDialog from '../components/ConfirmDialog'
 import { useToast } from '../context/ToastContext'
-import { requestAPI } from '../services/api'
+import { requestAPI, requestStatusAPI, deviceAPI } from '../services/api'
 
 function DeviceRequests() {
   const { addToast } = useToast()
@@ -26,9 +26,13 @@ function DeviceRequests() {
   })
   const [editFormData, setEditFormData] = useState({})
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false })
+  const [devices, setDevices] = useState([])
+  const [statuses, setStatuses] = useState([])
 
   useEffect(() => {
     fetchRequests()
+    fetchDevices()
+    fetchStatuses()
   }, [])
 
   const fetchRequests = async () => {
@@ -43,6 +47,28 @@ function DeviceRequests() {
       addToast(errorMsg, 'error')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const fetchDevices = async () => {
+    try{
+      const data = await deviceAPI.getAll;
+      setDevices(Array.isArray(data) ? data : data.data || [])
+    } catch(err){
+      const errMsg = err.data?.message || err.message || "Failed to fetch devices"
+      console.error("Failed to get devices", err);
+      addToast(errMsg, 'error');
+    }
+  }
+
+  const fetchStatuses = async () => {
+    try{
+      const data = await requestStatusAPI.getAll();
+      setStatuses(Array.isArray(data)? data : data.data || []);
+    } catch (err){
+      const errMsg = err.data?.message || err.message || "Failed to get Statuses"
+      console.error("Failed to get statuses", err)
+      addToast(errMsg, 'error')
     }
   }
 
@@ -71,13 +97,17 @@ function DeviceRequests() {
   )
 
   const getStatusBadge = (status) => {
-    const badges = {
-      Pending: 'badge bg-yellow-100 text-yellow-800',
-      Received: 'badge bg-green-100 text-green-800',
-      'On Hold': 'badge bg-purple-100 text-purple-800',
-      Canceled: 'badge bg-red-100 text-red-800',
+    const statusObj = statuses.find(s=>s.name === status)
+    if (statusObj && statusObj.color){
+      return { color: statusObj.color }
     }
-    return badges[status] || 'badge badge-info'
+     // Fallback colors if status not found
+    const colorMap = {
+      Pending: '#FCD34D',
+      'In Progress': '#60A5FA',
+      Completed: '#34D399',
+    }
+    return { color: colorMap[status] || '#E5E7EB' }
   }
 
   const handleViewRequest = (request) => {
@@ -96,25 +126,25 @@ function DeviceRequests() {
     setIsEditDrawerOpen(true)
   }
 
-  const handleStatusChange = async (request, newStatus) => {
-    setConfirmDialog({
-      isOpen: true,
-      title: 'Update Request Status',
-      message: `Change request ${request.id} status to ${newStatus}?`,
-      confirmText: 'Update',
-      onConfirm: async () => {
-        try {
-          await requestAPI.update(request.id, { ...request, status: newStatus })
-          addToast(`Request status updated to ${newStatus}`, 'success')
-          setConfirmDialog({ isOpen: false })
-          fetchRequests()
-        } catch (err) {
-          const errorMsg = err.data?.message || err.message || 'Failed to update status'
-          addToast(errorMsg, 'error')
-        }
-      },
-    })
-  }
+  // const handleStatusChange = async (request, newStatus) => {
+  //   setConfirmDialog({
+  //     isOpen: true,
+  //     title: 'Update Request Status',
+  //     message: `Change request ${request.id} status to ${newStatus}?`,
+  //     confirmText: 'Update',
+  //     onConfirm: async () => {
+  //       try {
+  //         await requestAPI.update(request.id, { ...request, status: newStatus })
+  //         addToast(`Request status updated to ${newStatus}`, 'success')
+  //         setConfirmDialog({ isOpen: false })
+  //         fetchRequests()
+  //       } catch (err) {
+  //         const errorMsg = err.data?.message || err.message || 'Failed to update status'
+  //         addToast(errorMsg, 'error')
+  //       }
+  //     },
+  //   })
+  // }
 
   const handleSaveRequest = async () => {
     try {
@@ -135,6 +165,27 @@ function DeviceRequests() {
       ...prev,
       [field]: value
     }))
+  }
+
+  const handleDeleteRequest = (request) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: "Delete Device Request",
+      message: `Are you sure you want to delete this repair request ${request.displayId}. This action cannot be undone`,
+      confirmText: "Delete",
+      isDangerous: true,
+      onConfirm: async () => {
+        try{
+          await requestAPI.delete(request.id);
+          addToast("Request deleted successfully", 'success')
+          setConfirmDialog({ isOpen:false })
+          fetchRequests();
+        } catch (err){
+          const errorMsg = err.data?.message || err.message || 'Failed to delete repair'
+          addToast(errorMsg, 'error')
+        }
+      }
+    })
   }
 
   const handleAddRequest = async () => {
@@ -240,6 +291,7 @@ function DeviceRequests() {
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Device Name</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Device Type</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Request Date</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Recieved Date</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
                 </tr>
@@ -247,14 +299,18 @@ function DeviceRequests() {
               <tbody>
                 {paginatedRequests.map((request) => (
                   <tr key={request.id} className="table-row">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{request.id}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{request.displayId}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{request.requestedBy}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{request.department}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{request.deviceName}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{request.deviceType}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{request.requestDate}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{request.recievedate}</td>
                     <td className="px-6 py-4">
-                      <span className={getStatusBadge(request.status)}>{request.status}</span>
+                      <span 
+                        className="badge text-white px-3 py-1 rounded-full text-xs font-semibold"
+                        style={{backgroundColor: getStatusBadge(request.status).color }}
+                      >{request.status}</span>
                     </td>
                     <td className="px-6 py-4 flex gap-2">
                       <button
@@ -268,6 +324,12 @@ function DeviceRequests() {
                         className="btn-sm bg-orange-100 text-orange-600 hover:bg-orange-200"
                       >
                         <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteRequest(request)}
+                        className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
+                      >
+                        <Trash2 size={16} />
                       </button>
                     </td>
                   </tr>
@@ -465,7 +527,9 @@ function DeviceRequests() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Status</p>
-                <span className={getStatusBadge(selectedRequest.status)}>{selectedRequest.status}</span>
+                <span className="badge text-white px-3 py-1 rounded-full text-xs font-semibold"
+                  style={{ backgroundColor: getStatusBadge(selectedRequest.status).color }}
+                >{selectedRequest.status}</span>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Requested By</p>
