@@ -196,14 +196,18 @@ export const requestAPI = {
     })
   },
   update: (id, data) => {
-    // Extract numeric ID from formatted ID (e.g., "REQ001" -> 1)
-    const numericId = Number(id.replace(/\D/g, ''))  
+    const numericId = Number(id)  
     // Transform frontend data to backend format
     const transformedData = {
       Reason: data.reason,
-      RequestDate: data.requestDate,
-      RecieveDate: data.recieveDate,
       Status: data.status || 'Pending',
+    }
+    // Only include date fields if provided
+    if (data.requestDate) {
+      transformedData.RequestDate = data.requestDate
+    }
+    if (data.recieveDate) {
+      transformedData.RecieveDate = data.recieveDate
     }
     console.log('Updating request with ID:', numericId)
     return apiRequest(`/api/request/${numericId}`, {

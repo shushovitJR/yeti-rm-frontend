@@ -24,10 +24,17 @@ function DeviceRequests() {
     reason: '',
     status: 'Pending',
   })
-  const [editFormData, setEditFormData] = useState({})
+  const [editFormData, setEditFormData] = useState({
+    requestDate: '',
+    recieveDate: '',
+    reason: '',
+    status: '',
+  })
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false })
   const [devices, setDevices] = useState([])
+  const [isLoadingDevices, setIsLoadingDevices] = useState(false)
   const [statuses, setStatuses] = useState([])
+  const [isLoadingStatuses, setIsLoadingStatuses] = useState(false)
 
   useEffect(() => {
     fetchRequests()
@@ -51,17 +58,19 @@ function DeviceRequests() {
   }
 
   const fetchDevices = async () => {
+      setIsLoadingDevices(true);
     try{
-      const data = await deviceAPI.getAll;
+      const data = await deviceAPI.getAll();
       setDevices(Array.isArray(data) ? data : data.data || [])
     } catch(err){
       const errMsg = err.data?.message || err.message || "Failed to fetch devices"
       console.error("Failed to get devices", err);
       addToast(errMsg, 'error');
-    }
+    } finally{ setIsLoadingDevices(false); }
   }
 
   const fetchStatuses = async () => {
+    setIsLoadingStatuses(true);
     try{
       const data = await requestStatusAPI.getAll();
       setStatuses(Array.isArray(data)? data : data.data || []);
@@ -69,23 +78,13 @@ function DeviceRequests() {
       const errMsg = err.data?.message || err.message || "Failed to get Statuses"
       console.error("Failed to get statuses", err)
       addToast(errMsg, 'error')
-    }
+    } finally { setIsLoadingStatuses(false); }
   }
 
   const filteredRequests = requests.filter((request) => {
     const matchesSearch = request.requestedBy.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          request.id.toLowerCase().includes(searchTerm.toLowerCase())
-    let matchesStatus = true
-    if (statusFilter !== 'all') {
-      // Normalize status comparison: convert filter value to match backend response
-      const filterMap = {
-        'pending': 'Pending',
-        'received': 'Received',
-        'on-hold': 'On Hold',
-        'canceled': 'Canceled'
-      }
-      matchesStatus = request.status === (filterMap[statusFilter] || statusFilter)
-    }
+    const matchesStatus = statusFilter === 'all' || request.status === statusFilter
     return matchesSearch && matchesStatus
   })
 
@@ -118,38 +117,30 @@ function DeviceRequests() {
   const handleEditRequest = (request) => {
     setSelectedRequest(request)
     setEditFormData({
-      deviceName: request.deviceName,
-      deviceType: request.deviceType,
-      reason: request.reason,
-      status: request.status,
+      requestDate: '',
+      recieveDate: '',
+      reason: request.reason || '',
+      status: request.status || 'Pending',
     })
     setIsEditDrawerOpen(true)
   }
 
-  // const handleStatusChange = async (request, newStatus) => {
-  //   setConfirmDialog({
-  //     isOpen: true,
-  //     title: 'Update Request Status',
-  //     message: `Change request ${request.id} status to ${newStatus}?`,
-  //     confirmText: 'Update',
-  //     onConfirm: async () => {
-  //       try {
-  //         await requestAPI.update(request.id, { ...request, status: newStatus })
-  //         addToast(`Request status updated to ${newStatus}`, 'success')
-  //         setConfirmDialog({ isOpen: false })
-  //         fetchRequests()
-  //       } catch (err) {
-  //         const errorMsg = err.data?.message || err.message || 'Failed to update status'
-  //         addToast(errorMsg, 'error')
-  //       }
-  //     },
-  //   })
-  // }
-
   const handleSaveRequest = async () => {
     try {
-      if (selectedRequest?.id) {
-        await requestAPI.update(selectedRequest.id, editFormData)
+        // Prepare data, omitting empty dates
+        if (selectedRequest?.id) {
+        const dataToSend = {
+          reason: editFormData.reason,
+          status: editFormData.status,
+        }
+        // Only include dates if they have values
+        if (editFormData.requestDate) {
+          dataToSend.requestDate = editFormData.requestDate
+        }
+        if (editFormData.recieveDate) {
+          dataToSend.recieveDate = editFormData.recieveDate
+        }
+        await requestAPI.update(selectedRequest.id, dataToSend)
         addToast('Device request updated successfully', 'success')
         setIsEditDrawerOpen(false)
         fetchRequests()
@@ -264,10 +255,9 @@ function DeviceRequests() {
           className="input-field"
         >
           <option value="all">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="received">Received</option>
-          <option value="on-hold">On Hold</option>
-          <option value="canceled">Canceled</option>
+          {statuses.map(status => (
+            <option key={status.id} value={status.name}>{status.name}</option>
+          ))}
         </select>
       </div>
 
@@ -400,17 +390,12 @@ function DeviceRequests() {
               value={addFormData.deviceType}
               onChange={(e) => setAddFormData({...addFormData, deviceType: e.target.value})}
               className="input-field"
+              disabled = {isLoadingDevices || devices.length === 0}
             >
-              <option value="">Select device type</option>
-              <option value="Laptop">Laptop</option>
-              <option value="Desktop">Desktop</option>
-              <option value="Tablet">Tablet</option>
-              <option value="Phone">Phone</option>
-              <option value="Printer">Printer</option>
-              <option value="Monitor">Monitor</option>
-              <option value="Headset">Headset</option>
-              <option value="Network Device">Network Device</option>
-              <option value="Other">Other</option>
+              <option value="" >{isLoadingDevices ? 'Loading Categories.....' : devices.length === 0 ? 'No device categories Available' :  'Select Category'}</option>
+              {devices.map(device => (
+                <option key={device.name} value={device.name}>{device.name}</option>
+              ))}
             </select>
           </div>
           <div>
@@ -432,9 +417,7 @@ function DeviceRequests() {
             <button
               onClick={handleAddRequest}
               className="flex-1 btn-primary"
-            >
-              Submit Request
-            </button>
+            >Submit Request</button>
           </div>
         </div>
       </SideDrawer>
@@ -447,32 +430,22 @@ function DeviceRequests() {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Device Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Request Date</label>
             <input
-              type="text"
-              placeholder="e.g., Dell Latitude 5520"
-              value={editFormData.deviceName || ''}
-              onChange={(e) => handleInputChange('deviceName', e.target.value)}
+              type="date"
+              value={editFormData.requestDate}
+              onChange={(e) => handleInputChange('requestDate', e.target.value)}
               className="input-field"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Device Type</label>
-            <select
-              value={editFormData.deviceType}
-              onChange={(e) => handleInputChange('deviceType', e.target.value)}
+            <label className="block text-sm font-medium text-gray-700 mb-1">Recieve Date</label>
+            <input
+              type="date"
+              value={editFormData.recieveDate}
+              onChange={(e) => handleInputChange('recieveDate', e.target.value)}
               className="input-field"
-            >
-              <option>Laptop</option>
-              <option>Desktop</option>
-              <option>Tablet</option>
-              <option>Phone</option>
-              <option>Printer</option>
-              <option>Monitor</option>
-              <option>Headset</option>
-              <option>Network Device</option>
-              <option>Other</option>
-            </select>
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Request</label>
@@ -488,11 +461,12 @@ function DeviceRequests() {
               value={editFormData.status || 'Pending'}
               onChange={(e) => handleInputChange('status', e.target.value)}
               className="input-field"
+              disabled = {isLoadingStatuses || statuses.length === 0 }
             >
-              <option value="Pending">Pending</option>
-              <option value="Received">Received</option>
-              <option value="On Hold">On Hold</option>
-              <option value="Canceled">Canceled</option>
+              <option value="">{isLoadingStatuses? 'Loading Statuses' : statuses.length === 0 ? 'No statuses available' : 'Select Status'}</option>
+              {statuses.map(status => (
+                <option key={status.name} value={status.name}>{status.name}</option>
+              ))}
             </select>
           </div>
           <div className="flex gap-3 mt-8">
@@ -523,7 +497,7 @@ function DeviceRequests() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-gray-600">Request ID</p>
-                <p className="text-lg font-semibold text-gray-900">{selectedRequest.id}</p>
+                <p className="text-lg font-semibold text-gray-900">{selectedRequest.displayId}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Status</p>

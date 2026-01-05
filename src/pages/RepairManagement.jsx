@@ -298,9 +298,9 @@ function RepairManagement() {
           className="input-field"
         >
           <option value="all">All Status</option>
-          <option value="Pending">Pending</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Completed">Completed</option>
+          {statuses.map(status => (
+            <option key={status.id} value={status.name}>{status.name}</option>
+          ))}
         </select>
       </div>
 
