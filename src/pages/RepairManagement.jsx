@@ -10,6 +10,11 @@ function RepairManagement() {
   const { addToast } = useToast()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [vendorFilter, setVendorFilter] = useState('all')
+  const [costFilter, setCostFilter] = useState({ min: '', max: '' })
+  const [issueDateFilter, setIssueDateFilter] = useState({ from: '', to: '' })
+  const [returnedDateFilter, setReturnedDateFilter] = useState({ from: '', to: '' })
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false)
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
@@ -116,10 +121,65 @@ function RepairManagement() {
   }
 
   const filteredRepairs = repairs.filter((repair) => {
+    // Search filter
     const matchesSearch = repair.deviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          repair.displayId.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    // Status filter
     const matchesStatus = statusFilter === 'all' || repair.status === statusFilter
-    return matchesSearch && matchesStatus
+    
+    // Vendor filter
+    const matchesVendor = vendorFilter === 'all' || repair.vendor === vendorFilter
+    
+    // Cost filter
+    let matchesCost = true
+    if (costFilter.min || costFilter.max) {
+      const cost = repair.cost ? Number(repair.cost) : 0
+      if (costFilter.min) {
+        matchesCost = matchesCost && cost >= Number(costFilter.min)
+      }
+      if (costFilter.max) {
+        matchesCost = matchesCost && cost <= Number(costFilter.max)
+      }
+    }
+    
+    // Issue date filter
+    let matchesIssueDate = true
+    if (issueDateFilter.from || issueDateFilter.to) {
+      const issueDate = repair.issueDate ? new Date(repair.issueDate) : null
+      if (issueDate) {
+        if (issueDateFilter.from) {
+          const fromDate = new Date(issueDateFilter.from)
+          matchesIssueDate = matchesIssueDate && issueDate >= fromDate
+        }
+        if (issueDateFilter.to) {
+          const toDate = new Date(issueDateFilter.to)
+          matchesIssueDate = matchesIssueDate && issueDate <= toDate
+        }
+      } else {
+        matchesIssueDate = false
+      }
+    }
+    
+    // Returned date filter
+    let matchesReturnedDate = true
+    if (returnedDateFilter.from || returnedDateFilter.to) {
+      const returnedDate = repair.returnedDate ? new Date(repair.returnedDate) : null
+      if (returnedDate) {
+        if (returnedDateFilter.from) {
+          const fromDate = new Date(returnedDateFilter.from)
+          matchesReturnedDate = matchesReturnedDate && returnedDate >= fromDate
+        }
+        if (returnedDateFilter.to) {
+          const toDate = new Date(returnedDateFilter.to)
+          matchesReturnedDate = matchesReturnedDate && returnedDate <= toDate
+        }
+      } else {
+        matchesReturnedDate = false
+      }
+    }
+    
+    return matchesSearch && matchesStatus && matchesVendor && matchesCost && matchesIssueDate && matchesReturnedDate
   })
 
   const itemsPerPage = 8
@@ -244,6 +304,18 @@ function RepairManagement() {
     }
   }
 
+  const resetFilters = () => {
+    setSearchTerm('')
+    setStatusFilter('all')
+    setVendorFilter('all')
+    setCostFilter({ min: '', max: '' })
+    setIssueDateFilter({ from: '', to: '' })
+    setReturnedDateFilter({ from: '', to: '' })
+    setCurrentPage(1)
+  }
+
+  const hasActiveFilters = searchTerm || statusFilter !== 'all' || vendorFilter !== 'all' || costFilter.min || costFilter.max || issueDateFilter.from || issueDateFilter.to || returnedDateFilter.from || returnedDateFilter.to
+
   return (
     <>
     <div className="p-6 space-y-6">
@@ -283,25 +355,144 @@ function RepairManagement() {
               className="input-field pl-10"
             />
           </div>
-          <button className="btn-secondary flex items-center gap-2 justify-center">
+          <button 
+            onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
+            className="btn-secondary flex items-center gap-2 justify-center"
+          >
             <Filter size={20} />
             <span className="hidden sm:inline">Filter</span>
+            {hasActiveFilters && <span className="w-2 h-2 bg-orange-500 rounded-full"></span>}
           </button>
+          {hasActiveFilters && (
+            <button
+              onClick={resetFilters}
+              className="btn-secondary"
+            >
+              Reset
+            </button>
+          )}
         </div>
 
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value)
-            setCurrentPage(1)
-          }}
-          className="input-field"
-        >
-          <option value="all">All Status</option>
-          {statuses.map(status => (
-            <option key={status.id} value={status.name}>{status.name}</option>
-          ))}
-        </select>
+        {isFilterPanelOpen && (
+          <div className="border-t pt-4 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value)
+                  setCurrentPage(1)
+                }}
+                className="input-field"
+              >
+                <option value="all">All Status</option>
+                {statuses.map(status => (
+                  <option key={status.id} value={status.name}>{status.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Vendor</label>
+              <select
+                value={vendorFilter}
+                onChange={(e) => {
+                  setVendorFilter(e.target.value)
+                  setCurrentPage(1)
+                }}
+                className="input-field"
+              >
+                <option value="all">All Vendors</option>
+                {vendors.map(vendor => (
+                  <option key={vendor.id} value={vendor.name}>{vendor.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Cost Min (NPR)</label>
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={costFilter.min}
+                  onChange={(e) => {
+                    setCostFilter({ ...costFilter, min: e.target.value })
+                    setCurrentPage(1)
+                  }}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Cost Max (NPR)</label>
+                <input
+                  type="number"
+                  placeholder="No limit"
+                  value={costFilter.max}
+                  onChange={(e) => {
+                    setCostFilter({ ...costFilter, max: e.target.value })
+                    setCurrentPage(1)
+                  }}
+                  className="input-field"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Issue Date From</label>
+                <input
+                  type="date"
+                  value={issueDateFilter.from}
+                  onChange={(e) => {
+                    setIssueDateFilter({ ...issueDateFilter, from: e.target.value })
+                    setCurrentPage(1)
+                  }}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Issue Date To</label>
+                <input
+                  type="date"
+                  value={issueDateFilter.to}
+                  onChange={(e) => {
+                    setIssueDateFilter({ ...issueDateFilter, to: e.target.value })
+                    setCurrentPage(1)
+                  }}
+                  className="input-field"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Returned Date From</label>
+                <input
+                  type="date"
+                  value={returnedDateFilter.from}
+                  onChange={(e) => {
+                    setReturnedDateFilter({ ...returnedDateFilter, from: e.target.value })
+                    setCurrentPage(1)
+                  }}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Returned Date To</label>
+                <input
+                  type="date"
+                  value={returnedDateFilter.to}
+                  onChange={(e) => {
+                    setReturnedDateFilter({ ...returnedDateFilter, to: e.target.value })
+                    setCurrentPage(1)
+                  }}
+                  className="input-field"
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="card overflow-hidden">

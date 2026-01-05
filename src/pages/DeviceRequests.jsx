@@ -10,10 +10,13 @@ function DeviceRequests() {
   const { addToast } = useToast()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [requestDateFilter, setRequestDateFilter] = useState({ from: '', to: '' })
+  const [receiveDateFilter, setReceiveDateFilter] = useState({ from: '', to: '' })
   const [currentPage, setCurrentPage] = useState(1)
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false)
   const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false)
   const [selectedRequest, setSelectedRequest] = useState(null)
   const [requests, setRequests] = useState([])
   const [isLoading, setIsLoading] = useState(false)
@@ -82,10 +85,50 @@ function DeviceRequests() {
   }
 
   const filteredRequests = requests.filter((request) => {
+    // Search filter
     const matchesSearch = request.requestedBy.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         request.id.toLowerCase().includes(searchTerm.toLowerCase())
+                         request.displayId.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    // Status filter
     const matchesStatus = statusFilter === 'all' || request.status === statusFilter
-    return matchesSearch && matchesStatus
+    
+    // Request date filter
+    let matchesRequestDate = true
+    if (requestDateFilter.from || requestDateFilter.to) {
+      const requestDate = request.requestDate ? new Date(request.requestDate) : null
+      if (requestDate) {
+        if (requestDateFilter.from) {
+          const fromDate = new Date(requestDateFilter.from)
+          matchesRequestDate = matchesRequestDate && requestDate >= fromDate
+        }
+        if (requestDateFilter.to) {
+          const toDate = new Date(requestDateFilter.to)
+          matchesRequestDate = matchesRequestDate && requestDate <= toDate
+        }
+      } else {
+        matchesRequestDate = false
+      }
+    }
+    
+    // Receive date filter
+    let matchesReceiveDate = true
+    if (receiveDateFilter.from || receiveDateFilter.to) {
+      const receiveDate = request.recievedate ? new Date(request.recievedate) : null
+      if (receiveDate) {
+        if (receiveDateFilter.from) {
+          const fromDate = new Date(receiveDateFilter.from)
+          matchesReceiveDate = matchesReceiveDate && receiveDate >= fromDate
+        }
+        if (receiveDateFilter.to) {
+          const toDate = new Date(receiveDateFilter.to)
+          matchesReceiveDate = matchesReceiveDate && receiveDate <= toDate
+        }
+      } else {
+        matchesReceiveDate = false
+      }
+    }
+    
+    return matchesSearch && matchesStatus && matchesRequestDate && matchesReceiveDate
   })
 
   const itemsPerPage = 8
@@ -201,6 +244,16 @@ function DeviceRequests() {
     }
   }
 
+  const resetFilters = () => {
+    setSearchTerm('')
+    setStatusFilter('all')
+    setRequestDateFilter({ from: '', to: '' })
+    setReceiveDateFilter({ from: '', to: '' })
+    setCurrentPage(1)
+  }
+
+  const hasActiveFilters = searchTerm || statusFilter !== 'all' || requestDateFilter.from || requestDateFilter.to || receiveDateFilter.from || receiveDateFilter.to
+
   return(
     <>
     <div className="p-6 space-y-6">
@@ -240,25 +293,98 @@ function DeviceRequests() {
               className="input-field pl-10"
             />
           </div>
-          <button className="btn-secondary flex items-center gap-2 justify-center">
+          <button 
+            onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
+            className="btn-secondary flex items-center gap-2 justify-center"
+          >
             <Filter size={20} />
             <span className="hidden sm:inline">Filter</span>
+            {hasActiveFilters && <span className="w-2 h-2 bg-orange-500 rounded-full"></span>}
           </button>
+          {hasActiveFilters && (
+            <button
+              onClick={resetFilters}
+              className="btn-secondary"
+            >
+              Reset
+            </button>
+          )}
         </div>
 
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value)
-            setCurrentPage(1)
-          }}
-          className="input-field"
-        >
-          <option value="all">All Status</option>
-          {statuses.map(status => (
-            <option key={status.id} value={status.name}>{status.name}</option>
-          ))}
-        </select>
+        {isFilterPanelOpen && (
+          <div className="border-t pt-4 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value)
+                  setCurrentPage(1)
+                }}
+                className="input-field"
+              >
+                <option value="all">All Status</option>
+                {statuses.map(status => (
+                  <option key={status.id} value={status.name}>{status.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Request Date From</label>
+                <input
+                  type="date"
+                  value={requestDateFilter.from}
+                  onChange={(e) => {
+                    setRequestDateFilter({ ...requestDateFilter, from: e.target.value })
+                    setCurrentPage(1)
+                  }}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Request Date To</label>
+                <input
+                  type="date"
+                  value={requestDateFilter.to}
+                  onChange={(e) => {
+                    setRequestDateFilter({ ...requestDateFilter, to: e.target.value })
+                    setCurrentPage(1)
+                  }}
+                  className="input-field"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Receive Date From</label>
+                <input
+                  type="date"
+                  value={receiveDateFilter.from}
+                  onChange={(e) => {
+                    setReceiveDateFilter({ ...receiveDateFilter, from: e.target.value })
+                    setCurrentPage(1)
+                  }}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Receive Date To</label>
+                <input
+                  type="date"
+                  value={receiveDateFilter.to}
+                  onChange={(e) => {
+                    setReceiveDateFilter({ ...receiveDateFilter, to: e.target.value })
+                    setCurrentPage(1)
+                  }}
+                  className="input-field"
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="card overflow-hidden">
