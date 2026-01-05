@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Search, Filter, Plus, Eye, Edit, Trash2, AlertCircle } from 'lucide-react'
+import { Search, Filter, Plus, Eye, Edit, Trash2, AlertCircle, Download } from 'lucide-react'
 import SideDrawer from '../components/SideDrawer'
 import Modal from '../components/Modal'
 import ConfirmDialog from '../components/ConfirmDialog'
@@ -316,6 +316,71 @@ function RepairManagement() {
 
   const hasActiveFilters = searchTerm || statusFilter !== 'all' || vendorFilter !== 'all' || costFilter.min || costFilter.max || issueDateFilter.from || issueDateFilter.to || returnedDateFilter.from || returnedDateFilter.to
 
+  const exportToPDF = () => {
+    try {
+      const printWindow = window.open('', '', 'width=1400,height=800')
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Repair Management Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #1f2937; margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }
+            th { background-color: #f3f4f6; padding: 10px; text-align: left; border-bottom: 2px solid #d1d5db; font-weight: 600; }
+            td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; }
+            tr:nth-child(even) { background-color: #f9fafb; }
+            .status-badge { color: white; padding: 3px 6px; border-radius: 3px; display: inline-block; font-size: 11px; }
+            .footer { margin-top: 20px; font-size: 12px; color: #6b7280; }
+          </style>
+        </head>
+        <body>
+          <h1>Repair Management Report</h1>
+          <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
+          <p><strong>Total Records:</strong> ${filteredRepairs.length}</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Repair ID</th>
+                <th>Device Name</th>
+                <th>Issue</th>
+                <th>Issue Date</th>
+                <th>Returned Date</th>
+                <th>Cost</th>
+                <th>Vendor</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredRepairs.map(repair => `
+                <tr>
+                  <td>${repair.displayId}</td>
+                  <td>${repair.deviceName}</td>
+                  <td>${repair.issue}</td>
+                  <td>${repair.issueDate || '-'}</td>
+                  <td>${repair.returnedDate || '-'}</td>
+                  <td>${formatCurrency(repair.cost)}</td>
+                  <td>${repair.vendor}</td>
+                  <td><span class="status-badge" style="background-color: ${getStatusBadge(repair.status).color}">${repair.status}</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div class="footer">
+            <p>This is an automatically generated report from RepairMS</p>
+          </div>
+        </body>
+        </html>
+      `
+      printWindow.document.write(htmlContent)
+      printWindow.document.close()
+      printWindow.print()
+    } catch (error) {
+      addToast('Failed to export to PDF', 'error')
+    }
+  }
+
   return (
     <>
     <div className="p-6 space-y-6">
@@ -331,13 +396,23 @@ function RepairManagement() {
           <h1 className="text-3xl font-bold text-gray-900">Repair Management</h1>
           <p className="text-gray-600 mt-1">Track and manage device repair requests</p>
         </div>
-        <button
-          onClick={() => setIsAddDrawerOpen(true)}
-          className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center"
-        >
-          <Plus size={20} />
-          New Repair
-        </button>
+        <div className="flex gap-3 w-full sm:w-auto">
+          <button
+            onClick={exportToPDF}
+            className="btn-secondary flex items-center gap-2 justify-center flex-1 sm:flex-none"
+            disabled={filteredRepairs.length === 0}
+          >
+            <Download size={20} />
+            Export PDF
+          </button>
+          <button
+            onClick={() => setIsAddDrawerOpen(true)}
+            className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center flex-1 sm:flex-none"
+          >
+            <Plus size={20} />
+            New Repair
+          </button>
+        </div>
       </div>
 
       <div className="card p-6 space-y-4">
@@ -506,7 +581,7 @@ function RepairManagement() {
               <p className="text-gray-600">No repair requests found</p>
             </div>
           ) : (
-            <table>
+            <table className="w-full">
               <thead className="table-header">
                 <tr>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Repair ID</th>

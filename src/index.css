@@ -17,7 +17,9 @@ body {
   color: #1f2937;
   background-color: #f8fafc;
 }
-
+header{
+  height: 97.04px;
+}
 @layer components {
   .card {
     @apply bg-white rounded-lg shadow-card hover:shadow-hover transition-shadow duration-300;

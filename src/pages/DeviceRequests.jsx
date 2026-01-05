@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Search, Filter, Plus, Eye, Edit, AlertCircle, Trash2 } from 'lucide-react'
+import { Search, Filter, Plus, Eye, Edit, AlertCircle, Trash2, Download } from 'lucide-react'
 import SideDrawer from '../components/SideDrawer'
 import Modal from '../components/Modal'
 import ConfirmDialog from '../components/ConfirmDialog'
@@ -254,6 +254,74 @@ function DeviceRequests() {
 
   const hasActiveFilters = searchTerm || statusFilter !== 'all' || requestDateFilter.from || requestDateFilter.to || receiveDateFilter.from || receiveDateFilter.to
 
+  const exportToPDF = () => {
+    try {
+      const printWindow = window.open('', '', 'width=1000,height=800')
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Device Requests Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #1f2937; margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th { background-color: #f3f4f6; padding: 12px; text-align: left; border-bottom: 2px solid #d1d5db; font-weight: 600; }
+            td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; }
+            tr:nth-child(even) { background-color: #f9fafb; }
+            .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+            .status-badge { color: white; padding: 4px 8px; border-radius: 4px; display: inline-block; }
+            .footer { margin-top: 20px; font-size: 12px; color: #6b7280; }
+          </style>
+        </head>
+        <body>
+          <h1>Device Requests Report</h1>
+          <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
+          <p><strong>Total Records:</strong> ${filteredRequests.length}</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Requested By</th>
+                <th>Department</th>
+                <th>Device Name</th>
+                <th>Device Type</th>
+                <th>Request Date</th>
+                <th>Receive Date</th>
+                <th>Status</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredRequests.map(request => `
+                <tr>
+                  <td>${request.displayId}</td>
+                  <td>${request.requestedBy}</td>
+                  <td>${request.department}</td>
+                  <td>${request.deviceName}</td>
+                  <td>${request.deviceType}</td>
+                  <td>${request.requestDate || '-'}</td>
+                  <td>${request.recievedate || '-'}</td>
+                  <td><span class="status-badge" style="background-color: ${getStatusBadge(request.status).color}">${request.status}</span></td>
+                  <td>${request.reason}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div class="footer">
+            <p>This is an automatically generated report from RepairMS</p>
+          </div>
+        </body>
+        </html>
+      `
+      printWindow.document.write(htmlContent)
+      printWindow.document.close()
+      printWindow.print()
+    } catch (error) {
+      addToast('Failed to export to PDF', 'error')
+    }
+  }
+
   return(
     <>
     <div className="p-6 space-y-6">
@@ -269,13 +337,23 @@ function DeviceRequests() {
           <h1 className="text-3xl font-bold text-gray-900">Device Requests</h1>
           <p className="text-gray-600 mt-1">Manage device request approvals and workflows</p>
         </div>
-        <button
-          onClick={() => setIsAddDrawerOpen(true)}
-          className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center"
-        >
-          <Plus size={20} />
-          New Request
-        </button>
+        <div className="flex gap-3 w-full sm:w-auto">
+          <button
+            onClick={exportToPDF}
+            className="btn-secondary flex items-center gap-2 justify-center flex-1 sm:flex-none"
+            disabled={filteredRequests.length === 0}
+          >
+            <Download size={20} />
+            Export PDF
+          </button>
+          <button
+            onClick={() => setIsAddDrawerOpen(true)}
+            className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center flex-1 sm:flex-none"
+          >
+            <Plus size={20} />
+            New Request
+          </button>
+        </div>
       </div>
 
       <div className="card p-6 space-y-4">
@@ -398,7 +476,7 @@ function DeviceRequests() {
               <p className="text-gray-600">No device requests found</p>
             </div>
           ) : (
-            <table>
+            <table className="w-full">
               <thead className="table-header">
                 <tr>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Request ID</th>
