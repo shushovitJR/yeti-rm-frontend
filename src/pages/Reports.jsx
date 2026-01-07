@@ -10,13 +10,13 @@ function Reports() {
   const [endDate, setEndDate] = useState('2024-01-31')
 
   const [dailyRepairData] = useState([
-    { date: '2024-01-01', repairs: 5, completed: 3 },
-    { date: '2024-01-02', repairs: 7, completed: 5 },
-    { date: '2024-01-03', repairs: 4, completed: 4 },
-    { date: '2024-01-04', repairs: 8, completed: 6 },
-    { date: '2024-01-05', repairs: 6, completed: 5 },
-    { date: '2024-01-06', repairs: 9, completed: 7 },
-    { date: '2024-01-07', repairs: 5, completed: 4 },
+    { date: '2025-01-01', repairs: 5, completed: 3 },
+    { date: '2025-01-02', repairs: 7, completed: 5 },
+    { date: '2025-01-03', repairs: 4, completed: 4 },
+    { date: '2025-01-04', repairs: 8, completed: 6 },
+    { date: '2025-01-05', repairs: 6, completed: 5 },
+    { date: '2025-01-06', repairs: 9, completed: 7 },
+    { date: '2025-01-07', repairs: 5, completed: 4 },
   ])
 
   const [monthlyData] = useState([
@@ -26,6 +26,12 @@ function Reports() {
     { month: 'April', repairs: 61, completed: 55, requests: 18 },
     { month: 'May', repairs: 55, completed: 50, requests: 14 },
     { month: 'June', repairs: 67, completed: 62, requests: 20 },
+    { month: 'July', repairs: 67, completed: 62, requests: 20 },
+    { month: 'August', repairs: 67, completed: 62, requests: 20 },
+    { month: 'September', repairs: 67, completed: 62, requests: 20 },
+    { month: 'October', repairs: 67, completed: 62, requests: 20 },
+    { month: 'November', repairs: 67, completed: 62, requests: 20 },
+    { month: 'December', repairs: 67, completed: 62, requests: 20 },
   ])
 
   const [departmentData] = useState([

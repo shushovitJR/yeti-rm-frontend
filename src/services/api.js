@@ -126,12 +126,19 @@ export const repairAPI = {
     // Transform frontend data to backend format
     const transformedData = {
       IssueDescription: data.issue,
-      IssueDate: data.issueDate || null,
-      ReturnDate: data.returnedDate && data.returnedDate !== '-' ? data.returnedDate : null,
+      // IssueDate: data.issueDate || null,
+      // ReturnDate: data.returnedDate && data.returnedDate !== '-' ? data.returnedDate : null,
       VendorName: data.vendor,
       Status: data.status || 'Pending',
       Cost: data.cost || null,
     }
+    if (data.returnedDate) {
+      transformedData.ReturnDate = data.returnedDate
+    }
+    if (data.issueDate) {
+      transformedData.IssueDate = data.issueDate
+    }
+
     return apiRequest(`/api/repair/${repairId}`, {
       method: 'PUT',
       body: transformedData,
@@ -209,7 +216,7 @@ export const requestAPI = {
     if (data.recieveDate) {
       transformedData.RecieveDate = data.recieveDate
     }
-    console.log('Updating request with ID:', numericId)
+    
     return apiRequest(`/api/request/${numericId}`, {
       method: 'PUT',
       body: transformedData,
@@ -396,6 +403,24 @@ export const requestStatusAPI = {
   },
 }
 
+export const dashboardAPI = {
+  getCategoryChart: async() => {
+    const response = await apiRequest('/api/report/devicecategorychart');
+    return response.map((item)=>({
+      category: item.category,
+      count: item.count,
+    }))
+  },
+  getRequestMetric: async () => {
+    const response = await apiRequest('/api/report/requestmetric')
+    return response[0] || { recieved:0, pending:0 };
+  },
+  getRepairMetric: async () => {
+    const response = await apiRequest('/api/report/repairmetric')
+    return response || {underrepair:0, cost:0};
+  },
+}
+
 export default {
   authAPI,
   repairAPI,
@@ -404,4 +429,5 @@ export default {
   deviceAPI,
   repairStatusAPI,
   requestStatusAPI,
+  dashboardAPI,
 }

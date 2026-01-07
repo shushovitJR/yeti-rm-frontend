@@ -1,8 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { TrendingUp, Package, Wrench, FileText, CheckCircle } from 'lucide-react'
+import { TrendingUp, Package, Wrench, FileText, CheckCircle, IndianRupeeIcon } from 'lucide-react'
+import { dashboardAPI } from '../services/api'
+import { useToast } from '../context/ToastContext'
 
 function Dashboard() {
+
   const [monthlyData] = useState([
     { month: 'Jan', repairs: 45, completed: 38 },
     { month: 'Feb', repairs: 52, completed: 48 },
@@ -11,15 +14,11 @@ function Dashboard() {
     { month: 'May', repairs: 55, completed: 50 },
     { month: 'Jun', repairs: 67, completed: 62 },
   ])
-
-  const [categoryData] = useState([
-    { category: 'Laptops', count: 156 },
-    { category: 'Desktops', count: 98 },
-    { category: 'Tablets', count: 67 },
-    { category: 'Phones', count: 124 },
-    { category: 'Printers', count: 45 },
-  ])
-
+  
+  const [categoryData, setCategoryData] = useState([])
+  const [requestMetricData, setRequestMetricData] = useState([])
+  const [repairMetricData, setRepairMetricData] = useState([])
+  
   const [recentActivity] = useState([
     { id: 1, type: 'Repair Completed', device: 'Dell Latitude 5520', date: '2024-01-15', status: 'completed' },
     { id: 2, type: 'Device Assigned', device: 'HP EliteBook 840', date: '2024-01-14', status: 'assigned' },
@@ -27,14 +26,20 @@ function Dashboard() {
     { id: 4, type: 'Repair Started', device: 'Lenovo ThinkPad', date: '2024-01-12', status: 'in-progress' },
     { id: 5, type: 'New Request', device: 'iPad Air', date: '2024-01-11', status: 'pending' },
   ])
-
+  
   const metrics = [
-    { label: 'Total Devices', value: '490', icon: Package, color: 'bg-green-100', textColor: 'text-green-600' },
-    { label: 'Under Repair', value: '23', icon: Wrench, color: 'bg-orange-100', textColor: 'text-orange-600' },
-    { label: 'Pending Requests', value: '12', icon: FileText, color: 'bg-purple-100', textColor: 'text-purple-600' },
-    { label: 'Approved Requests', value: '8', icon: CheckCircle, color: 'bg-green-100', textColor: 'text-green-600' },
+    { label: 'Monthly Cost', value: "₹"+repairMetricData.cost, icon: IndianRupeeIcon, color: 'bg-green-100', textColor: 'text-green-600' },
+    { label: 'Under Repair', value: repairMetricData.underrepair, icon: Wrench, color: 'bg-orange-100', textColor: 'text-orange-600' },
+    { label: 'Pending Requests', value: requestMetricData.pending, icon: FileText, color: 'bg-purple-100', textColor: 'text-purple-600' },
+    { label: 'Recieved Requests', value: requestMetricData.recieved, icon: CheckCircle, color: 'bg-green-100', textColor: 'text-green-600' },
   ]
-
+  
+  useEffect(()=>{
+    fetchCategoryChart()
+    fetchRequestMetric()
+    fetchRepairMetric()
+  },[])
+  
   const getActivityBadge = (status) => {
     const badges = {
       completed: 'badge badge-success',
@@ -44,6 +49,36 @@ function Dashboard() {
       pending: 'badge badge-warning',
     }
     return badges[status] || 'badge badge-info'
+  }
+  
+  const fetchRequestMetric = async () => {
+    try{
+      const data = await dashboardAPI.getRequestMetric()
+      setRequestMetricData(data || { recieved: 0, pending: 0 })
+    } catch (err){
+      const errMsg = err.data?.message || err.message || "Failed to fetch request metrics"
+      addToast(errMsg, 'error')
+    }
+  }
+
+  const fetchRepairMetric = async () => {
+    try{
+      const data = await dashboardAPI.getRepairMetric()
+      setRepairMetricData(data)
+    } catch (err){
+      const errMsg = err.data?.message || err.message || "Failed to fetch repair metrics"
+      addToast(errMsg, 'error')
+    }
+  }
+  
+  const fetchCategoryChart = async () => {
+    try
+    {const data = await dashboardAPI.getCategoryChart()
+    setCategoryData(Array.isArray(data) ? data : data.data || [])
+    } catch (err){
+      const errMsg = err.data?.message || err.message || "Failed to get device category count"
+      addToast(errMsg, 'error');
+    }
   }
 
   return (
