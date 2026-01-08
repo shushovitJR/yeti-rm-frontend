@@ -1,34 +1,27 @@
 import React, { useEffect, useState } from 'react'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { TrendingUp, Package, Wrench, FileText, CheckCircle, IndianRupeeIcon } from 'lucide-react'
-import { dashboardAPI } from '../services/api'
+import { dashboardAPI, reportAPI } from '../services/api'
 import { useToast } from '../context/ToastContext'
 
 function Dashboard() {
 
-  const [monthlyData] = useState([
-    { month: 'Jan', repairs: 45, completed: 38 },
-    { month: 'Feb', repairs: 52, completed: 48 },
-    { month: 'Mar', repairs: 48, completed: 42 },
-    { month: 'Apr', repairs: 61, completed: 55 },
-    { month: 'May', repairs: 55, completed: 50 },
-    { month: 'Jun', repairs: 67, completed: 62 },
-  ])
+  const [monthlyData, setMonthlyData] = useState([])
   
   const [categoryData, setCategoryData] = useState([])
   const [requestMetricData, setRequestMetricData] = useState([])
   const [repairMetricData, setRepairMetricData] = useState([])
   
-  const [recentActivity] = useState([
-    { id: 1, type: 'Repair Completed', device: 'Dell Latitude 5520', date: '2024-01-15', status: 'completed' },
-    { id: 2, type: 'Device Assigned', device: 'HP EliteBook 840', date: '2024-01-14', status: 'assigned' },
-    { id: 3, type: 'Request Approved', device: 'MacBook Pro 14"', date: '2024-01-13', status: 'approved' },
-    { id: 4, type: 'Repair Started', device: 'Lenovo ThinkPad', date: '2024-01-12', status: 'in-progress' },
-    { id: 5, type: 'New Request', device: 'iPad Air', date: '2024-01-11', status: 'pending' },
-  ])
+  // const [recentActivity] = useState([
+  //   { id: 1, type: 'Repair Completed', device: 'Dell Latitude 5520', date: '2024-01-15', status: 'completed' },
+  //   { id: 2, type: 'Device Assigned', device: 'HP EliteBook 840', date: '2024-01-14', status: 'assigned' },
+  //   { id: 3, type: 'Request Approved', device: 'MacBook Pro 14"', date: '2024-01-13', status: 'approved' },
+  //   { id: 4, type: 'Repair Started', device: 'Lenovo ThinkPad', date: '2024-01-12', status: 'in-progress' },
+  //   { id: 5, type: 'New Request', device: 'iPad Air', date: '2024-01-11', status: 'pending' },
+  // ])
   
   const metrics = [
-    { label: 'Monthly Cost', value: "₹"+repairMetricData.cost, icon: IndianRupeeIcon, color: 'bg-green-100', textColor: 'text-green-600' },
+    { label: 'Cost This Month', value: "₹"+repairMetricData.cost, icon: IndianRupeeIcon, color: 'bg-green-100', textColor: 'text-green-600' },
     { label: 'Under Repair', value: repairMetricData.underrepair, icon: Wrench, color: 'bg-orange-100', textColor: 'text-orange-600' },
     { label: 'Pending Requests', value: requestMetricData.pending, icon: FileText, color: 'bg-purple-100', textColor: 'text-purple-600' },
     { label: 'Recieved Requests', value: requestMetricData.recieved, icon: CheckCircle, color: 'bg-green-100', textColor: 'text-green-600' },
@@ -38,18 +31,9 @@ function Dashboard() {
     fetchCategoryChart()
     fetchRequestMetric()
     fetchRepairMetric()
+    fetchMonthlyData()
   },[])
-  
-  const getActivityBadge = (status) => {
-    const badges = {
-      completed: 'badge badge-success',
-      assigned: 'badge badge-info',
-      approved: 'badge badge-success',
-      'in-progress': 'badge badge-warning',
-      pending: 'badge badge-warning',
-    }
-    return badges[status] || 'badge badge-info'
-  }
+
   
   const fetchRequestMetric = async () => {
     try{
@@ -77,6 +61,16 @@ function Dashboard() {
     setCategoryData(Array.isArray(data) ? data : data.data || [])
     } catch (err){
       const errMsg = err.data?.message || err.message || "Failed to get device category count"
+      addToast(errMsg, 'error');
+    }
+  }
+
+  const fetchMonthlyData = async () => {
+    try{
+      const data = await reportAPI.getMonthlyRepairs();
+      setMonthlyData(Array.isArray(data) ? data : data.data || [])
+    } catch (err){
+      const errMsg = err.data?.message || err.message || "Failed to get monthly data"
       addToast(errMsg, 'error');
     }
   }
@@ -160,7 +154,7 @@ function Dashboard() {
           </ResponsiveContainer>
         </div>
       </div>
-
+{/* 
       <div className="card p-6">
         <h2 className="text-lg font-bold text-gray-900 mb-4">Recent Activity</h2>
         <div className="overflow-x-auto">
@@ -187,7 +181,7 @@ function Dashboard() {
             </tbody>
           </table>
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }

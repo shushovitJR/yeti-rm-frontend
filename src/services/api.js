@@ -421,6 +421,17 @@ export const dashboardAPI = {
   },
 }
 
+export const reportAPI = {
+  getMonthlyRepairs: async() => {
+    const response = await apiRequest('/api/report/monthlyrepairs')
+    return response.map((item)=>({
+      month: item.month,
+      completed: item.completed,
+      repairs: item.repairs,
+    }))
+  },
+}
+
 export default {
   authAPI,
   repairAPI,
@@ -430,4 +441,5 @@ export default {
   repairStatusAPI,
   requestStatusAPI,
   dashboardAPI,
+  reportAPI,
 }

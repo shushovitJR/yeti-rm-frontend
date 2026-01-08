@@ -9,16 +9,6 @@ function Reports() {
   const [startDate, setStartDate] = useState('2024-01-01')
   const [endDate, setEndDate] = useState('2024-01-31')
 
-  const [dailyRepairData] = useState([
-    { date: '2025-01-01', repairs: 5, completed: 3 },
-    { date: '2025-01-02', repairs: 7, completed: 5 },
-    { date: '2025-01-03', repairs: 4, completed: 4 },
-    { date: '2025-01-04', repairs: 8, completed: 6 },
-    { date: '2025-01-05', repairs: 6, completed: 5 },
-    { date: '2025-01-06', repairs: 9, completed: 7 },
-    { date: '2025-01-07', repairs: 5, completed: 4 },
-  ])
-
   const [monthlyData] = useState([
     { month: 'January', repairs: 45, completed: 38, requests: 12 },
     { month: 'February', repairs: 52, completed: 48, requests: 15 },
@@ -128,38 +118,7 @@ function Reports() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Daily Repairs Trend</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={dailyRepairData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="date" stroke="#64748b" />
-              <YAxis stroke="#64748b" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#fff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                }}
-              />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="repairs"
-                stroke="#3b82f6"
-                strokeWidth={2}
-                dot={{ fill: '#3b82f6', r: 4 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="completed"
-                stroke="#10b981"
-                strokeWidth={2}
-                dot={{ fill: '#10b981', r: 4 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+  
 
         <div className="card p-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4">Monthly Summary</h2>
