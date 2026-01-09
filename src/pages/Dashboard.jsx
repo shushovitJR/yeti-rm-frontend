@@ -5,20 +5,13 @@ import { dashboardAPI, reportAPI } from '../services/api'
 import { useToast } from '../context/ToastContext'
 
 function Dashboard() {
-
+  const { addToast } = useToast()
   const [monthlyData, setMonthlyData] = useState([])
   
   const [categoryData, setCategoryData] = useState([])
   const [requestMetricData, setRequestMetricData] = useState([])
   const [repairMetricData, setRepairMetricData] = useState([])
-  
-  // const [recentActivity] = useState([
-  //   { id: 1, type: 'Repair Completed', device: 'Dell Latitude 5520', date: '2024-01-15', status: 'completed' },
-  //   { id: 2, type: 'Device Assigned', device: 'HP EliteBook 840', date: '2024-01-14', status: 'assigned' },
-  //   { id: 3, type: 'Request Approved', device: 'MacBook Pro 14"', date: '2024-01-13', status: 'approved' },
-  //   { id: 4, type: 'Repair Started', device: 'Lenovo ThinkPad', date: '2024-01-12', status: 'in-progress' },
-  //   { id: 5, type: 'New Request', device: 'iPad Air', date: '2024-01-11', status: 'pending' },
-  // ])
+
   
   const metrics = [
     { label: 'Cost This Month', value: "₹"+repairMetricData.cost, icon: IndianRupeeIcon, color: 'bg-green-100', textColor: 'text-green-600' },

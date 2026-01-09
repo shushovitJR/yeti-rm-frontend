@@ -489,6 +489,44 @@ export const reportAPI = {
   }
 }
 
+// Department Management API
+export const departmentAPI = {
+  getAll: async () => {
+    const response = await apiRequest('/api/department')
+    // Transform backend response to frontend format
+    return response.map((item) => ({
+      id: item.DepartmentId,
+      name: item.DepartmentName,
+    }))
+  },
+  create: (data) => {
+    // Transform frontend data to backend format
+    const transformedData = {
+      DepartmentName: data.name,
+    }
+    return apiRequest('/api/department', {
+      method: 'POST',
+      body: transformedData,
+    })
+  },
+  update: (id, data) => {
+    const departmentId = Number(id);
+    const transformedData = {
+      DepartmentName: data.name,
+    }
+    return apiRequest(`/api/department/${departmentId}`, {
+      method: 'PUT',
+      body: transformedData,
+    })
+  },
+  delete: (id) => {
+    const departmentId = Number(id);
+    return apiRequest(`/api/department/${departmentId}`, {
+      method: 'DELETE',
+    })
+  },
+}
+
 export default {
   authAPI,
   repairAPI,
@@ -499,4 +537,5 @@ export default {
   requestStatusAPI,
   dashboardAPI,
   reportAPI,
+  departmentAPI,
 }

@@ -3,7 +3,7 @@ import { Plus, Edit, Trash2, Save, AlertCircle } from "lucide-react";
 import Modal from "../components/Modal";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useToast } from "../context/ToastContext";
-import { vendorAPI, deviceAPI, repairStatusAPI, requestStatusAPI } from "../services/api";
+import { vendorAPI, deviceAPI, repairStatusAPI, requestStatusAPI, departmentAPI } from "../services/api";
 
 function Settings() {
   const { addToast } = useToast();
@@ -53,9 +53,19 @@ function Settings() {
   const [editingVendorId, setEditingVendorId] = useState(null);
   const [editingVendorName, setEditingVendorName] = useState("");
 
+  // ============= Department State =============
+  const [departments, setDepartments] = useState([]);
+  const [isLoadingDepartments, setIsLoadingDepartments] = useState(false);
+  const [departmentLoadError, setDepartmentLoadError] = useState("");
+  const [newDepartmentName, setNewDepartmentName] = useState("");
+  const [departmentError, setDepartmentError] = useState("");
+  const [editingDepartmentId, setEditingDepartmentId] = useState(null);
+  const [editingDepartmentName, setEditingDepartmentName] = useState("");
+
   // ============= Initialize Data =============
   useEffect(() => {
     fetchVendors();
+    fetchDepartments();
     fetchCategories();
     fetchRepairStatuses();
     fetchRequestStatuses();
@@ -494,6 +504,112 @@ function Settings() {
     }
   };
 
+  // ============= Department Functions =============
+  const fetchDepartments = async () => {
+    setIsLoadingDepartments(true);
+    setDepartmentLoadError("");
+    try {
+      const data = await departmentAPI.getAll();
+      setDepartments(Array.isArray(data) ? data : data.data || []);
+    } catch (err) {
+      const errorMsg =
+        err.data?.message || err.message || "Failed to fetch departments";
+      setDepartmentLoadError(errorMsg);
+      addToast(errorMsg, "error");
+    } finally {
+      setIsLoadingDepartments(false);
+    }
+  };
+
+  const openEditDepartmentMode = (department) => {
+    setEditingDepartmentId(department.id);
+    setEditingDepartmentName(department.name);
+  };
+
+  const closeEditDepartmentMode = () => {
+    setEditingDepartmentId(null);
+    setEditingDepartmentName("");
+  };
+
+  const saveEditedDepartment = async () => {
+    if (!editingDepartmentName.trim()) {
+      addToast("Department name cannot be empty", "error");
+      return;
+    }
+
+    if (
+      departments.some(
+        (d) =>
+          d.id !== editingDepartmentId &&
+          d.name.toLowerCase() === editingDepartmentName.toLowerCase()
+      )
+    ) {
+      addToast("A department with this name already exists", "error");
+      return;
+    }
+
+    try {
+      await departmentAPI.update(editingDepartmentId, { name: editingDepartmentName });
+      addToast("Department updated successfully", "success");
+      fetchDepartments();
+      closeEditDepartmentMode();
+    } catch (err) {
+      const errorMsg =
+        err.data?.message || err.message || "Failed to update department";
+      addToast(errorMsg, "error");
+    }
+  };
+
+  const deleteDepartment = (department) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: "Delete Department",
+      message: `Are you sure you want to delete "${department.name}"? This action cannot be undone.`,
+      confirmText: "Delete",
+      onConfirm: async () => {
+        try {
+          await departmentAPI.delete(department.id);
+          addToast("Department deleted successfully", "success");
+          setConfirmDialog({ isOpen: false });
+          fetchDepartments();
+        } catch (err) {
+          const errorMsg =
+            err.data?.message || err.message || "Failed to delete department";
+          addToast(errorMsg, "error");
+        }
+      },
+      isDangerous: true,
+    });
+  };
+
+  const createDepartment = async () => {
+    setDepartmentError("");
+
+    if (!newDepartmentName.trim()) {
+      setDepartmentError("Department name cannot be empty");
+      return;
+    }
+
+    if (
+      departments.some((d) => d.name.toLowerCase() === newDepartmentName.toLowerCase())
+    ) {
+      setDepartmentError("This department already exists");
+      return;
+    }
+
+    try {
+      await departmentAPI.create({ name: newDepartmentName });
+      setNewDepartmentName("");
+      addToast("Department added successfully", "success");
+      fetchDepartments();
+    } catch (err) {
+      const errorMsg =
+        err.data?.message || err.message || "Failed to add department";
+      setDepartmentError(errorMsg);
+      addToast(errorMsg, "error");
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div>
@@ -513,6 +629,7 @@ function Settings() {
               label: "Device Request Status Types",
             },
             { id: "vendors", label: "Vendor Management" },
+            { id: "departments", label: "Department Management" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -790,6 +907,128 @@ function Settings() {
                               </button>
                               <button
                                 onClick={() => deleteVendor(vendor)}
+                                className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Department Management Tab */}
+          {activeTab === "departments" && (
+            <div className="p-6 space-y-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">
+                Department Management
+              </h2>
+              {departmentLoadError && (
+                <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <AlertCircle
+                    size={20}
+                    className="text-red-600 flex-shrink-0"
+                  />
+                  <p className="text-sm text-red-600">{departmentLoadError}</p>
+                </div>
+              )}
+              <div className="space-y-4">
+                <div className="p-4 border border-gray-200 rounded-lg">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Add New Department
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Enter department name"
+                      value={newDepartmentName}
+                      onChange={(e) => {
+                        setNewDepartmentName(e.target.value);
+                        setDepartmentError("");
+                      }}
+                      className="flex-1 input-field"
+                    />
+                    <button
+                      onClick={createDepartment}
+                      className="btn-primary flex items-center gap-2"
+                    >
+                      <Plus size={20} />
+                      Add
+                    </button>
+                  </div>
+                  {departmentError && (
+                    <div className="flex items-center gap-2 mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <AlertCircle size={16} className="text-red-600" />
+                      <p className="text-sm text-red-600">{departmentError}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                    Current Departments
+                  </h3>
+                  {isLoadingDepartments ? (
+                    <p className="text-sm text-gray-600 p-4 text-center">
+                      Loading departments...
+                    </p>
+                  ) : departments.length === 0 ? (
+                    <p className="text-sm text-gray-600 p-4 text-center">
+                      No departments added yet
+                    </p>
+                  ) : (
+                    departments.map((department) => (
+                      <div
+                        key={department.id}
+                        className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                      >
+                        {editingDepartmentId === department.id ? (
+                          <div className="flex-1 flex gap-2 items-center">
+                            <input
+                              type="text"
+                              value={editingDepartmentName}
+                              onChange={(e) =>
+                                setEditingDepartmentName(e.target.value)
+                              }
+                              className="flex-1 input-field"
+                              autoFocus
+                            />
+                            <button
+                              onClick={saveEditedDepartment}
+                              className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
+                              title="Save"
+                            >
+                              <Save size={16} />
+                            </button>
+                            <button
+                              onClick={closeEditDepartmentMode}
+                              className="btn-sm bg-gray-100 text-gray-600 hover:bg-gray-200"
+                              title="Cancel"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="font-medium text-gray-900">
+                              {department.name}
+                            </p>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => openEditDepartmentMode(department)}
+                                className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
+                                title="Edit"
+                              >
+                                <Edit size={16} />
+                              </button>
+                              <button
+                                onClick={() => deleteDepartment(department)}
                                 className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
                                 title="Delete"
                               >
