@@ -437,6 +437,55 @@ export const reportAPI = {
       completed: item.completed,
       requests: item.requests,
     }))
+  },
+  getDetailedRepairReport: async() => {
+    const response = await apiRequest('/api/report/reporttablerepair')
+    return Array.isArray(response) ? response : (response.data || [])
+  },
+  getDetailedRequestReport: async() => {
+    const response = await apiRequest('/api/report/reporttablerequest')
+    // Fix the typo in backend response (catgory -> category)
+    return Array.isArray(response) 
+      ? response.map(item => ({
+          ...item,
+          category: item.catgory || item.category
+        }))
+      : []
+  },
+  getRepairSummary: async() => {
+    const response = await apiRequest('/api/report/repairsummary')
+    // Transform backend response to frontend format
+    return {
+      total: response.totalrepairs || 0,
+      repairtime: response.repairtime ? parseInt(response.repairtime) : 0,
+      percentchange: response.percentchange || "0"
+    }
+  },
+  getRequestSummary: async() => {
+    const response = await apiRequest('/api/report/requestsummary')
+    // Transform backend response to frontend format
+    return {
+      total: response.totalrequests || 0,
+      percentchange: response.percentchange || "0"
+    }
+  },
+  getDepartmentRequests: async() => {
+    const response = await apiRequest('/api/report/departmentrequest')
+    // Transform to match expected format with 'total' instead of 'count'
+    return Array.isArray(response) 
+      ? response.map(item => ({
+          department: item.department,
+          total: item.count
+        }))
+      : []
+  },
+  getDeviceCategoryCount: async() => {
+    const response = await apiRequest('/api/report/reporttablerepair')
+    return Array.isArray(response) ? response : (response.data || [])
+  },
+  getDeviceCategoryCountRequest: async() => {
+    const response = await apiRequest('/api/report/reporttablerequest')
+    return Array.isArray(response) ? response : (response.data || [])
   }
 }
 
