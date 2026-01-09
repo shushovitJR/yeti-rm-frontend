@@ -430,6 +430,14 @@ export const reportAPI = {
       repairs: item.repairs,
     }))
   },
+  getMonthlyRequests: async() => {
+    const response = await apiRequest('/api/report/monthlyrequests')
+    return response.map((item)=>({
+      month: item.month,
+      completed: item.completed,
+      requests: item.requests,
+    }))
+  }
 }
 
 export default {
