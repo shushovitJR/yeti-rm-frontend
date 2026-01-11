@@ -20,6 +20,21 @@ function Toast() {
     }
   }
 
+  const getTextColor = (type) => {
+    switch (type) {
+      case 'success':
+        return 'text-green-600'
+      case 'error':
+        return 'text-red-600'
+      case 'warning':
+        return 'text-yellow-600'
+      case 'info':
+        return 'text-green-600'
+      default:
+        return 'text-gray-600'
+    }
+  }
+
   const getBgColor = (type) => {
     switch (type) {
       case 'success':
@@ -32,6 +47,21 @@ function Toast() {
         return 'bg-green-50 border-green-200'
       default:
         return 'bg-gray-50 border-gray-200'
+    }
+  }
+
+  const getCloseButtonColor = (type) => {
+    switch (type) {
+      case 'success':
+        return 'text-green-600 hover:bg-green-100'
+      case 'error':
+        return 'text-red-600 hover:bg-red-100'
+      case 'warning':
+        return 'text-yellow-600 hover:bg-yellow-100'
+      case 'info':
+        return 'text-green-600 hover:bg-green-100'
+      default:
+        return 'text-gray-600 hover:bg-gray-100'
     }
   }
 
@@ -48,9 +78,11 @@ function Toast() {
           <span className="text-sm font-medium text-gray-800">{toast.message}</span>
           <button
             onClick={() => removeToast(toast.id)}
-            className="ml-2 p-1 hover:bg-gray-200 rounded transition-colors"
+            className={`ml-auto p-1.5 rounded transition-colors ${getCloseButtonColor(toast.type)}`}
+            title="Close"
+            aria-label="Close toast"
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         </div>
       ))}
