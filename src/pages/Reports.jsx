@@ -14,15 +14,12 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { Download, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "../context/ToastContext";
 import { reportAPI } from "../services/api";
 
 function Reports() {
   const { addToast } = useToast();
-  const [reportType, setReportType] = useState("daily");
-  const [startDate, setStartDate] = useState("2024-01-01");
-  const [endDate, setEndDate] = useState("2024-01-31");
 
   const [monthlyData, setMonthlyData] = useState([]);
   const [departmentData, setDepartmentData] = useState([]);
@@ -47,7 +44,7 @@ function Reports() {
   const fetchAllData = async () => {
     try {
       setIsLoading(true);
-      console.log('Starting data fetch...');
+      // console.log('Starting data fetch...');
       
       const [
         repairsMonthly,
@@ -88,15 +85,15 @@ function Reports() {
         }),
       ]);
 
-      console.log('Data received:', {
-        repairsMonthly,
-        requestsMonthly,
-        departmentReqs,
-        repairSummary,
-        requestSummary,
-        repairTableResp,
-        requestTableResp,
-      });
+      // console.log('Data received:', {
+      //   repairsMonthly,
+      //   requestsMonthly,
+      //   departmentReqs,
+      //   repairSummary,
+      //   requestSummary,
+      //   repairTableResp,
+      //   requestTableResp,
+      // });
 
       // Process monthly data
       const mergedData = Array.isArray(repairsMonthly) && repairsMonthly.length > 0 
@@ -162,7 +159,7 @@ function Reports() {
       setRepairTableData(Array.isArray(repairTableResp) ? repairTableResp : []);
       setRequestTableData(Array.isArray(requestTableResp) ? requestTableResp : []);
       
-      console.log('Data processing complete');
+      // console.log('Data processing complete');
     } catch (error) {
       console.error('Fetch error:', error);
       const errMsg =
@@ -171,14 +168,6 @@ function Reports() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleGenerateReport = () => {
-    addToast(`${reportType} report generated successfully`, "success");
-  };
-
-  const handleExport = (format) => {
-    addToast(`Report exported to ${format.toUpperCase()}`, "success");
   };
 
   return (
@@ -201,75 +190,6 @@ function Reports() {
 
       {!isLoading && (
         <>
-      {/* <div className="card p-6 space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">
-          Report Configuration
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Report Type
-            </label>
-            <select
-              value={reportType}
-              onChange={(e) => setReportType(e.target.value)}
-              className="input-field"
-            >
-              <option value="daily">Daily Repair Report</option>
-              <option value="monthly">Monthly Summary</option>
-              <option value="device-request">Device Request Report</option>
-              <option value="department">Department-wise Usage</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Start Date
-            </label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="input-field"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              End Date
-            </label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="input-field"
-            />
-          </div>
-          <div className="flex items-end gap-2">
-            <button
-              onClick={handleGenerateReport}
-              className="btn-primary flex-1"
-            >
-              Generate Report
-            </button>
-          </div>
-        </div>
-
-        <div className="flex gap-2 pt-4 border-t border-gray-200">
-          <button
-            onClick={() => handleExport("pdf")}
-            className="btn-secondary flex items-center gap-2"
-          >
-            <Download size={18} />
-            Export PDF
-          </button>
-          <button
-            onClick={() => handleExport("excel")}
-            className="btn-secondary flex items-center gap-2"
-          >
-            <Download size={18} />
-            Export Excel
-          </button>
-        </div>
-      </div> */}
 
       <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
         <div className="card p-6">

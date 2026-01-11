@@ -397,7 +397,7 @@ export const dashboardAPI = {
   },
   getRequestMetric: async () => {
     const response = await apiRequest('/api/report/requestmetric')
-    return response[0] || { recieved:0, pending:0 };
+    return response[0] || { cost:0, pending:0 };
   },
   getRepairMetric: async () => {
     const response = await apiRequest('/api/report/repairmetric')

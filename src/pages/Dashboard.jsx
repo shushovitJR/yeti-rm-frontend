@@ -14,10 +14,10 @@ function Dashboard() {
 
   
   const metrics = [
-    { label: 'Cost This Month', value: "₹"+repairMetricData.cost, icon: IndianRupeeIcon, color: 'bg-green-100', textColor: 'text-green-600' },
+    { label: 'Repair Cost This Month', value: "₹"+repairMetricData.cost, icon: IndianRupeeIcon, color: 'bg-green-100', textColor: 'text-green-600' },
     { label: 'Under Repair', value: repairMetricData.underrepair, icon: Wrench, color: 'bg-orange-100', textColor: 'text-orange-600' },
     { label: 'Pending Requests', value: requestMetricData.pending, icon: FileText, color: 'bg-purple-100', textColor: 'text-purple-600' },
-    { label: 'Recieved Requests', value: requestMetricData.recieved, icon: CheckCircle, color: 'bg-green-100', textColor: 'text-green-600' },
+    { label: 'New Request This Month', value: "₹"+requestMetricData.cost, icon: IndianRupeeIcon, color: 'bg-green-100', textColor: 'text-green-600' },
   ]
   
   useEffect(()=>{
@@ -31,7 +31,7 @@ function Dashboard() {
   const fetchRequestMetric = async () => {
     try{
       const data = await dashboardAPI.getRequestMetric()
-      setRequestMetricData(data || { recieved: 0, pending: 0 })
+      setRequestMetricData(data || { cost: 0, pending: 0 })
     } catch (err){
       const errMsg = err.data?.message || err.message || "Failed to fetch request metrics"
       addToast(errMsg, 'error')
