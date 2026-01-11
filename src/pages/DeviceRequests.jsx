@@ -4,7 +4,7 @@ import SideDrawer from '../components/SideDrawer'
 import Modal from '../components/Modal'
 import ConfirmDialog from '../components/ConfirmDialog'
 import { useToast } from '../context/ToastContext'
-import { requestAPI, requestStatusAPI, deviceAPI } from '../services/api'
+import { requestAPI, requestStatusAPI, deviceAPI, departmentAPI } from '../services/api'
 
 function DeviceRequests() {
   const { addToast } = useToast()
@@ -21,10 +21,18 @@ function DeviceRequests() {
   const [requests, setRequests] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  
+  // Helper function to get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    const today = new Date()
+    return today.toISOString().split('T')[0]
+  }
+  
   const [addFormData, setAddFormData] = useState({
     deviceName: '',
     deviceType: '',
     reason: '',
+    requestDate: getTodayDate(),
     status: 'Pending',
   })
   const [editFormData, setEditFormData] = useState({
@@ -35,6 +43,7 @@ function DeviceRequests() {
   })
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false })
   const [devices, setDevices] = useState([])
+  const [departments, setDepartments] = useState([])
   const [isLoadingDevices, setIsLoadingDevices] = useState(false)
   const [statuses, setStatuses] = useState([])
   const [isLoadingStatuses, setIsLoadingStatuses] = useState(false)
@@ -43,6 +52,7 @@ function DeviceRequests() {
     fetchRequests()
     fetchDevices()
     fetchStatuses()
+    fetchDepartments()
   }, [])
 
   const fetchRequests = async () => {
@@ -82,6 +92,16 @@ function DeviceRequests() {
       console.error("Failed to get statuses", err)
       addToast(errMsg, 'error')
     } finally { setIsLoadingStatuses(false); }
+  }
+
+  const fetchDepartments = async () => {
+    try{
+      const data = await departmentAPI.getAll()
+      setDepartments(Array.isArray(data) ? data : data.data || [])
+    } catch (err){
+      const errMsg = err.data?.message || err.message || "Failed to get departments"
+      addToast(errMsg, 'err')
+    }
   }
 
   const filteredRequests = requests.filter((request) => {
@@ -160,6 +180,8 @@ function DeviceRequests() {
   const handleEditRequest = (request) => {
     setSelectedRequest(request)
     setEditFormData({
+      name: request.name,
+      department: request.department,
       requestDate: '',
       recieveDate: '',
       reason: request.reason || '',
@@ -173,6 +195,8 @@ function DeviceRequests() {
         // Prepare data, omitting empty dates
         if (selectedRequest?.id) {
         const dataToSend = {
+          name: editFormData.name,
+          department: editFormData.department,
           reason: editFormData.reason,
           status: editFormData.status,
         }
@@ -228,13 +252,20 @@ function DeviceRequests() {
         addToast('Please fill in all required fields', 'error')
         return
       }
+      if (!addFormData.requestDate) {
+        addToast('Request date is required', 'error')
+        return
+      }
       await requestAPI.create(addFormData)
       addToast('Device request submitted successfully', 'success')
       setIsAddDrawerOpen(false)
       setAddFormData({
+        name: '',
+        department: '',
         deviceName: '',
         deviceType: '',
         reason: '',
+        requestDate: getTodayDate(),
         status: 'Pending',
       })
       fetchRequests()
@@ -579,6 +610,30 @@ function DeviceRequests() {
       >
         <div className="space-y-4">
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Requester Name</label>
+            <input
+              type="text"
+              placeholder='Name of the person'
+              value={addFormData.name}
+              onChange={(e) => setAddFormData({...addFormData, name:e.target.value})}
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+            <select
+              value={addFormData.department}
+              onChange={(e) => setAddFormData({...addFormData, department: e.target.value})}
+              className="input-field"
+              disabled = {departments.length === 0}
+            >
+            <option value="">{departments.length === 0 ? 'No departments available': 'Select Department'}</option>
+              {departments.map(department=>(
+                <option key={department.name} value={department.name}>{department.name}</option>
+              ))}
+              </select>
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Device Name</label>
             <input 
               type="text" 
@@ -601,6 +656,15 @@ function DeviceRequests() {
                 <option key={device.name} value={device.name}>{device.name}</option>
               ))}
             </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Request Date</label>
+            <input
+              type='date'
+              value={addFormData.requestDate}
+              onChange={(e) => setAddFormData({...addFormData, requestDate: e.target.value})}
+              className='input-field'
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Request</label>
@@ -633,6 +697,30 @@ function DeviceRequests() {
         width="w-96"
       >
         <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Requester Name</label>
+            <input
+              type="text"
+              placeholder='Name of the person'
+              value={editFormData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              className="input-field"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+            <select
+             value={editFormData.department}
+             onChange={(e)=> handleInputChange('department', e.target.value)}
+             className="input-field"
+             disabled = {departments.length === 0}
+             >
+              <option value="">{departments.length === 0 ? 'No departments available' : 'Select Department'}</option>
+              {departments.map(department => (
+                <option key={department.name} value={department.name}>{department.name}</option>
+              ))}
+            </select>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Request Date</label>
             <input

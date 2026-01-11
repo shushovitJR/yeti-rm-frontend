@@ -78,24 +78,9 @@ export const repairAPI = {
       vendor: item.Vendor,
       color: item.Color,
       cost: item.Cost,
+      department: item.DepartmentName,
     }))
   },
-  // getById: async (id) => {
-  //   const numericId = Number(id)
-  //   const response = await apiRequest(`/api/repair/${numericId}`)
-  //   return {
-  //     id: Number(response.repairId.replace(/\D/g, '')),
-  //     displayId: response.repairId,
-  //     deviceName: response.name,
-  //     deviceCategory: response.category,
-  //     issue: response.issue,
-  //     issueDate: response.issueDate,
-  //     returnedDate: response.returnedDate,
-  //     status: response.status,
-  //     vendor: response.vendor,
-  //     cost: response.cost,
-  //   }
-  // },
   create: (data) => {
     // Transform frontend data to backend format
     const transformedData = {
@@ -107,6 +92,7 @@ export const repairAPI = {
       VendorName: data.vendor,
       Status: data.status || 'Pending',
       Cost: data.cost || null,
+      DepartmentName: data.department,
     }
     return apiRequest('/api/repair', {
       method: 'POST',
@@ -131,6 +117,7 @@ export const repairAPI = {
       VendorName: data.vendor,
       Status: data.status || 'Pending',
       Cost: data.cost || null,
+      DepartmentName: data.department,
     }
     if (data.returnedDate) {
       transformedData.ReturnDate = data.returnedDate
@@ -172,30 +159,24 @@ export const requestAPI = {
       recievedate: item.RecieveDate,
       status: item.Status,
       color: item.Color,
+      cost: item.Cost,
     }))
   },
-  // getById: async (id) => {
-  //   // Extract numeric ID from formatted ID (e.g., "REQ001" -> 1)
-  //   const numericId = Number(id.replace(/\D/g, ''))
-  //   const response = await apiRequest(`/api/request/${numericId}`)
-  //   return {
-  //     id: response.RequestId,
-  //     requestedBy: response.RequestedBy,
-  //     department: response.Department,
-  //     deviceName: response.DeviceName,
-  //     deviceType: response.category,
-  //     reason: response.Reason,
-  //     requestDate: response.RequestDate,
-  //     status: response.Status,
-  //   }
-  // },
   create: (data) => {
     // Transform frontend data to backend format
+    const getTodayDate = () => {
+      const today = new Date()
+      return today.toISOString().split('T')[0]
+    }
     const transformedData = {
+      RequesterName: data.name,
+      DepartmentName: data.department,
       Category: data.deviceType,
       DeviceName: data.deviceName,
       Reason: data.reason,
+      RequestDate: data.requestDate || getTodayDate(),
       Status: data.status || 'Pending',
+      Cost: data.cost,
     }
     return apiRequest('/api/request', {
       method: 'POST',
@@ -208,6 +189,9 @@ export const requestAPI = {
     const transformedData = {
       Reason: data.reason,
       Status: data.status || 'Pending',
+      RequesterName: data.name,
+      DepartmentName: data.department,
+      Cost: data.cost,
     }
     // Only include date fields if provided
     if (data.requestDate) {
