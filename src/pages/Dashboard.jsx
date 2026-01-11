@@ -3,6 +3,7 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, L
 import { TrendingUp, Package, Wrench, FileText, CheckCircle, IndianRupeeIcon } from 'lucide-react'
 import { dashboardAPI, reportAPI } from '../services/api'
 import { useToast } from '../context/ToastContext'
+import { formatCurrency } from '../utils/formatters'
 
 function Dashboard() {
   const { addToast } = useToast()
@@ -14,10 +15,10 @@ function Dashboard() {
 
   
   const metrics = [
-    { label: 'Repair Cost This Month', value: "₹"+repairMetricData.cost, icon: IndianRupeeIcon, color: 'bg-green-100', textColor: 'text-green-600' },
+    { label: 'Repair Cost This Month', value: formatCurrency(repairMetricData.cost), icon: IndianRupeeIcon, color: 'bg-green-100', textColor: 'text-green-600' },
     { label: 'Under Repair', value: repairMetricData.underrepair, icon: Wrench, color: 'bg-orange-100', textColor: 'text-orange-600' },
     { label: 'Pending Requests', value: requestMetricData.pending, icon: FileText, color: 'bg-purple-100', textColor: 'text-purple-600' },
-    { label: 'Request Cost This Month', value: "₹"+requestMetricData.cost, icon: IndianRupeeIcon, color: 'bg-green-100', textColor: 'text-green-600' },
+    { label: 'Request Cost This Month', value: formatCurrency(requestMetricData.cost), icon: IndianRupeeIcon, color: 'bg-green-100', textColor: 'text-green-600' },
   ]
   
   useEffect(()=>{

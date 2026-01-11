@@ -5,6 +5,7 @@ import Modal from '../components/Modal'
 import ConfirmDialog from '../components/ConfirmDialog'
 import { useToast } from '../context/ToastContext'
 import { requestAPI, requestStatusAPI, deviceAPI, departmentAPI } from '../services/api'
+import { formatCurrency } from '../utils/formatters'
 
 function DeviceRequests() {
   const { addToast } = useToast()
@@ -178,11 +179,6 @@ function DeviceRequests() {
     return { color: colorMap[status] || '#E5E7EB' }
   }
 
-  const formatCurrency = (amount) => {
-    // Show empty cell if cost is 0, null, or undefined
-    if (!amount || amount === 0 || amount === '0') return ''
-    return 'Rs. ' + Number(amount).toLocaleString('en-NP')
-  }
 
   const handleViewRequest = (request) => {
     setSelectedRequest(request)
