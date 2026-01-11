@@ -237,8 +237,8 @@ function RepairManagement() {
   const handleEditRepair = (repair) => {
     setSelectedRepair(repair)
     setEditFormData({
-      issueDate: '',
-      returnedDate: '',
+      issueDate: repair.issueDate || '',
+      returnedDate: repair.returnedDate || '',
       issue: repair.issue,
       vendor: repair.vendor,
       status: repair.status,

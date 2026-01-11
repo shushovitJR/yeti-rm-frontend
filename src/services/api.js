@@ -176,7 +176,7 @@ export const requestAPI = {
       Reason: data.reason,
       RequestDate: data.requestDate || getTodayDate(),
       Status: data.status || 'Pending',
-      Cost: data.cost,
+      Cost: data.cost || null,
     }
     return apiRequest('/api/request', {
       method: 'POST',
@@ -191,7 +191,7 @@ export const requestAPI = {
       Status: data.status || 'Pending',
       RequesterName: data.name,
       DepartmentName: data.department,
-      Cost: data.cost,
+      Cost: data.cost || null,
     }
     // Only include date fields if provided
     if (data.requestDate) {
@@ -377,12 +377,19 @@ export const requestStatusAPI = {
       statusDescription: data.description,
       statusColor: data.color,
     }
-    console.log("Editing id:", numericId);
-    console.log(transformedData);
+    // console.log("Editing id:", numericId);
+    // console.log(transformedData);
 
     return apiRequest(`/api/requestStatus/${numericId}`, {
       method: 'PUT',
       body: transformedData,
+    })
+  },
+  delete: (id) => {
+    const numericId = Number(id);
+
+    return apiRequest(`/api/requestStatus/${numericId}`,{
+      method: 'DELETE',
     })
   },
 }

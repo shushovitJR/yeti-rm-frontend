@@ -367,15 +367,19 @@ function Settings() {
   const deleteRequestStatus = (status) => {
     setConfirmDialog({
       isOpen: true,
-      title: "Delete Request Status",
+      title: "Delete Repair Status",
       message: `Are you sure you want to delete "${status.name}"? This action cannot be undone.`,
       confirmText: "Delete",
-      onConfirm: () => {
-        setDeviceRequestStatuses(
-          deviceRequestStatuses.filter((s) => s.id !== status.id)
-        );
-        addToast("Request status deleted successfully", "success");
+      onConfirm: async () => {
+        try{
+          await requestStatusAPI.delete(status.id);
+          addToast("request status deleted successfully", "success");
         setConfirmDialog({ isOpen: false });
+        fetchRequestStatuses();
+        } catch (err){
+          const errMsg = err.data?.message || err.message || 'Failed to delete status'
+          addToast(errMsg, 'error');
+        }    
       },
       isDangerous: true,
     });

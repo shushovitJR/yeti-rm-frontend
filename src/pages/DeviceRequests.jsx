@@ -194,8 +194,8 @@ function DeviceRequests() {
     setEditFormData({
       name: request.requestedBy || '',
       department: request.department || '',
-      requestDate: '',
-      recieveDate: '',
+      requestDate: request.requestDate || '',
+      recieveDate: request.recievedate || '',
       reason: request.reason || '',
       status: request.status || 'Pending',
       cost: request.cost || '',
