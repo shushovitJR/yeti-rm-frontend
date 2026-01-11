@@ -4,7 +4,7 @@ import SideDrawer from '../components/SideDrawer'
 import Modal from '../components/Modal'
 import ConfirmDialog from '../components/ConfirmDialog'
 import { useToast } from '../context/ToastContext'
-import { repairAPI, vendorAPI, deviceAPI, repairStatusAPI } from '../services/api'
+import { repairAPI, vendorAPI, deviceAPI, repairStatusAPI, departmentAPI } from '../services/api'
 
 function RepairManagement() {
   const { addToast } = useToast()
@@ -32,6 +32,9 @@ function RepairManagement() {
   const [statuses, setStatuses] = useState([])
   const [isLoadingStatuses, setIsLoadingStatuses] = useState(false)
   const [statusError, setStatusError] = useState('')
+  const [departments, setDepartments] = useState([])
+  const [isLoadingDepartments, setIsLoadingDepartments] = useState(false)
+  const [departmentError, setDepartmentError] = useState('')
   const [addFormData, setAddFormData] = useState({
     deviceCategory: '',
     deviceName: '',
@@ -40,6 +43,7 @@ function RepairManagement() {
     issue: '',
     vendor: '',
     cost: '',
+    department: '',
   })
   const [editFormData, setEditFormData] = useState({
     issueDate: '',
@@ -48,6 +52,7 @@ function RepairManagement() {
     vendor: '',
     status: 'Pending',
     cost: '',
+    department: '',
   })
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false })
 
@@ -58,6 +63,7 @@ function RepairManagement() {
     fetchVendors()
     fetchDevices()
     fetchStatuses()
+    fetchDepartments()
   }, [])
 
   const fetchRepairs = async () => {
@@ -117,6 +123,21 @@ function RepairManagement() {
       console.error('Status fetch error:', err)
     } finally {
       setIsLoadingStatuses(false)
+    }
+  }
+
+  const fetchDepartments = async () => {
+    setIsLoadingDepartments(true)
+    setDepartmentError('')
+    try {
+      const data = await departmentAPI.getAll()
+      setDepartments(Array.isArray(data) ? data : data.data || [])
+    } catch (err) {
+      const errorMsg = err.data?.message || err.message || 'Failed to fetch departments'
+      setDepartmentError(errorMsg)
+      console.error('Department fetch error:', err)
+    } finally {
+      setIsLoadingDepartments(false)
     }
   }
 
@@ -222,6 +243,7 @@ function RepairManagement() {
       vendor: repair.vendor,
       status: repair.status,
       cost: repair.cost || '',
+      department: repair.department || '',
     })
     setIsEditDrawerOpen(true)
   }
@@ -585,6 +607,7 @@ function RepairManagement() {
               <thead className="table-header">
                 <tr>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Repair ID</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Department</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Device Name</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Issue</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Issue Date</th>
@@ -599,6 +622,7 @@ function RepairManagement() {
                 {paginatedRepairs.map((repair) => (
                   <tr key={repair.id} className="table-row">
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">{repair.displayId}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{repair.department}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{repair.deviceName}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{repair.issue}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{repair.issueDate}</td>
@@ -768,6 +792,23 @@ function RepairManagement() {
               ))}
             </select>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+            {departmentError && (
+              <p className="text-sm text-red-600 mb-2">{departmentError}</p>
+            )}
+            <select 
+              value={addFormData.department}
+              onChange={(e) => setAddFormData({...addFormData, department: e.target.value})}
+              className="input-field"
+              disabled={isLoadingDepartments || departments.length === 0}
+            >
+              <option value="">{isLoadingDepartments ? 'Loading departments...' : departments.length === 0 ? 'No departments available' : 'Select department'}</option>
+              {departments.map(dept => (
+                <option key={dept.name} value={dept.name}>{dept.name}</option>
+              ))}
+            </select>
+          </div>
           <div className="flex gap-3 mt-8">
             <button
               onClick={() => setIsAddDrawerOpen(false)}
@@ -842,6 +883,23 @@ function RepairManagement() {
               <option value="">{isLoadingVendors ? 'Loading vendors...' : vendors.length === 0 ? 'No vendors available' : 'Select vendor'}</option>
               {vendors.map(vendor => (
                 <option key={vendor.name} value={vendor.name}>{vendor.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+            {departmentError && (
+              <p className="text-sm text-red-600 mb-2">{departmentError}</p>
+            )}
+            <select
+              value={editFormData.department || ''}
+              onChange={(e) => handleInputChange('department', e.target.value)}
+              className="input-field"
+              disabled={isLoadingDepartments || departments.length === 0}
+            >
+              <option value="">{isLoadingDepartments ? 'Loading departments...' : departments.length === 0 ? 'No departments available' : 'Select department'}</option>
+              {departments.map(dept => (
+                <option key={dept.name} value={dept.name}>{dept.name}</option>
               ))}
             </select>
           </div>
@@ -922,6 +980,10 @@ function RepairManagement() {
               <div>
                 <p className="text-sm text-gray-600">Vendor</p>
                 <p className="text-lg font-semibold text-gray-900">{selectedRepair.vendor}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Department</p>
+                <p className="text-lg font-semibold text-gray-900">{selectedRepair.department}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Repair Cost</p>

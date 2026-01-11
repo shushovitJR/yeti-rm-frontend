@@ -848,7 +848,7 @@ function Settings() {
                   )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">
                     Current Vendors
                   </h3>
@@ -925,7 +925,7 @@ function Settings() {
 
           {/* Department Management Tab */}
           {activeTab === "departments" && (
-            <div className="p-6 space-y-6">
+            <div className="space-y-4">
               <h2 className="text-lg font-bold text-gray-900 mb-4">
                 Department Management
               </h2>
@@ -970,7 +970,7 @@ function Settings() {
                   )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">
                     Current Departments
                   </h3>

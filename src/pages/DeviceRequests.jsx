@@ -29,17 +29,23 @@ function DeviceRequests() {
   }
   
   const [addFormData, setAddFormData] = useState({
+    name: '',
+    department: '',
     deviceName: '',
     deviceType: '',
     reason: '',
     requestDate: getTodayDate(),
     status: 'Pending',
+    cost: '',
   })
   const [editFormData, setEditFormData] = useState({
     requestDate: '',
     recieveDate: '',
     reason: '',
     status: '',
+    name: '',
+    department: '',
+    cost: '',
   })
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false })
   const [devices, setDevices] = useState([])
@@ -172,6 +178,12 @@ function DeviceRequests() {
     return { color: colorMap[status] || '#E5E7EB' }
   }
 
+  const formatCurrency = (amount) => {
+    // Show empty cell if cost is 0, null, or undefined
+    if (!amount || amount === 0 || amount === '0') return ''
+    return 'Rs. ' + Number(amount).toLocaleString('en-NP')
+  }
+
   const handleViewRequest = (request) => {
     setSelectedRequest(request)
     setIsViewModalOpen(true)
@@ -180,12 +192,13 @@ function DeviceRequests() {
   const handleEditRequest = (request) => {
     setSelectedRequest(request)
     setEditFormData({
-      name: request.name,
-      department: request.department,
+      name: request.requestedBy || '',
+      department: request.department || '',
       requestDate: '',
       recieveDate: '',
       reason: request.reason || '',
       status: request.status || 'Pending',
+      cost: request.cost || '',
     })
     setIsEditDrawerOpen(true)
   }
@@ -199,6 +212,7 @@ function DeviceRequests() {
           department: editFormData.department,
           reason: editFormData.reason,
           status: editFormData.status,
+          cost: editFormData.cost,
         }
         // Only include dates if they have values
         if (editFormData.requestDate) {
@@ -267,6 +281,7 @@ function DeviceRequests() {
         reason: '',
         requestDate: getTodayDate(),
         status: 'Pending',
+        cost: '',
       })
       fetchRequests()
     } catch (err) {
@@ -517,6 +532,7 @@ function DeviceRequests() {
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Device Type</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Request Date</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Recieved Date</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Cost</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
                 </tr>
@@ -531,6 +547,7 @@ function DeviceRequests() {
                     <td className="px-6 py-4 text-sm text-gray-600">{request.deviceType}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{request.requestDate}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{request.recievedate}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{formatCurrency(request.cost)}</td>
                     <td className="px-6 py-4">
                       <span 
                         className="badge text-white px-3 py-1 rounded-full text-xs font-semibold"
@@ -675,6 +692,16 @@ function DeviceRequests() {
               className="input-field h-24" 
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Cost (NPR)</label>
+            <input 
+              type="number" 
+              placeholder="e.g., 50000" 
+              value={addFormData.cost || ''}
+              onChange={(e) => setAddFormData({...addFormData, cost: e.target.value})}
+              className="input-field" 
+            />
+          </div>
           <div className="flex gap-3 mt-8">
             <button
               onClick={() => setIsAddDrawerOpen(false)}
@@ -748,6 +775,16 @@ function DeviceRequests() {
             />
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Cost (NPR)</label>
+            <input
+              type="number"
+              placeholder="e.g., 50000"
+              value={editFormData.cost || ''}
+              onChange={(e) => handleInputChange('cost', e.target.value)}
+              className="input-field"
+            />
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
             <select
               value={editFormData.status || 'Pending'}
@@ -816,6 +853,10 @@ function DeviceRequests() {
               <div>
                 <p className="text-sm text-gray-600">Request Date</p>
                 <p className="text-lg font-semibold text-gray-900">{selectedRequest.requestDate}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Cost</p>
+                <p className="text-lg font-semibold text-gray-900">{formatCurrency(selectedRequest.cost)}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-sm text-gray-600">Reason</p>
