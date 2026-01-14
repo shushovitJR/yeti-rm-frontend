@@ -330,6 +330,7 @@ function DeviceRequests() {
                 <th>Device Type</th>
                 <th>Request Date</th>
                 <th>Receive Date</th>
+                <th>Cost</th>
                 <th>Status</th>
                 <th>Reason</th>
               </tr>
@@ -344,6 +345,7 @@ function DeviceRequests() {
                   <td>${request.deviceType}</td>
                   <td>${request.requestDate || '-'}</td>
                   <td>${request.recievedate || '-'}</td>
+                  <td>Rs.${request.cost || '-'}</td>
                   <td><span class="status-badge" style="background-color: ${getStatusBadge(request.status).color}">${request.status}</span></td>
                   <td>${request.reason}</td>
                 </tr>
