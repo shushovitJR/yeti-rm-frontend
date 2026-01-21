@@ -403,7 +403,7 @@ function DeviceRequests() {
       <div className="card p-4 space-y-3">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-3 text-gray-400" size={18} />
+            <Search className="absolute left-3 top-1.5 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Search by requester or request ID..."

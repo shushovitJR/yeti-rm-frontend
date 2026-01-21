@@ -436,7 +436,7 @@ function RepairManagement() {
       <div className="card p-4 space-y-3">
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="flex-1 relative">
-            <Search className="absolute left-2 top-2.5 text-gray-400" size={16} />
+            <Search className="absolute left-2 top-1.5 text-gray-400" size={16} />
             <input
               type="text"
               placeholder="Search by device name or repair ID..."
