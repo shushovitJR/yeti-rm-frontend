@@ -368,7 +368,7 @@ function DeviceRequests() {
 
   return(
     <>
-    <div className="p-6 space-y-6">
+    <div className="p-4 space-y-4">
       {error && (
         <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
           <AlertCircle size={20} className="text-red-600 flex-shrink-0" />
@@ -378,32 +378,32 @@ function DeviceRequests() {
       
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Device Requests</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Device Requests</h1>
           <p className="text-gray-600 mt-1">Manage device request approvals and workflows</p>
         </div>
-        <div className="flex gap-3 w-full sm:w-auto">
+        <div className="flex gap-2 w-full sm:w-auto">
           <button
             onClick={exportToPDF}
             className="btn-secondary flex items-center gap-2 justify-center flex-1 sm:flex-none"
             disabled={filteredRequests.length === 0}
           >
-            <Download size={20} />
+            <Download size={18} />
             Export PDF
           </button>
           <button
             onClick={() => setIsAddDrawerOpen(true)}
             className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center flex-1 sm:flex-none"
           >
-            <Plus size={20} />
+            <Plus size={18} />
             New Request
           </button>
         </div>
       </div>
 
-      <div className="card p-6 space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4">
+      <div className="card p-4 space-y-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+            <Search className="absolute left-3 top-3 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Search by requester or request ID..."
@@ -419,7 +419,7 @@ function DeviceRequests() {
             onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
             className="btn-secondary flex items-center gap-2 justify-center"
           >
-            <Filter size={20} />
+            <Filter size={18} />
             <span className="hidden sm:inline">Filter</span>
             {hasActiveFilters && <span className="w-2 h-2 bg-orange-500 rounded-full"></span>}
           </button>
@@ -434,9 +434,9 @@ function DeviceRequests() {
         </div>
 
         {isFilterPanelOpen && (
-          <div className="border-t pt-4 space-y-4">
+          <div className="border-t pt-3 space-y-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
               <select
                 value={statusFilter}
                 onChange={(e) => {
@@ -452,9 +452,9 @@ function DeviceRequests() {
               </select>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Request Date From</label>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Request Date From</label>
                 <input
                   type="date"
                   value={requestDateFilter.from}
@@ -466,7 +466,7 @@ function DeviceRequests() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Request Date To</label>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Request Date To</label>
                 <input
                   type="date"
                   value={requestDateFilter.to}
@@ -479,9 +479,9 @@ function DeviceRequests() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Receive Date From</label>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Receive Date From</label>
                 <input
                   type="date"
                   value={receiveDateFilter.from}
@@ -493,7 +493,7 @@ function DeviceRequests() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Receive Date To</label>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Receive Date To</label>
                 <input
                   type="date"
                   value={receiveDateFilter.to}
@@ -523,53 +523,53 @@ function DeviceRequests() {
             <table className="w-full">
               <thead className="table-header">
                 <tr>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Request ID</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Requested By</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Department</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Device Name</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Device Type</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Request Date</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Recieved Date</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Cost</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">Request ID</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">Requested By</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">Department</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">Device Name</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">Device Type</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">Request Date</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">Recieved Date</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">Cost</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">Status</th>
+                  <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedRequests.map((request) => (
                   <tr key={request.id} className="table-row">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{request.displayId}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{request.requestedBy}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{request.department}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{request.deviceName}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{request.deviceType}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{request.requestDate}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{request.recievedate}</td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{formatCurrency(request.cost)}</td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-2 text-xs font-medium text-gray-900">{request.displayId}</td>
+                    <td className="px-3 py-2 text-xs text-gray-600">{request.requestedBy}</td>
+                    <td className="px-3 py-2 text-xs text-gray-600">{request.department}</td>
+                    <td className="px-3 py-2 text-xs text-gray-600">{request.deviceName}</td>
+                    <td className="px-3 py-2 text-xs text-gray-600">{request.deviceType}</td>
+                    <td className="px-3 py-2 text-xs text-gray-600">{request.requestDate}</td>
+                    <td className="px-3 py-2 text-xs text-gray-600">{request.recievedate}</td>
+                    <td className="px-3 py-2 text-xs font-medium text-gray-900">{formatCurrency(request.cost)}</td>
+                    <td className="px-3 py-2">
                       <span 
-                        className="badge text-white px-3 py-1 rounded-full text-xs font-semibold"
+                        className="badge text-white px-2 py-1 rounded-full text-xs font-semibold"
                         style={{backgroundColor: getStatusBadge(request.status).color }}
                       >{request.status}</span>
                     </td>
-                    <td className="px-6 py-4 flex gap-2">
+                    <td className="px-3 py-2 flex gap-1">
                       <button
                         onClick={() => handleViewRequest(request)}
                         className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                       >
-                        <Eye size={16} />
+                        <Eye size={14} />
                       </button>
                       <button
                         onClick={() => handleEditRequest(request)}
                         className="btn-sm bg-orange-100 text-orange-600 hover:bg-orange-200"
                       >
-                        <Edit size={16} />
+                        <Edit size={14} />
                       </button>
                       <button
                         onClick={() => handleDeleteRequest(request)}
                         className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </button>
                     </td>
                   </tr>
@@ -579,8 +579,8 @@ function DeviceRequests() {
           )}
         </div>
 
-        <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-          <p className="text-sm text-gray-600">
+        <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+          <p className="text-xs text-gray-600">
             Showing {paginatedRequests.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} to {Math.min(currentPage * itemsPerPage, filteredRequests.length)} of {filteredRequests.length}
           </p>
           <div className="flex gap-2">
@@ -591,12 +591,12 @@ function DeviceRequests() {
             >
               Previous
             </button>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`px-3 py-2 rounded-lg transition-colors ${
+                  className={`px-2 py-1 rounded text-xs transition-colors ${
                     currentPage === page
                       ? 'bg-primary text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -623,9 +623,9 @@ function DeviceRequests() {
         title="Submit Device Request"
         width="w-96"
       >
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Requester Name</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Requester Name</label>
             <input
               type="text"
               placeholder='Name of the person'
@@ -635,7 +635,7 @@ function DeviceRequests() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Department</label>
             <select
               value={addFormData.department}
               onChange={(e) => setAddFormData({...addFormData, department: e.target.value})}
@@ -649,7 +649,7 @@ function DeviceRequests() {
               </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Device Name</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Device Name</label>
             <input 
               type="text" 
               placeholder="e.g., Dell Latitude 5520" 
@@ -659,7 +659,7 @@ function DeviceRequests() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Device Type</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Device Type</label>
             <select 
               value={addFormData.deviceType}
               onChange={(e) => setAddFormData({...addFormData, deviceType: e.target.value})}
@@ -673,7 +673,7 @@ function DeviceRequests() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Request Date</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Request Date</label>
             <input
               type='date'
               value={addFormData.requestDate}
@@ -682,7 +682,7 @@ function DeviceRequests() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Request</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Reason for Request</label>
             <textarea 
               placeholder="Explain why you need this device..." 
               value={addFormData.reason}
@@ -691,7 +691,7 @@ function DeviceRequests() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Cost (NPR)</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Cost (NPR)</label>
             <input 
               type="number" 
               placeholder="e.g., 50000" 
@@ -721,9 +721,9 @@ function DeviceRequests() {
         title="Edit Device Request"
         width="w-96"
       >
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Requester Name</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Requester Name</label>
             <input
               type="text"
               placeholder='Name of the person'
@@ -733,7 +733,7 @@ function DeviceRequests() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Department</label>
             <select
              value={editFormData.department}
              onChange={(e)=> handleInputChange('department', e.target.value)}
@@ -747,7 +747,7 @@ function DeviceRequests() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Request Date</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Request Date</label>
             <input
               type="date"
               value={editFormData.requestDate}
@@ -756,7 +756,7 @@ function DeviceRequests() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Recieve Date</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Recieve Date</label>
             <input
               type="date"
               value={editFormData.recieveDate}
@@ -765,7 +765,7 @@ function DeviceRequests() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Request</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Reason for Request</label>
             <textarea
               value={editFormData.reason}
               onChange={(e) => handleInputChange('reason', e.target.value)}
@@ -773,7 +773,7 @@ function DeviceRequests() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Cost (NPR)</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Cost (NPR)</label>
             <input
               type="number"
               placeholder="e.g., 50000"
@@ -783,7 +783,7 @@ function DeviceRequests() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
             <select
               value={editFormData.status || 'Pending'}
               onChange={(e) => handleInputChange('status', e.target.value)}
@@ -796,7 +796,7 @@ function DeviceRequests() {
               ))}
             </select>
           </div>
-          <div className="flex gap-3 mt-8">
+          <div className="flex gap-2 mt-6">
             <button
               onClick={() => setIsEditDrawerOpen(false)}
               className="flex-1 btn-secondary"
@@ -820,45 +820,45 @@ function DeviceRequests() {
           title="Request Details"
           size="lg"
         >
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-sm text-gray-600">Request ID</p>
-                <p className="text-lg font-semibold text-gray-900">{selectedRequest.displayId}</p>
+                <p className="text-xs text-gray-600">Request ID</p>
+                <p className="text-base font-semibold text-gray-900">{selectedRequest.displayId}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Status</p>
-                <span className="badge text-white px-3 py-1 rounded-full text-xs font-semibold"
+                <p className="text-xs text-gray-600">Status</p>
+                <span className="badge text-white px-2 py-1 rounded-full text-xs font-semibold"
                   style={{ backgroundColor: getStatusBadge(selectedRequest.status).color }}
                 >{selectedRequest.status}</span>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Requested By</p>
-                <p className="text-lg font-semibold text-gray-900">{selectedRequest.requestedBy}</p>
+                <p className="text-xs text-gray-600">Requested By</p>
+                <p className="text-base font-semibold text-gray-900">{selectedRequest.requestedBy}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Department</p>
-                <p className="text-lg font-semibold text-gray-900">{selectedRequest.department}</p>
+                <p className="text-xs text-gray-600">Department</p>
+                <p className="text-base font-semibold text-gray-900">{selectedRequest.department}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Device Name</p>
-                <p className="text-lg font-semibold text-gray-900">{selectedRequest.deviceName}</p>
+                <p className="text-xs text-gray-600">Device Name</p>
+                <p className="text-base font-semibold text-gray-900">{selectedRequest.deviceName}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Device Type</p>
-                <p className="text-lg font-semibold text-gray-900">{selectedRequest.deviceType}</p>
+                <p className="text-xs text-gray-600">Device Type</p>
+                <p className="text-base font-semibold text-gray-900">{selectedRequest.deviceType}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Request Date</p>
-                <p className="text-lg font-semibold text-gray-900">{selectedRequest.requestDate}</p>
+                <p className="text-xs text-gray-600">Request Date</p>
+                <p className="text-base font-semibold text-gray-900">{selectedRequest.requestDate}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Cost</p>
-                <p className="text-lg font-semibold text-gray-900">{formatCurrency(selectedRequest.cost)}</p>
+                <p className="text-xs text-gray-600">Cost</p>
+                <p className="text-base font-semibold text-gray-900">{formatCurrency(selectedRequest.cost)}</p>
               </div>
               <div className="col-span-2">
-                <p className="text-sm text-gray-600">Reason</p>
-                <p className="text-lg font-semibold text-gray-900">{selectedRequest.reason}</p>
+                <p className="text-xs text-gray-600">Reason</p>
+                <p className="text-base font-semibold text-gray-900">{selectedRequest.reason}</p>
               </div>
             </div>
             <button

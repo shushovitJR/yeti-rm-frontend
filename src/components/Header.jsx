@@ -7,22 +7,22 @@ function Header({ onMenuClick }) {
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-card sticky top-0 z-40">
-      <div className="flex items-center justify-between px-6 h-full">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between px-4 h-full">
+        <div className="flex items-center gap-2">
           <button
             onClick={onMenuClick}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors lg:hidden"
+            className="p-1 hover:bg-gray-100 rounded-lg transition-colors lg:hidden"
           >
-            <Menu size={24} className="text-primary" />
+            <Menu size={18} className="text-primary" />
           </button>
         </div>
 
         <div className="relative">
           <button
             // onClick={() => setProfileOpen(!profileOpen)}
-            className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xs">
               {currentUser ? (
       // Split name into words, take first letter of first and last name
                 (() => {
@@ -36,7 +36,7 @@ function Header({ onMenuClick }) {
               )}
             </div>
             <div className="hidden sm:block text-left">
-              <p className="text-sm font-medium text-gray-900">{currentUser || 'User'}</p>
+              <p className="text-xs font-medium text-gray-900">{currentUser || 'User'}</p>
             </div>
             {/* <ChevronDown size={18} className="text-gray-500" /> */}
           </button>

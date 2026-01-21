@@ -1,7 +1,7 @@
 import React from 'react'
 import { X } from 'lucide-react'
 
-function SideDrawer({ isOpen, onClose, title, children, width = 'w-96' }) {
+function SideDrawer({ isOpen, onClose, title, children, width = 'w-80' }) {
   return (
     <>
       {isOpen && (
@@ -15,17 +15,17 @@ function SideDrawer({ isOpen, onClose, title, children, width = 'w-96' }) {
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 sticky top-0 bg-white">
+          <h2 className="text-base font-bold text-gray-900">{title}</h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
             aria-label="Close drawer"
           >
-            <X size={20} />
+            <X size={16} />
           </button>
         </div>
-        <div className="flex-1 overflow-auto p-6">
+        <div className="flex-1 overflow-auto p-4">
           {children}
         </div>
       </div>

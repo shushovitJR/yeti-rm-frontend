@@ -615,9 +615,9 @@ function Settings() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 space-y-4">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
         <p className="text-gray-600 mt-1">
           Configure system settings and preferences
         </p>
@@ -638,7 +638,7 @@ function Settings() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+              className={`px-4 py-3 font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === tab.id
                   ? "border-primary text-primary"
                   : "border-transparent text-gray-600 hover:text-gray-900"
@@ -649,18 +649,18 @@ function Settings() {
           ))}
         </div>
 
-        <div className="p-6">
+        <div className="p-4">
           {activeTab === "categories" && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-gray-900">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-base font-bold text-gray-900">
                   Device Categories
                 </h2>
                 <button
                   onClick={() => setIsAddCategoryModalOpen(true)}
-                  className="btn-primary flex items-center gap-2"
+                  className="btn-primary flex items-center gap-2 text-sm"
                 >
-                  <Plus size={20} />
+                  <Plus size={18} />
                   Add Category
                 </button>
               </div>
@@ -668,28 +668,28 @@ function Settings() {
                 {categories.map((category) => (
                   <div
                     key={category.id}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                    className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
                   >
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 text-sm">
                         {category.name}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs text-gray-600">
                         {category.description}
                       </p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1">
                       <button
                         onClick={() => openEditCategoryMode(category)}
                         className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                       >
-                        <Edit size={16} />
+                        <Edit size={14} />
                       </button>
                       <button
                         onClick={() => deleteCategory(category)}
                         className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
@@ -699,16 +699,16 @@ function Settings() {
           )}
 
           {activeTab === "repair-status" && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-gray-900">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-base font-bold text-gray-900">
                   Repair Status Types
                 </h2>
                 <button
                   onClick={() => setIsAddRepairStatusModalOpen(true)}
-                  className="btn-primary flex items-center gap-2"
+                  className="btn-primary flex items-center gap-2 text-sm"
                 >
-                  <Plus size={20} />
+                  <Plus size={18} />
                   Add Status
                 </button>
               </div>
@@ -716,34 +716,34 @@ function Settings() {
                 {repairStatuses.map((status) => (
                   <div
                     key={status.id}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                    className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                       <div
                         className="w-4 h-4 rounded-full"
                         style={{ backgroundColor: status.color }}
                       />
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-gray-900 text-sm">
                           {status.name}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-xs text-gray-600">
                           {status.description}
                         </p>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1">
                       <button
                         onClick={() => openEditRepairStatusMode(status)}
                         className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                       >
-                        <Edit size={16} />
+                        <Edit size={14} />
                       </button>
                       <button
                         onClick={() => deleteRepairStatus(status)}
                         className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
@@ -753,16 +753,16 @@ function Settings() {
           )}
 
           {activeTab === "device-request-status" && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-gray-900">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-base font-bold text-gray-900">
                   Device Request Status Types
                 </h2>
                 <button
                   onClick={() => setIsAddRequestStatusModalOpen(true)}
-                  className="btn-primary flex items-center gap-2"
+                  className="btn-primary flex items-center gap-2 text-sm"
                 >
-                  <Plus size={20} />
+                  <Plus size={18} />
                   Add Status
                 </button>
               </div>
@@ -770,34 +770,34 @@ function Settings() {
                 {deviceRequestStatuses.map((status) => (
                   <div
                     key={status.id}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                    className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                       <div
                         className="w-4 h-4 rounded-full"
                         style={{ backgroundColor: status.color }}
                       />
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-gray-900 text-sm">
                           {status.name}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-xs text-gray-600">
                           {status.description}
                         </p>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1">
                       <button
                         onClick={() => openEditRequestStatusMode(status)}
                         className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                       >
-                        <Edit size={16} />
+                        <Edit size={14} />
                       </button>
                       <button
                         onClick={() => deleteRequestStatus(status)}
                         className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
@@ -807,22 +807,22 @@ function Settings() {
           )}
 
           {activeTab === "vendors" && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">
+            <div className="space-y-3">
+              <h2 className="text-base font-bold text-gray-900 mb-3">
                 Vendor Management
               </h2>
               {vendorLoadError && (
-                <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
                   <AlertCircle
-                    size={20}
+                    size={18}
                     className="text-red-600 flex-shrink-0"
                   />
-                  <p className="text-sm text-red-600">{vendorLoadError}</p>
+                  <p className="text-xs text-red-600">{vendorLoadError}</p>
                 </div>
               )}
-              <div className="space-y-4">
-                <div className="p-4 border border-gray-200 rounded-lg">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="space-y-3">
+                <div className="p-3 border border-gray-200 rounded-lg">
+                  <label className="block text-xs font-medium text-gray-700 mb-2">
                     Add New Vendor
                   </label>
                   <div className="flex gap-2">
@@ -838,37 +838,37 @@ function Settings() {
                     />
                     <button
                       onClick={createVendor}
-                      className="btn-primary flex items-center gap-2"
+                      className="btn-primary flex items-center gap-2 text-sm"
                     >
-                      <Plus size={20} />
+                      <Plus size={16} />
                       Add
                     </button>
                   </div>
                   {vendorError && (
-                    <div className="flex items-center gap-2 mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <AlertCircle size={16} className="text-red-600" />
-                      <p className="text-sm text-red-600">{vendorError}</p>
+                    <div className="flex items-center gap-2 mt-2 p-2 bg-red-50 border border-red-200 rounded">
+                      <AlertCircle size={14} className="text-red-600" />
+                      <p className="text-xs text-red-600">{vendorError}</p>
                     </div>
                   )}
                 </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                <div className="space-y-3">
+                  <h3 className="text-xs font-semibold text-gray-700 mb-2">
                     Current Vendors
                   </h3>
                   {isLoadingVendors ? (
-                    <p className="text-sm text-gray-600 p-4 text-center">
+                    <p className="text-xs text-gray-600 p-3 text-center">
                       Loading vendors...
                     </p>
                   ) : vendors.length === 0 ? (
-                    <p className="text-sm text-gray-600 p-4 text-center">
+                    <p className="text-xs text-gray-600 p-3 text-center">
                       No vendors added yet
                     </p>
                   ) : (
                     vendors.map((vendor) => (
                       <div
                         key={vendor.id}
-                        className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                        className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
                       >
                         {editingVendorId === vendor.id ? (
                           <div className="flex-1 flex gap-2 items-center">
@@ -886,7 +886,7 @@ function Settings() {
                               className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                               title="Save"
                             >
-                              <Save size={16} />
+                              <Save size={14} />
                             </button>
                             <button
                               onClick={closeEditVendorMode}

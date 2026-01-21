@@ -70,24 +70,24 @@ function Dashboard() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 space-y-4">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Welcome back! Here's your system overview.</p>
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-600 text-sm mt-1">Welcome back! Here's your system overview.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {metrics.map((metric) => {
           const Icon = metric.icon
           return (
-            <div key={metric.label} className="card p-6">
+            <div key={metric.label} className="card p-3">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm font-medium">{metric.label}</p>
-                  <p className="text-3xl font-bold text-gray-900 mt-2">{metric.value}</p>
+                  <p className="text-gray-600 text-xs font-medium">{metric.label}</p>
+                  <p className="text-xl font-bold text-gray-900 mt-1">{metric.value}</p>
                 </div>
-                <div className={`p-3 rounded-lg ${metric.color}`}>
-                  <Icon size={24} className={metric.textColor} />
+                <div className={`p-2 rounded-lg ${metric.color}`}>
+                  <Icon size={18} className={metric.textColor} />
                 </div>
               </div>
             </div>
@@ -95,89 +95,64 @@ function Dashboard() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Monthly Repairs Trend</h2>
-          <ResponsiveContainer width="100%" height={300}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="card p-4">
+          <h2 className="text-base font-bold text-gray-900 mb-3">Monthly Repairs Trend</h2>
+          <ResponsiveContainer width="100%" height={250}>
             <LineChart data={monthlyData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="month" stroke="#64748b" />
-              <YAxis stroke="#64748b" />
+              <XAxis dataKey="month" stroke="#64748b" style={{ fontSize: '11px' }} />
+              <YAxis stroke="#64748b" style={{ fontSize: '11px' }} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#fff',
                   border: '1px solid #e2e8f0',
                   borderRadius: '8px',
+                  fontSize: '12px',
                 }}
               />
-              <Legend />
+              <Legend wrapperStyle={{ fontSize: '12px' }} />
               <Line
                 type="monotone"
                 dataKey="repairs"
                 stroke="#3b82f6"
                 strokeWidth={2}
-                dot={{ fill: '#3b82f6', r: 4 }}
+                dot={{ fill: '#3b82f6', r: 3 }}
               />
               <Line
                 type="monotone"
                 dataKey="completed"
                 stroke="#10b981"
                 strokeWidth={2}
-                dot={{ fill: '#10b981', r: 4 }}
+                dot={{ fill: '#10b981', r: 3 }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="card p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Device Categories</h2>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="card p-4">
+          <h2 className="text-base font-bold text-gray-900 mb-3">Device Categories</h2>
+          <ResponsiveContainer width="100%" height={250}>
             <BarChart data={categoryData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="category" stroke="#64748b" />
-              <YAxis stroke="#64748b" />
+              <XAxis dataKey="category" stroke="#64748b" style={{ fontSize: '11px' }} />
+              <YAxis stroke="#64748b" style={{ fontSize: '11px' }} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#fff',
                   border: '1px solid #e2e8f0',
                   borderRadius: '8px',
+                  fontSize: '12px',
                 }}
               />
-              <Bar dataKey="count" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
-{/* 
-      <div className="card p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Recent Activity</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="table-header">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Activity Type</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Device</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentActivity.map((activity) => (
-                <tr key={activity.id} className="table-row">
-                  <td className="px-6 py-4 text-sm text-gray-900 font-medium">{activity.type}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{activity.device}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{activity.date}</td>
-                  <td className="px-6 py-4">
-                    <span className={getActivityBadge(activity.status)}>{activity.status}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div> */}
     </div>
   )
 }
 
 export default Dashboard
+

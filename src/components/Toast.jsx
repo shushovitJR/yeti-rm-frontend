@@ -8,13 +8,13 @@ function Toast() {
   const getIcon = (type) => {
     switch (type) {
       case 'success':
-        return <CheckCircle size={20} className="text-green-600" />
+        return <CheckCircle size={16} className="text-green-600" />
       case 'error':
-        return <AlertCircle size={20} className="text-red-600" />
+        return <AlertCircle size={16} className="text-red-600" />
       case 'warning':
-        return <AlertTriangle size={20} className="text-yellow-600" />
+        return <AlertTriangle size={16} className="text-yellow-600" />
       case 'info':
-        return <Info size={20} className="text-green-600" />
+        return <Info size={16} className="text-green-600" />
       default:
         return null
     }
@@ -66,23 +66,23 @@ function Toast() {
   }
 
   return (
-    <div className="fixed top-6 right-6 space-y-3 z-50 pointer-events-none">
+    <div className="fixed top-4 right-4 space-y-2 z-50 pointer-events-none">
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`flex items-center gap-3 px-4 py-3 rounded-lg border shadow-hover pointer-events-auto animate-slide-in ${getBgColor(
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg border shadow-hover pointer-events-auto animate-slide-in text-sm ${getBgColor(
             toast.type
           )}`}
         >
           {getIcon(toast.type)}
-          <span className="text-sm font-medium text-gray-800">{toast.message}</span>
+          <span className="text-xs font-medium text-gray-800">{toast.message}</span>
           <button
             onClick={() => removeToast(toast.id)}
-            className={`ml-auto p-1.5 rounded transition-colors ${getCloseButtonColor(toast.type)}`}
+            className={`ml-auto p-1 rounded transition-colors ${getCloseButtonColor(toast.type)}`}
             title="Close"
             aria-label="Close toast"
           >
-            <X size={18} />
+            <X size={14} />
           </button>
         </div>
       ))}

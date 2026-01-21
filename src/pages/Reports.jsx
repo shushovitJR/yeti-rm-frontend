@@ -171,9 +171,9 @@ function Reports() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 space-y-4">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Reports</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
         <p className="text-gray-600 mt-1">
           Generate and view system reports and analytics
         </p>
@@ -191,12 +191,12 @@ function Reports() {
       {!isLoading && (
         <>
 
-      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
-        <div className="card p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-4">
+        <div className="card p-4">
+          <h2 className="text-base font-bold text-gray-900 mb-3">
             Monthly Summary
           </h2>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={250}>
             <BarChart data={monthlyData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
 
@@ -248,12 +248,12 @@ function Reports() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="card p-4">
+          <h2 className="text-base font-bold text-gray-900 mb-3">
             Department-wise Device Requests
           </h2>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie
                 data={departmentData}
@@ -274,11 +274,11 @@ function Reports() {
           </ResponsiveContainer>
         </div>
 
-        <div className="card p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
+        <div className="card p-4">
+          <h2 className="text-base font-bold text-gray-900 mb-3">
             Device Category Analysis
           </h2>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={250}>
             <BarChart data={deviceCategoryData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis dataKey="category" stroke="#64748b" />
@@ -298,30 +298,30 @@ function Reports() {
         </div>
       </div>
 
-      <div className="card p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Report Summary</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-            <p className="text-sm text-gray-600">Total Repairs</p>
-            <p className="text-2xl font-bold text-green-600 mt-2">
+      <div className="card p-4">
+        <h2 className="text-base font-bold text-gray-900 mb-3">Report Summary</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+            <p className="text-xs text-gray-600">Total Repairs</p>
+            <p className="text-xl font-bold text-green-600 mt-2">
               {summaryData.repairs.total || 0}
             </p>
             <p className="text-xs text-gray-500 mt-1">
               {summaryData.repairs.percentchange || "0"}% from last month
             </p>
           </div>
-          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm text-gray-600">Repair Time (Days)</p>
-            <p className="text-2xl font-bold text-blue-600 mt-2">
+          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-xs text-gray-600">Repair Time (Days)</p>
+            <p className="text-xl font-bold text-blue-600 mt-2">
               {summaryData.repairs.repairtime || 0}
             </p>
             <p className="text-xs text-gray-500 mt-1">
               Average days to repair
             </p>
           </div>
-          <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
-            <p className="text-sm text-gray-600">Total Requests</p>
-            <p className="text-2xl font-bold text-orange-600 mt-2">
+          <div className="p-3 bg-orange-50 rounded-lg border border-orange-200">
+            <p className="text-xs text-gray-600">Total Requests</p>
+            <p className="text-xl font-bold text-orange-600 mt-2">
               {summaryData.requests.total || 0}
             </p>
             <p className="text-xs text-gray-500 mt-1">
@@ -332,27 +332,27 @@ function Reports() {
       </div>
 
       {/* Detailed Repair Report Table */}
-      <div className="card p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">
+      <div className="card p-4">
+        <h2 className="text-base font-bold text-gray-900 mb-3">
           Detailed Repair Report
         </h2>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="table-header">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">
                   Category
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">
                   Total Count
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">
                   Completed
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">
                   Pending
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">
                   Completion %
                 </th>
               </tr>
@@ -365,19 +365,19 @@ function Reports() {
                 )
                 .map((repair, index) => (
                   <tr key={index} className="table-row">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                    <td className="px-3 py-2 text-xs font-medium text-gray-900">
                       {repair.category || "-"}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td className="px-3 py-2 text-xs text-gray-600">
                       {repair.total || 0}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td className="px-3 py-2 text-xs text-gray-600">
                       {repair.completed || 0}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td className="px-3 py-2 text-xs text-gray-600">
                       {repair.pending || 0}
                     </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-green-600">
+                    <td className="px-3 py-2 text-xs font-semibold text-green-600">
                       {repair.completionpercent || "0%"}
                     </td>
                   </tr>
@@ -386,20 +386,20 @@ function Reports() {
           </table>
         </div>
         {/* Pagination Controls */}
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
-          <p className="text-sm text-gray-600">
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
+          <p className="text-xs text-gray-600">
             Page {repairCurrentPage} of{" "}
             {Math.ceil(repairTableData.length / itemsPerPage || 1)}
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             <button
               onClick={() =>
                 setRepairCurrentPage((prev) => Math.max(1, prev - 1))
               }
               disabled={repairCurrentPage === 1}
-              className="btn-secondary flex items-center gap-1 disabled:opacity-50"
+              className="btn-secondary flex items-center gap-1 disabled:opacity-50 text-xs px-2 py-1"
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft size={16} />
               Previous
             </button>
             <button
@@ -412,37 +412,37 @@ function Reports() {
                 repairCurrentPage ===
                 Math.ceil(repairTableData.length / itemsPerPage || 1)
               }
-              className="btn-secondary flex items-center gap-1 disabled:opacity-50"
+              className="btn-secondary flex items-center gap-1 disabled:opacity-50 text-xs px-2 py-1"
             >
               Next
-              <ChevronRight size={18} />
+              <ChevronRight size={16} />
             </button>
           </div>
         </div>
       </div>
 
       {/* Detailed Request Report Table */}
-      <div className="card p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">
+      <div className="card p-4">
+        <h2 className="text-base font-bold text-gray-900 mb-3">
           Detailed Request Report
         </h2>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="table-header">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">
                   Category
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">
                   Total Count
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">
                   Completed
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">
                   Pending
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700">
                   Completion %
                 </th>
               </tr>
@@ -455,19 +455,19 @@ function Reports() {
                 )
                 .map((request, index) => (
                   <tr key={index} className="table-row">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                    <td className="px-3 py-2 text-xs font-medium text-gray-900">
                       {request.category || request.catgory || "-"}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td className="px-3 py-2 text-xs text-gray-600">
                       {request.total || 0}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td className="px-3 py-2 text-xs text-gray-600">
                       {request.completed || 0}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td className="px-3 py-2 text-xs text-gray-600">
                       {request.pending || 0}
                     </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-green-600">
+                    <td className="px-3 py-2 text-xs font-semibold text-green-600">
                       {request.completionpercent || "0%"}
                     </td>
                   </tr>
@@ -476,20 +476,20 @@ function Reports() {
           </table>
         </div>
         {/* Pagination Controls */}
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
-          <p className="text-sm text-gray-600">
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
+          <p className="text-xs text-gray-600">
             Page {requestCurrentPage} of{" "}
             {Math.ceil(requestTableData.length / itemsPerPage || 1)}
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             <button
               onClick={() =>
                 setRequestCurrentPage((prev) => Math.max(1, prev - 1))
               }
               disabled={requestCurrentPage === 1}
-              className="btn-secondary flex items-center gap-1 disabled:opacity-50"
+              className="btn-secondary flex items-center gap-1 disabled:opacity-50 text-xs px-2 py-1"
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft size={16} />
               Previous
             </button>
             <button
@@ -502,10 +502,10 @@ function Reports() {
                 requestCurrentPage ===
                 Math.ceil(requestTableData.length / itemsPerPage || 1)
               }
-              className="btn-secondary flex items-center gap-1 disabled:opacity-50"
+              className="btn-secondary flex items-center gap-1 disabled:opacity-50 text-xs px-2 py-1"
             >
               Next
-              <ChevronRight size={18} />
+              <ChevronRight size={16} />
             </button>
           </div>
         </div>
