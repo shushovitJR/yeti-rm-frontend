@@ -403,13 +403,13 @@ function RepairManagement() {
     <>
     <div className="p-4 space-y-4">
       {error && (
-        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <AlertCircle size={16} className="text-red-600 flex-shrink-0" />
-          <p className="text-xs text-red-600">{error}</p>
+        <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <AlertCircle size={20} className="text-red-600 flex-shrink-0" />
+          <p className="text-sm text-red-600">{error}</p>
         </div>
       )}
       
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Repair Management</h1>
           <p className="text-gray-600 text-sm mt-1">Track and manage device repair requests</p>
@@ -417,26 +417,26 @@ function RepairManagement() {
         <div className="flex gap-2 w-full sm:w-auto">
           <button
             onClick={exportToPDF}
-            className="btn-secondary flex items-center gap-1 justify-center flex-1 sm:flex-none text-xs"
+            className="btn-secondary flex items-center gap-2 justify-center flex-1 sm:flex-none"
             disabled={filteredRepairs.length === 0}
           >
-            <Download size={16} />
+            <Download size={18} />
             Export PDF
           </button>
           <button
             onClick={() => setIsAddDrawerOpen(true)}
-            className="btn-primary flex items-center gap-1 w-full sm:w-auto justify-center flex-1 sm:flex-none text-xs"
+            className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center flex-1 sm:flex-none"
           >
-            <Plus size={16} />
+            <Plus size={18} />
             New Repair
           </button>
         </div>
       </div>
 
       <div className="card p-4 space-y-3">
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-2 top-1.5 text-gray-400" size={16} />
+            <Search className="absolute left-3 top-1.5 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Search by device name or repair ID..."
@@ -445,21 +445,21 @@ function RepairManagement() {
                 setSearchTerm(e.target.value)
                 setCurrentPage(1)
               }}
-              className="input-field pl-8 text-xs"
+              className="input-field pl-10"
             />
           </div>
           <button 
             onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
-            className="btn-secondary flex items-center gap-1 justify-center text-xs"
+            className="btn-secondary flex items-center gap-2 justify-center"
           >
-            <Filter size={16} />
+            <Filter size={18} />
             <span className="hidden sm:inline">Filter</span>
-            {hasActiveFilters && <span className="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>}
+            {hasActiveFilters && <span className="w-2 h-2 bg-orange-500 rounded-full"></span>}
           </button>
           {hasActiveFilters && (
             <button
               onClick={resetFilters}
-              className="btn-secondary text-xs"
+              className="btn-secondary"
             >
               Reset
             </button>
@@ -467,7 +467,7 @@ function RepairManagement() {
         </div>
 
         {isFilterPanelOpen && (
-          <div className="border-t pt-4 space-y-4">
+          <div className="border-t pt-3 space-y-3">
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
               <select
@@ -627,7 +627,7 @@ function RepairManagement() {
                     <td className="px-3 py-2 text-xs text-gray-600">{repair.vendor}</td>
                     <td className="px-3 py-2">
                       <span 
-                        className="badge text-white px-2 py-0.5 rounded text-xs font-semibold"
+                        className="badge text-white px-2 py-1 rounded-full text-xs font-semibold"
                         style={{
                           backgroundColor: getStatusBadge(repair.status).color,
                         }}
@@ -638,19 +638,19 @@ function RepairManagement() {
                     <td className="px-3 py-2 flex gap-1">
                       <button
                         onClick={() => handleViewRepair(repair)}
-                        className="btn-sm bg-green-100 text-green-600 hover:bg-green-200 p-1"
+                        className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
                       >
                         <Eye size={14} />
                       </button>
                       <button
                         onClick={() => handleEditRepair(repair)}
-                        className="btn-sm bg-orange-100 text-orange-600 hover:bg-orange-200 p-1"
+                        className="btn-sm bg-orange-100 text-orange-600 hover:bg-orange-200"
                       >
                         <Edit size={14} />
                       </button>
                       <button
                         onClick={() => handleDeleteRepair(repair)}
-                        className="btn-sm bg-red-100 text-red-600 hover:bg-red-200 p-1"
+                        className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -666,11 +666,11 @@ function RepairManagement() {
           <p className="text-xs text-gray-600">
             Showing {paginatedRepairs.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} to {Math.min(currentPage * itemsPerPage, filteredRepairs.length)} of {filteredRepairs.length}
           </p>
-          <div className="flex gap-1 items-center">
+          <div className="flex gap-2">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed text-xs px-2 py-1"
+              className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </button>
@@ -695,7 +695,7 @@ function RepairManagement() {
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed text-xs px-2 py-1"
+              className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
             </button>
