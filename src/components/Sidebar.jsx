@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Wrench, FileText, BarChart3, Settings, LogOut, X } from 'lucide-react'
+import { LayoutDashboard, Wrench, FileText, Headphones, BarChart3, Settings, LogOut, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 function Sidebar({ isOpen, setIsOpen }) {
@@ -11,6 +11,7 @@ function Sidebar({ isOpen, setIsOpen }) {
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/repairs', label: 'Repair Management', icon: Wrench },
     { path: '/requests', label: 'Device Requests', icon: FileText },
+    { path: '/support', label: 'Support Ticket', icon: Headphones },
     { path: '/reports', label: 'Reports', icon: BarChart3 },
     { path: '/settings', label: 'Settings', icon: Settings },
   ]

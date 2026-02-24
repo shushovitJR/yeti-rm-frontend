@@ -518,6 +518,99 @@ export const departmentAPI = {
   },
 }
 
+// Support Status Management API
+export const supportStatusAPI = {
+  getAll: async () => {
+    const response = await apiRequest('/api/supportstatus')
+    return response.map((item) => ({
+      id: item.SupportStatusId,
+      name: item.SupportStatusName,
+      description: item.StatusDescription,
+      color: item.Color,
+    }))
+  },
+  create: (data) => {
+    const transformedData = {
+      statusName: data.name,
+      statusColor: data.color,
+      statusDescription: data.description,
+    }
+    return apiRequest('/api/supportstatus', {
+      method: 'POST',
+      body: transformedData,
+    })
+  },
+  update: (id, data) => {
+    const numericId = Number(id);
+    const transformedData = {
+      statusName: data.name,
+      statusDescription: data.description,
+      statusColor: data.color,
+    }
+    return apiRequest(`/api/supportstatus/${numericId}`, {
+      method: 'PUT',
+      body: transformedData,
+    })
+  },
+  delete: (id) => {
+    const numericId = Number(id);
+    return apiRequest(`/api/supportstatus/${numericId}`, {
+      method: 'DELETE',
+    })
+  },
+}
+
+// Support Ticket Management API
+export const supportAPI = {
+  getAll: async () => {
+    const response = await apiRequest('/api/support')
+    return Array.isArray(response) ? response.map(item => ({
+      id: Number(item.SupportId.replace(/\D/g, '')),
+      displayId: item.SupportId,
+      callerName: item.CallerName,
+      department: item.Department,
+      receiverName: item.RecieverName,
+      reason: item.Reason,
+      status: item.Status,
+      createdAt: item.CreatedAt,
+    })) : []
+  },
+  create: (data) => {
+    const transformedData = {
+      CallerName: data.callerName,
+      DepartmentName: data.department,
+      RecieverName: data.receiverName,
+      Reason: data.reason,
+      Status: data.status || 'Pending',
+    }
+    return apiRequest('/api/support', {
+      method: 'POST',
+      body: transformedData,
+    })
+  },
+  update: (id, data) => {
+    const numericId = Number(id)
+    const transformedData = {
+      CallerName: data.callerName,
+      DepartmentName: data.department,
+      RecieverName: data.receiverName,
+      Reason: data.reason,
+      StatusName: data.status,
+      CreatedAt: data.createdAt,
+    }
+    return apiRequest(`/api/support/${numericId}`, {
+      method: 'PUT',
+      body: transformedData,
+    })
+  },
+  delete: (id) => {
+    const numericId = Number(id)
+    return apiRequest(`/api/support/${numericId}`, {
+      method: 'DELETE',
+    })
+  },
+}
+
 export default {
   authAPI,
   repairAPI,
@@ -529,4 +622,6 @@ export default {
   dashboardAPI,
   reportAPI,
   departmentAPI,
+  supportStatusAPI,
+  supportAPI,
 }

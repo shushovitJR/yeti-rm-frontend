@@ -212,6 +212,9 @@ function RepairManagement() {
   )
 
   const getStatusBadge = (status) => {
+    if (!status) {
+      return { color: '#E5E7EB' } // Gray for unassigned
+    }
     const statusObj = statuses.find(s => s.name === status)
     if (statusObj && statusObj.color) {
       return { color: statusObj.color }
@@ -380,7 +383,7 @@ function RepairManagement() {
                   <td>${repair.returnedDate || '-'}</td>
                   <td>${formatCurrency(repair.cost)}</td>
                   <td>${repair.vendor}</td>
-                  <td><span class="status-badge" style="background-color: ${getStatusBadge(repair.status).color}">${repair.status}</span></td>
+                  <td><span class="status-badge" style="background-color: ${getStatusBadge(repair.status).color}">${repair.status || 'Unassigned'}</span></td>
                 </tr>
               `).join('')}
             </tbody>
@@ -632,7 +635,7 @@ function RepairManagement() {
                           backgroundColor: getStatusBadge(repair.status).color,
                         }}
                       >
-                        {repair.status}
+                        {repair.status || 'Unassigned'}
                       </span>
                     </td>
                     <td className="px-3 py-2 flex gap-1">
@@ -955,7 +958,7 @@ function RepairManagement() {
               </div>
               <div>
                 <p className="text-xs text-gray-600">Device Category</p>
-                <p className="text-sm font-semibold text-gray-900">{selectedRepair.deviceCategory}</p>
+                <p className="text-sm font-semibold text-gray-900">{selectedRepair.deviceCategory || 'Not Specified'}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-600">Status</p>
@@ -965,7 +968,7 @@ function RepairManagement() {
                     backgroundColor: getStatusBadge(selectedRepair.status).color,
                   }}
                 >
-                  {selectedRepair.status}
+                  {selectedRepair.status || 'Unassigned'}
                 </span>
               </div>
               <div>

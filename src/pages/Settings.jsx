@@ -3,7 +3,7 @@ import { Plus, Edit, Trash2, Save, AlertCircle } from "lucide-react";
 import Modal from "../components/Modal";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useToast } from "../context/ToastContext";
-import { vendorAPI, deviceAPI, repairStatusAPI, requestStatusAPI, departmentAPI } from "../services/api";
+import { vendorAPI, deviceAPI, repairStatusAPI, requestStatusAPI, departmentAPI, supportStatusAPI } from "../services/api";
 
 function Settings() {
   const { addToast } = useToast();
@@ -44,6 +44,18 @@ function Settings() {
   const [editingRequestStatusColor, setEditingRequestStatusColor] = useState("");
   const [editingRequestStatusDescription, setEditingRequestStatusDescription] = useState("");
 
+  // ============= Support Status State =============
+  const [supportStatuses, setSupportStatuses] = useState([]);
+  const [isAddSupportStatusModalOpen, setIsAddSupportStatusModalOpen] = useState(false);
+  const [isEditSupportStatusModalOpen, setIsEditSupportStatusModalOpen] = useState(false);
+  const [newSupportStatusName, setNewSupportStatusName] = useState("");
+  const [newSupportStatusColor, setNewSupportStatusColor] = useState("");
+  const [newSupportStatusDescription, setNewSupportStatusDescription] = useState("");
+  const [editingSupportStatusId, setEditingSupportStatusId] = useState(null);
+  const [editingSupportStatusName, setEditingSupportStatusName] = useState("");
+  const [editingSupportStatusColor, setEditingSupportStatusColor] = useState("");
+  const [editingSupportStatusDescription, setEditingSupportStatusDescription] = useState("");
+
   // ============= Vendor State =============
   const [vendors, setVendors] = useState([]);
   const [isLoadingVendors, setIsLoadingVendors] = useState(false);
@@ -69,6 +81,7 @@ function Settings() {
     fetchCategories();
     fetchRepairStatuses();
     fetchRequestStatuses();
+    fetchSupportStatuses();
   }, []);
 
   // ============= Fetch Functions =============
@@ -115,6 +128,16 @@ function Settings() {
       setDeviceRequestStatuses(Array.isArray(data) ? data : data.data || []);
     } catch (err){
       const errMsg = err.data?.message || err.message || 'Failed to fetch device statuses'
+      addToast(errMsg, 'error');
+    }
+  }
+
+  const fetchSupportStatuses = async () => {
+    try {
+      const data = await supportStatusAPI.getAll();
+      setSupportStatuses(Array.isArray(data) ? data : data.data || []);
+    } catch (err) {
+      const errMsg = err.data?.message || err.message || 'Failed to fetch support statuses'
       addToast(errMsg, 'error');
     }
   }
@@ -418,6 +441,108 @@ function Settings() {
     }
   };
 
+  // ============= Support Status Functions =============
+  const openEditSupportStatusMode = (status) => {
+    setEditingSupportStatusId(status.id);
+    setEditingSupportStatusName(status.name);
+    setEditingSupportStatusColor(status.color);
+    setEditingSupportStatusDescription(status.description);
+    setIsEditSupportStatusModalOpen(true);
+  };
+
+  const closeEditSupportStatusMode = () => {
+    setEditingSupportStatusId(null);
+    setEditingSupportStatusName("");
+    setEditingSupportStatusColor("");
+    setEditingSupportStatusDescription("");
+    setIsEditSupportStatusModalOpen(false);
+  };
+
+  const saveEditedSupportStatus = async () => {
+    if (!editingSupportStatusName.trim()) {
+      addToast("Status name cannot be empty", "error");
+      return;
+    }
+
+    if (
+      supportStatuses.some((s) =>
+        s.id !== editingSupportStatusId &&
+        s.name.toLowerCase() === editingSupportStatusName.toLowerCase()
+      )
+    ) {
+      addToast("A status with this name already exists", "error");
+      return;
+    }
+
+    try {
+      await supportStatusAPI.update(editingSupportStatusId, {
+        name: editingSupportStatusName,
+        description: editingSupportStatusDescription,
+        color: editingSupportStatusColor,
+      })
+      addToast('Successfully edited support status', 'success');
+      closeEditSupportStatusMode();
+      fetchSupportStatuses();
+    } catch (err) {
+      const errMsg = err.data?.message || err.message || 'Failed to edit support status'
+      addToast(errMsg, 'error');
+    }
+  };
+
+  const deleteSupportStatus = (status) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: "Delete Support Status",
+      message: `Are you sure you want to delete "${status.name}"? This action cannot be undone.`,
+      confirmText: "Delete",
+      onConfirm: async () => {
+        try {
+          await supportStatusAPI.delete(status.id);
+          addToast("Support status deleted successfully", "success");
+          setConfirmDialog({ isOpen: false });
+          fetchSupportStatuses();
+        } catch (err) {
+          const errMsg = err.data?.message || err.message || 'Failed to delete support status'
+          addToast(errMsg, 'error');
+        }
+      },
+      isDangerous: true,
+    });
+  };
+
+  const createSupportStatus = async () => {
+    if (!newSupportStatusName.trim()) {
+      addToast("Status name cannot be empty", "error");
+      return;
+    }
+
+    if (
+      supportStatuses.some(
+        (s) => s.name.toLowerCase() === newSupportStatusName.toLowerCase()
+      )
+    ) {
+      addToast("A status with this name already exists", "error");
+      return;
+    }
+
+    try {
+      await supportStatusAPI.create({
+        name: newSupportStatusName,
+        description: newSupportStatusDescription,
+        color: newSupportStatusColor,
+      })
+      addToast("Successfully created support status", 'success')
+      setNewSupportStatusName('');
+      setNewSupportStatusDescription('');
+      setNewSupportStatusColor('');
+      setIsAddSupportStatusModalOpen(false);
+      fetchSupportStatuses();
+    } catch (err) {
+      const errMsg = err.data?.message || err.message || 'Failed to add support status'
+      addToast(errMsg, 'error');
+    }
+  };
+
   // ============= Vendor Functions =============
   const openEditVendorMode = (vendor) => {
     setEditingVendorId(vendor.id);
@@ -632,6 +757,10 @@ function Settings() {
               id: "device-request-status",
               label: "Device Request Status Types",
             },
+            {
+              id: "support-status",
+              label: "Support Status Types",
+            },
             { id: "vendors", label: "Vendor Management" },
             { id: "departments", label: "Department Management" },
           ].map((tab) => (
@@ -795,6 +924,60 @@ function Settings() {
                       </button>
                       <button
                         onClick={() => deleteRequestStatus(status)}
+                        className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "support-status" && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-base font-bold text-gray-900">
+                  Support Status Types
+                </h2>
+                <button
+                  onClick={() => setIsAddSupportStatusModalOpen(true)}
+                  className="btn-primary flex items-center gap-2 text-sm"
+                >
+                  <Plus size={18} />
+                  Add Status
+                </button>
+              </div>
+              <div className="space-y-2">
+                {supportStatuses.map((status) => (
+                  <div
+                    key={status.id}
+                    className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-4 h-4 rounded-full"
+                        style={{ backgroundColor: status.color }}
+                      />
+                      <div>
+                        <p className="font-medium text-gray-900 text-sm">
+                          {status.name}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {status.description}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => openEditSupportStatusMode(status)}
+                        className="btn-sm bg-green-100 text-green-600 hover:bg-green-200"
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        onClick={() => deleteSupportStatus(status)}
                         className="btn-sm bg-red-100 text-red-600 hover:bg-red-200"
                       >
                         <Trash2 size={14} />
@@ -1548,6 +1731,214 @@ function Settings() {
               </button>
               <button
                 onClick={saveEditedRequestStatus}
+                className="flex-1 btn-primary"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Add Support Status Modal */}
+      <Modal
+        isOpen={isAddSupportStatusModalOpen}
+        onClose={() => setIsAddSupportStatusModalOpen(false)}
+        title="Add New Support Status"
+        size="md"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Name
+            </label>
+            <input
+              type="text"
+              placeholder="Enter status name"
+              className="input-field"
+              value={newSupportStatusName}
+              onChange={(e) => setNewSupportStatusName(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Color
+            </label>
+            <div className="flex items-center gap-4">
+              <div className="flex gap-2 flex-wrap">
+                {[
+                  "#f59e0b",
+                  "#3b82f6",
+                  "#10b981",
+                  "#8b5cf6",
+                  "#ef4444",
+                  "#ec4899",
+                  "#f97316",
+                  "#06b6d4",
+                ].map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setNewSupportStatusColor(color)}
+                    className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                      newSupportStatusColor === color
+                        ? "border-gray-800 ring-2 ring-offset-2 ring-gray-400"
+                        : "border-gray-300"
+                    }`}
+                    style={{ backgroundColor: color }}
+                    title={color}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Custom:
+                </label>
+                <input
+                  type="color"
+                  value={newSupportStatusColor}
+                  onChange={(e) => setNewSupportStatusColor(e.target.value)}
+                  className="w-12 h-10 rounded border border-gray-300 cursor-pointer"
+                />
+              </div>
+            </div>
+            <div className="mt-3 flex items-center gap-3">
+              <p className="text-sm text-gray-600">Preview:</p>
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-8 h-8 rounded-full border border-gray-300"
+                  style={{ backgroundColor: newSupportStatusColor }}
+                />
+                <span className="text-sm font-mono text-gray-700">
+                  {newSupportStatusColor}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description
+            </label>
+            <textarea
+              placeholder="Enter description"
+              className="input-field h-20"
+              value={newSupportStatusDescription}
+              onChange={(e) => setNewSupportStatusDescription(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-3 mt-6">
+            <button
+              onClick={() => setIsAddSupportStatusModalOpen(false)}
+              className="flex-1 btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={createSupportStatus}
+              className="flex-1 btn-primary"
+            >
+              Add Status
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit Support Status Modal */}
+      {editingSupportStatusId && (
+        <Modal
+          isOpen={isEditSupportStatusModalOpen}
+          onClose={closeEditSupportStatusMode}
+          title="Edit Support Status"
+          size="md"
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Name
+              </label>
+              <input
+                type="text"
+                className="input-field"
+                value={editingSupportStatusName}
+                onChange={(e) => setEditingSupportStatusName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Color
+              </label>
+              <div className="flex items-center gap-4">
+                <div className="flex gap-2 flex-wrap">
+                  {[
+                    "#f59e0b",
+                    "#3b82f6",
+                    "#10b981",
+                    "#8b5cf6",
+                    "#ef4444",
+                    "#ec4899",
+                    "#f97316",
+                    "#06b6d4",
+                  ].map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setEditingSupportStatusColor(color)}
+                      className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                        editingSupportStatusColor === color
+                          ? "border-gray-800 ring-2 ring-offset-2 ring-gray-400"
+                          : "border-gray-300"
+                      }`}
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    />
+                  ))}
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Custom:
+                  </label>
+                  <input
+                    type="color"
+                    value={editingSupportStatusColor}
+                    onChange={(e) =>
+                      setEditingSupportStatusColor(e.target.value)
+                    }
+                    className="w-12 h-10 rounded border border-gray-300 cursor-pointer"
+                  />
+                </div>
+              </div>
+              <div className="mt-3 flex items-center gap-3">
+                <p className="text-sm text-gray-600">Preview:</p>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-8 h-8 rounded-full border border-gray-300"
+                    style={{ backgroundColor: editingSupportStatusColor }}
+                  />
+                  <span className="text-sm font-mono text-gray-700">
+                    {editingSupportStatusColor}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Description
+              </label>
+              <textarea
+                className="input-field h-20"
+                value={editingSupportStatusDescription}
+                onChange={(e) =>
+                  setEditingSupportStatusDescription(e.target.value)
+                }
+              />
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={closeEditSupportStatusMode}
+                className="flex-1 btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveEditedSupportStatus}
                 className="flex-1 btn-primary"
               >
                 Save Changes

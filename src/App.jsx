@@ -7,6 +7,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import RepairManagement from './pages/RepairManagement'
 import DeviceRequests from './pages/DeviceRequests'
+import SupportTicket from './pages/SupportTicket'
 import Reports from './pages/Reports'
 import Settings from './pages/Settings'
 import Toast from './components/Toast'
@@ -31,6 +32,7 @@ function AppContent() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/repairs" element={<RepairManagement />} />
             <Route path="/requests" element={<DeviceRequests />} />
+            <Route path="/support" element={<SupportTicket />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<Navigate to="/" replace />} />
